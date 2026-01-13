@@ -18,19 +18,27 @@ public class Auction extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // 경매 ID
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "app_id", nullable = false)
-    private Appraise appraise;
+    @JoinColumn(name = "appraise_id", nullable = false)
+    private Appraise appraise; // 감정 ID
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id", nullable = false)
-    private User user;
+    private User user; // 유저 ID
 
     @Column(name = "bid_price", nullable = false)
-    private Long bidPrice;
+    private Long bidPrice; // 입찰 확정 가격
 
-    @Column(name = "is_delete")
-    private boolean isDelete;
+    @Column(name = "is_deleted")
+    private boolean isDeleted; // 삭제 여부
+
+    public Auction(Appraise appraise, User user, Long bidPrice) {
+        this.appraise = appraise;
+        this.user = user;
+        this.bidPrice = bidPrice;
+        this.isDeleted = false;
+    }
+
 }
