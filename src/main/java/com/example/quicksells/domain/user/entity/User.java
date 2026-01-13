@@ -1,0 +1,65 @@
+package com.example.quicksells.domain.user.entity;
+
+import com.example.quicksells.common.entity.BaseEntity;
+import com.example.quicksells.common.enums.UserRole;
+import com.example.quicksells.domain.user.model.request.UserUpdateRequest;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
+
+@Table(name = "users")
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("is_deleted = false")
+public class User extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 50 ,unique = true)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false, length = 30)
+    private String name;
+
+    @Column(nullable = false, length = 25)
+    private String phone;
+
+    @Column(nullable = false)
+    private String address;
+
+    @Column(nullable = false, length = 25)
+    private String birth;
+
+    @Column(nullable = false, length = 10)
+    private UserRole role;
+
+    @Column(nullable = false)
+    private boolean isDeleted;
+
+    public User(String email, String password, String name, String phone, String address, String birth, UserRole role){
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.phone = phone;
+        this.address = address;
+        this.birth = birth;
+        this.role = UserRole.USER;
+        this.isDeleted = false;
+    }
+
+    public void update(UserUpdateRequest request) {
+        this.password = request.getPassword() != null ? request.getPassword() : this.password;
+        this.phone = request.getPhone() != null ? request.getPhone() : this.phone;
+        this.address = request.getAddress() != null ? request.getAddress() : this.address;
+    }
+
+    public void delete() {this.isDeleted = true;}
+}

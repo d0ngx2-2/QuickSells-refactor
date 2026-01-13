@@ -1,0 +1,5 @@
+package com.example.quicksells.common.enums;
+
+public enum StatusType {
+    BEFORE, CONTINUE, COMPLETE
+}
