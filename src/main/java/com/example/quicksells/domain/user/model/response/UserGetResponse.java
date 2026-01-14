@@ -1,4 +1,4 @@
-package com.example.quicksells.domain.auth.model.response;
+package com.example.quicksells.domain.user.model.response;
 
 import com.example.quicksells.domain.user.entity.User;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class AuthSignupResponse {
+public class UserGetResponse {
 
     private final Long id;
     private final String email;
@@ -18,10 +18,10 @@ public class AuthSignupResponse {
     private final String birth;
     private final String role;
     private final LocalDateTime createdAt;
+    private final LocalDateTime updatedAt;
 
-
-    public static AuthSignupResponse from(User user){
-        return new AuthSignupResponse(
+    public static UserGetResponse from(User user){
+        return new UserGetResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getName(),
@@ -29,6 +29,7 @@ public class AuthSignupResponse {
                 user.getAddress(),
                 user.getBirth(),
                 user.getRole().name(),
-                user.getCreatedAt());
+                user.getCreatedAt(),
+                user.getUpdatedAt());
     }
 }
