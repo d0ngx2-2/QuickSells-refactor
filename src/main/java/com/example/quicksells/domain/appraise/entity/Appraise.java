@@ -56,4 +56,8 @@ public class Appraise {
         this.isSeleted = isSeleted;
         this.isDeleted = false;
     }
+
+    public void updateSelected(boolean isSeleted) {
+        this.isSeleted = isSeleted;
+    }
 }
