@@ -37,7 +37,7 @@ public class Appraise {
     private boolean isSeleted; // 구매자 선택여부 (false > 경매 돌임, true > 즉시 매임)
 
     @Column(nullable = false, length = 10)
-    private boolean isDeleted = false; // 삭제 여부
+    private boolean isDeleted; // 삭제 여부
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt; // 생성 시간
@@ -47,5 +47,13 @@ public class Appraise {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
+    }
+
+    public Appraise(User user, Item item, Integer bidPrice, boolean isSeleted) {
+        this.user = user;
+        this.item = item;
+        this.bidPrice = bidPrice;
+        this.isSeleted = isSeleted;
+        this.isDeleted = false;
     }
 }

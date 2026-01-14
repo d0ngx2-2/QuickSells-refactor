@@ -49,4 +49,12 @@ public class Deal {
             createdAt = LocalDateTime.now();
         }
     }
+
+    public Deal(Item item, User user, DealType type, StatusType status, Integer dealPrice) {
+        this.item = item;
+        this.user = user;
+        this.type = type;
+        this.status = status;
+        this.dealPrice = dealPrice;
+    }
 }

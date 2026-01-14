@@ -38,4 +38,4 @@ out/
 
 ### .env, initData ###
 .env
-initData.java
+InitData.java
