@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
+@RequestMapping("/api")
 public class AuthController {
 
     private final AuthService authService;
@@ -27,7 +27,7 @@ public class AuthController {
      *
      * @param request 회원가입 요청 정보
      */
-    @PostMapping("/signup")
+    @PostMapping("/auth/signup")
     public ResponseEntity<CommonResponse> createUser(@Valid @RequestBody AuthSignupRequest request) {
 
         AuthSignupResponse response = authService.createUser(request);
@@ -40,7 +40,7 @@ public class AuthController {
      *
      * @param request 로그인 요청 정보
      */
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<CommonResponse> login(@Valid @RequestBody AuthLoginRequest request) {
 
         AuthLoginResponse response = authService.login(request);
