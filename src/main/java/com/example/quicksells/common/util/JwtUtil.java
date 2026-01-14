@@ -22,6 +22,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    public static final String HEADER_KEY = "Authorization"; // JWT 토큰이 담기는 HTTP 헤더 키
     public static final String BEARER_PREFIX = "Bearer ";   // 헤더 BearerToken
     private static final long TOKEN_TIME = 60 * 60 * 1000L; // 토큰 유효시간(60분)
 
@@ -83,18 +84,6 @@ public class JwtUtil {
     }
 
     // 토큰 복호화
-    private Claims extractAllClaims(String token) {return parser.parseSignedClaims(token).getPayload();}
-
-    // 사용자 id 추출
-    public Long extractUserId(String token) { return Long.valueOf(extractAllClaims(token).getSubject()); }
-
-    // 사용자 이메일 추출
-    public String extractEmail(String token) { return extractAllClaims(token).get("email", String.class); }
-
-    // 사용자 이름 추출
-    public String extractName(String token) { return extractAllClaims(token).get("name", String.class); }
-
-    // 사용자 권한 추출
-    public UserRole extractRole(String token) {return UserRole.valueOf(extractAllClaims(token).get("role", String.class));}
+    public Claims extractAllClaims(String token) {return parser.parseSignedClaims(token).getPayload();}
 }
 
