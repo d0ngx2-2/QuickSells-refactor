@@ -1,16 +1,18 @@
 package com.example.quicksells.domain.auction.service;
 
-import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
 import com.example.quicksells.domain.auction.dto.request.AuctionCreateRequest;
 import com.example.quicksells.domain.auction.dto.response.AuctionCreateResponse;
+import com.example.quicksells.domain.auction.dto.response.AuctionGetAllResponse;
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.deal.repository.DealRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +54,14 @@ public class AuctionService {
                 saveAuction.getStatus(),
                 saveAuction.getCreatedAt()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AuctionGetAllResponse> getAllAuction(Pageable pageable) {
+
+        Page<Auction> foundAuctionPage = auctionRepository.findAll(pageable);
+
+        return foundAuctionPage.map(AuctionGetAllResponse::from);
     }
 
 }
