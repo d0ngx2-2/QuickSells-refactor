@@ -45,4 +45,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 정보 수정 성공", response));
 
     }
+
+    @DeleteMapping("/users/me")
+    public ResponseEntity<CommonResponse> delete(@AuthenticationPrincipal AuthUser authUser) {
+
+        userService.delete(authUser);
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("회원 탈퇴 성공"));
+    }
 }

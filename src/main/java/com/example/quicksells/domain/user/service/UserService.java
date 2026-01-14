@@ -82,4 +82,15 @@ public class UserService {
 
         return response;
     }
+
+    @Transactional
+    public void delete(AuthUser authUser) {
+
+        // 사용자 체크
+        User user = userRepository.findByIdAndIsDeletedFalse(authUser.getId())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
+
+        user.delete();
+
+    }
 }
