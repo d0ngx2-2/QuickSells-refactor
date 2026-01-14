@@ -8,13 +8,13 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ItemCreatedResponse {
+public class ItemGetListResponse {
     private final Long id;
     private final Long userId;
     private final ItemInfoDto user;
 
-    public static ItemCreatedResponse from(Item item) {
-        return new ItemCreatedResponse(item.getId(), item.getUser().getId(),
+    public static ItemGetListResponse from(Item item) {
+        return new ItemGetListResponse(item.getId(), item.getUser().getId(),
                 new ItemInfoDto(item.getName(), item.getHopePrice(), item.getDescription(), item.getImage(), item.isStatus(), item.getUser().getRole(), item.getCreatedAt()));
     }
 }

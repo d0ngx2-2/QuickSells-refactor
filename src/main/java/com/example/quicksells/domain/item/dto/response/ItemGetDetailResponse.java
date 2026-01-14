@@ -1,7 +1,8 @@
 package com.example.quicksells.domain.item.dto.response;
 
 import com.example.quicksells.domain.item.dto.dto.ItemDto;
-import com.example.quicksells.domain.item.dto.dto.UserInfoDto;
+import com.example.quicksells.domain.item.dto.dto.ItemInfoDto;
+import com.example.quicksells.domain.item.entity.Item;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,10 +11,10 @@ import lombok.Getter;
 public class ItemGetDetailResponse {
     private final Long id;
     private final Long userId;
-    private final UserInfoDto user;
+    private final ItemInfoDto user;
 
-    public static ItemGetDetailResponse from(ItemDto dto) {
-        return new ItemGetDetailResponse(dto.getId(), dto.getUserId(),
-                new UserInfoDto(dto.getName(), dto.getHopePrice(), dto.getDescription(), dto.getImage(), dto.isStatus(), dto.getRole(), dto.getCreatedAt()));
+    public static ItemGetDetailResponse from(Item item) {
+        return new ItemGetDetailResponse(item.getId(), item.getUser().getId(),
+                new ItemInfoDto(item.getName(), item.getHopePrice(), item.getDescription(), item.getImage(), item.isStatus(), item.getUser().getRole(), item.getCreatedAt()));
     }
 }
