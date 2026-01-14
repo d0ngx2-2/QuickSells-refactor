@@ -8,8 +8,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class UserCreateResponse {
+public class AuthSignupResponse {
 
+    private final Long id;
     private final String email;
     private final String name;
     private final String phone;
@@ -18,8 +19,9 @@ public class UserCreateResponse {
     private final LocalDateTime createdAt;
 
 
-    public static UserCreateResponse from(User user){
-        return new UserCreateResponse(
+    public static AuthSignupResponse from(User user){
+        return new AuthSignupResponse(
+                user.getId(),
                 user.getEmail(),
                 user.getName(),
                 user.getPhone(),
