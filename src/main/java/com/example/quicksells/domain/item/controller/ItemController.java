@@ -3,7 +3,9 @@ package com.example.quicksells.domain.item.controller;
 import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.domain.item.dto.request.ItemCreatedRequest;
 import com.example.quicksells.domain.item.dto.response.ItemCreatedResponse;
+import com.example.quicksells.domain.item.dto.response.ItemGetDetailResponse;
 import com.example.quicksells.domain.item.service.ItemService;
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ public class ItemController {
 
     /**
      * 상품 등록 API
+     *
      * @param userId
      * @param request
      * @return
@@ -35,4 +38,13 @@ public class ItemController {
         CommonResponse response = CommonResponse.success("상품 등록 됐습니다.", responseDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @GetMapping("/{itemId}")
+    public ResponseEntity<CommonResponse> itemGetDetailApi(@PathVariable Long itemId) {
+        ItemGetDetailResponse responseDto = itemService.itemGetDetailResponse(itemId);
+
+        CommonResponse response = CommonResponse.success("삼품이 조회됐습니다.", responseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }
