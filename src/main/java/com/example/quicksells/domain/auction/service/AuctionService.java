@@ -30,12 +30,10 @@ public class AuctionService {
 
         // 예외
         Deal founddDeal = dealRepository.findById(request.getDealId())
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_DEAL)
-        );
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_DEAL));
 
         Appraise foundAppraise = appraiseRepository.findById(request.getAppraiseId())
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE)
-        );
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
 
         // 경매 생성
         Auction newAuction = new Auction(
