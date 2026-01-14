@@ -1,5 +1,6 @@
 package com.example.quicksells.domain.auction.service;
 
+import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
@@ -16,9 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.example.quicksells.common.enums.ExceptionCode.NOT_FOUND_APPRAISE;
-import static com.example.quicksells.common.enums.ExceptionCode.NOT_FOUND_DEAL;
-
 @Service
 @RequiredArgsConstructor
 public class AuctionService {
@@ -30,14 +28,16 @@ public class AuctionService {
     @Transactional
     public AuctionCreateResponse saveAuction(AuctionCreateRequest request) {
 
-        Deal founddDeal = dealRepository.findById(request.getDealId()).orElseThrow(
-                () -> new CustomException(NOT_FOUND_DEAL)
+        // 예외
+        Deal founddDeal = dealRepository.findById(request.getDealId())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_DEAL)
         );
 
-        Appraise foundAppraise = appraiseRepository.findById(request.getAppraiseId()).orElseThrow(
-                () -> new CustomException(NOT_FOUND_APPRAISE)
+        Appraise foundAppraise = appraiseRepository.findById(request.getAppraiseId())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE)
         );
 
+        // 경매 생성
         Auction newAuction = new Auction(
                 founddDeal,
                 foundAppraise,
@@ -46,14 +46,7 @@ public class AuctionService {
 
         Auction saveAuction = auctionRepository.save(newAuction);
 
-        return new AuctionCreateResponse(
-                saveAuction.getId(),
-                saveAuction.getAppraise().getId(),
-                saveAuction.getDeal().getId(),
-                saveAuction.getBidPrice(),
-                saveAuction.getStatus(),
-                saveAuction.getCreatedAt()
-        );
+        return AuctionCreateResponse.from(saveAuction);
     }
 
     @Transactional(readOnly = true)
