@@ -6,6 +6,7 @@ import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.deal.model.request.DealCreateRequest;
 import com.example.quicksells.domain.deal.model.response.DealCreateResponse;
+import com.example.quicksells.domain.deal.model.response.DealGetResponse;
 import com.example.quicksells.domain.deal.repository.DealRepository;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.item.repository.ItemRepository;
@@ -44,5 +45,17 @@ public class DealService {
         dealrepository.save(deal);
 
         return DealCreateResponse.from(deal);
+    }
+
+    /**
+     * 거래 전체 내역 조회 API 비지니스 로직
+     */
+    @Transactional(readOnly = true)
+    public DealGetResponse getDealDetail(Long dealId) {
+
+        Deal deal = dealrepository.findById(dealId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_DEAL));
+
+        return DealGetResponse.from(deal);
     }
 }
