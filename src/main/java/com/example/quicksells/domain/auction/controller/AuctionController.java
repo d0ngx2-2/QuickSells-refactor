@@ -16,28 +16,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auctions")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class AuctionController {
 
     private final AuctionService auctionService;
 
-    @PostMapping
+    @PostMapping("/auctions")
     public ResponseEntity<CommonResponse> createAuction(@RequestBody AuctionCreateRequest request) {
+
         AuctionCreateResponse result = auctionService.saveAuction(request);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("경매장 등록 성공", result));
     }
 
-    @GetMapping
-    public ResponseEntity<PageResponse> getAllAuction(
-            @PageableDefault(
-            page = 0,
-            size = 10,
-            sort = "createdAt",
-            direction = Sort.Direction.DESC
-            ) Pageable pageable) {
+    @GetMapping("/auctions")
+    public ResponseEntity<PageResponse> getAllAuction(@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<AuctionGetAllResponse> page = auctionService.getAllAuction(pageable);
+
         return ResponseEntity.ok(PageResponse.success("경매 목록 조회 성공", page));
     }
 }
