@@ -3,7 +3,6 @@ package com.example.quicksells.domain.auth.service;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.common.util.JwtUtil;
-import com.example.quicksells.common.util.PasswordEncoder;
 import com.example.quicksells.domain.auth.model.request.AuthLoginRequest;
 import com.example.quicksells.domain.auth.model.request.AuthSignupRequest;
 import com.example.quicksells.domain.auth.model.response.AuthLoginResponse;
@@ -11,6 +10,7 @@ import com.example.quicksells.domain.auth.model.response.AuthSignupResponse;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 회원가입 기능
