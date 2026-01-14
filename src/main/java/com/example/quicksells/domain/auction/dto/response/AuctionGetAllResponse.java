@@ -23,7 +23,7 @@ public class AuctionGetAllResponse {
                 auction.getId(),
                 auction.getAppraise().getId(),
                 auction.getDeal().getId(),
-                auction.getUser().getId(),
+                auction.getUser() != null ? auction.getUser().getId() : null,// 입찰자가 존재하지 않으면 널을 반환
                 auction.getBidPrice(),
                 auction.getStatus(),
                 auction.getCreatedAt(),
