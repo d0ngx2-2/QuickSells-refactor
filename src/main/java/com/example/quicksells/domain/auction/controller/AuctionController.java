@@ -3,8 +3,10 @@ package com.example.quicksells.domain.auction.controller;
 import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auction.dto.request.AuctionCreateRequest;
+import com.example.quicksells.domain.auction.dto.request.AuctionUpdateRequest;
 import com.example.quicksells.domain.auction.dto.response.AuctionCreateResponse;
 import com.example.quicksells.domain.auction.dto.response.AuctionGetAllResponse;
+import com.example.quicksells.domain.auction.dto.response.AuctionUpdateResponse;
 import com.example.quicksells.domain.auction.service.AuctionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,5 +38,13 @@ public class AuctionController {
         Page<AuctionGetAllResponse> page = auctionService.getAllAuction(pageable);
 
         return ResponseEntity.ok(PageResponse.success("경매 목록 조회 성공", page));
+    }
+
+    @PutMapping("/auctions/{auctionId}")
+    public ResponseEntity<CommonResponse> updateBidPrice(@PathVariable Long auctionId, @RequestBody AuctionUpdateRequest request) {
+
+        AuctionUpdateResponse result = auctionService.updateBidPrice(auctionId, request);
+
+        return ResponseEntity.ok(CommonResponse.success("상품 입찰 성공", result));
     }
 }

@@ -1,6 +1,9 @@
 package com.example.quicksells.domain.auction.entity;
 
+import com.example.quicksells.common.enums.AuctionStatusType;
+import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.enums.StatusType;
+import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.user.entity.User;
@@ -57,7 +60,7 @@ public class Auction {
         this.appraise = appraise;
         this.user = null;
         this.bidPrice = bidPrice;
-        this.status = StatusType.CONTINUE.toString();
+        this.status = AuctionStatusType.AUCTIONING.toString();
         this.isDeleted = false;
     }
 
@@ -66,5 +69,34 @@ public class Auction {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.endTime = createdAt.plusDays(7); // 경매 생성일 기준으로 일주일 뒤 종료
+    }
+
+    @PreUpdate
+    public void auctionUpdateTime() {
+        this.updatedAt = LocalDateTime.now(); // 수정일 적용 후 DB저장
+    }
+
+    public void update (User user, Integer bidPrice) {
+        this.user = user;
+        this.bidPrice = bidPrice;
+    }
+
+    public void auctionEndTimeCheck() {
+
+        LocalDateTime nowDate = LocalDateTime.now(); // 현재 시간
+
+        if (nowDate.isBefore(this.endTime)) {
+            return; // 종료 시간 전일때 통과
+        }
+
+        this.isDeleted = true; // 종료 시간에 경매 삭제
+
+        if (this.user == null) {
+            this.status = AuctionStatusType.UNSUCCESSFUL_BID.toString(); // 유찰완료 상태 변경
+            throw new CustomException(ExceptionCode.AUCTION_EXPIRED_UNSOLD); // 유찰: 입찰자가 없는 경우
+        } else {
+            this.status = AuctionStatusType.SUCCESSFUL_BID.toString();// 낙찰완료 상태 변경
+            throw new CustomException(ExceptionCode.AUCTION_EXPIRED_SOLD_OUT); // 낙찰: 입찰자가 있는 경우 상태 변경
+        }
     }
 }
