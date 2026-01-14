@@ -1,5 +1,5 @@
 package com.example.quicksells.common.enums;
 
 public enum DealType {
-    AUCTION, PURCHASE
+    AUCTION, IMMEDIATE_SALE
 }

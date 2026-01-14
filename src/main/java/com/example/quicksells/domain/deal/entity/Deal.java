@@ -21,12 +21,12 @@ public class Deal {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "item_id")
-    private Item item;
+    @JoinColumn(name = "buyer_id")
+    private User buyerId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "seller_id")
-    private User user;
+    private User sellerId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
