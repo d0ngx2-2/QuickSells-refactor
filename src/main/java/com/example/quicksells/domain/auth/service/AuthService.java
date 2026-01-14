@@ -2,12 +2,15 @@ package com.example.quicksells.domain.auth.service;
 
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
-import com.example.quicksells.common.util.PasswordEncoder;
-import com.example.quicksells.domain.auth.model.request.UserCreateRequest;
-import com.example.quicksells.domain.auth.model.response.UserCreateResponse;
+import com.example.quicksells.common.util.JwtUtil;
+import com.example.quicksells.domain.auth.model.request.AuthLoginRequest;
+import com.example.quicksells.domain.auth.model.request.AuthSignupRequest;
+import com.example.quicksells.domain.auth.model.response.AuthLoginResponse;
+import com.example.quicksells.domain.auth.model.response.AuthSignupResponse;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -25,7 +29,7 @@ public class AuthService {
      * @throws CustomException 이메일 또는 전화번호가 이미 존재하는 경우
      */
     @Transactional
-    public UserCreateResponse createUser(UserCreateRequest request) {
+    public AuthSignupResponse createUser(AuthSignupRequest request) {
 
         // 이메일, 전화번호 중복 데이터 여부 체크
         boolean exitsEmail = userRepository.existsByEmail(request.getEmail());
@@ -41,8 +45,35 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        UserCreateResponse response = UserCreateResponse.from(savedUser);
+        AuthSignupResponse response = AuthSignupResponse.from(savedUser);
 
         return response;
     }
+
+    /**
+     * 로그인 기능
+     * @param request 로그인 요청 정보
+     * @return 토큰 정보
+     * @throws CustomException 이메일 존재 여부 또는 비밀번호 불일치
+     */
+    @Transactional
+    public AuthLoginResponse login(AuthLoginRequest request) {
+
+        // 이메일 체크
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_EMAIL));
+
+        boolean matches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+
+        // 비밀번호 체크
+        if (!matches) throw new CustomException(ExceptionCode.NOT_MATCHES_PASSWORD);
+
+        // 토큰 생성
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getName(), user.getRole());
+
+        AuthLoginResponse response = AuthLoginResponse.from(token);
+
+        return response;
+    }
+
 }
