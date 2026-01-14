@@ -1,20 +1,15 @@
 package com.example.quicksells.domain.auction.entity;
 
-import com.example.quicksells.common.entity.BaseEntity;
+import com.example.quicksells.common.enums.StatusType;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.user.entity.User;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
 import java.time.LocalDateTime;
-import static com.example.quicksells.common.enums.StatusType.CONTINUE;
 
 @Entity
 @Getter
@@ -62,7 +57,7 @@ public class Auction {
         this.appraise = appraise;
         this.user = null;
         this.bidPrice = bidPrice;
-        this.status = CONTINUE.toString();
+        this.status = StatusType.CONTINUE.toString();
         this.isDeleted = false;
     }
 
