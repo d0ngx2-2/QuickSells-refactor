@@ -1,8 +1,10 @@
 package com.example.quicksells.domain.auth.controller;
 
 import com.example.quicksells.common.model.CommonResponse;
-import com.example.quicksells.domain.auth.model.request.UserCreateRequest;
-import com.example.quicksells.domain.auth.model.response.UserCreateResponse;
+import com.example.quicksells.domain.auth.model.request.AuthLoginRequest;
+import com.example.quicksells.domain.auth.model.request.AuthSignupRequest;
+import com.example.quicksells.domain.auth.model.response.AuthLoginResponse;
+import com.example.quicksells.domain.auth.model.response.AuthSignupResponse;
 import com.example.quicksells.domain.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +24,27 @@ public class AuthController {
 
     /**
      * 회원가입 API
+     *
      * @param request 회원가입 요청 정보
      */
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse> createUser(@Valid @RequestBody UserCreateRequest request) {
+    public ResponseEntity<CommonResponse> createUser(@Valid @RequestBody AuthSignupRequest request) {
 
-        UserCreateResponse response = authService.createUser(request);
+        AuthSignupResponse response = authService.createUser(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("회원 가입 성공.", response));
+    }
+
+    /**
+     * 로그인 API
+     *
+     * @param request 로그인 요청 정보
+     */
+    @PostMapping("/login")
+    public ResponseEntity<CommonResponse> login(@Valid @RequestBody AuthLoginRequest request) {
+
+        AuthLoginResponse response = authService.login(request);
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("로그인 성공", response));
     }
 }
