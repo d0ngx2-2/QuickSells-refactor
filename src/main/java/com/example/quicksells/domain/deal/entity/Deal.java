@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,11 +21,15 @@ public class Deal {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "buyer_id")
-    private User buyerId;
+    private User buyer;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "seller_id")
-    private User sellerId;
+    private User seller;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "item_id")
+    private Item item;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -50,9 +53,10 @@ public class Deal {
         }
     }
 
-    public Deal(Item item, User user, DealType type, StatusType status, Integer dealPrice) {
+    public Deal(User buyer, User seller, Item item, DealType type, StatusType status, Integer dealPrice) {
+        this.buyer = buyer;
+        this.seller = seller;
         this.item = item;
-        this.user = user;
         this.type = type;
         this.status = status;
         this.dealPrice = dealPrice;
