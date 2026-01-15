@@ -54,12 +54,11 @@ public class User extends BaseEntity {
         this.role = UserRole.USER;
         this.isDeleted = false;
     }
+    public void updatePassword(String encodedPassword) {this.password = encodedPassword;}
 
-    public void update(UserUpdateRequest request) {
-        this.password = request.getPassword() != null ? request.getPassword() : this.password;
-        this.phone = request.getPhone() != null ? request.getPhone() : this.phone;
-        this.address = request.getAddress() != null ? request.getAddress() : this.address;
-    }
+    public void updatePhone(String phone) {this.phone = phone;}
+
+    public void updateAddress(String address) {this.address = address;}
 
     public void delete() {this.isDeleted = true;}
 }
