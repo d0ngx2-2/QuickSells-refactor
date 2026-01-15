@@ -1,6 +1,7 @@
 package com.example.quicksells.domain.item.repository;
 
 import com.example.quicksells.domain.item.entity.Item;
+import com.example.quicksells.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,9 +9,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
+
+    //생성 시 중복 검증에서 사용
+    boolean existsByUserIdAndNameAndIsDeletedFalse(Long id, String name);
+
+    // 상세조회 검증 시 상용
     Optional<Item> findByIdAndIsDeletedFalse(Long itemId);
 
+    //상품 목록 조회 검증 시 사용
     Page<Item> findAllByIsDeletedFalse(Pageable pageable);
-
-//    Optional<Item> findByIdAndIsDeletedFalse(Long itemId);
 }
