@@ -1,11 +1,13 @@
 package com.example.quicksells.domain.deal.controller;
 
 import com.example.quicksells.common.model.CommonResponse;
+import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.deal.model.request.DealCreateRequest;
 import com.example.quicksells.domain.deal.model.response.DealCreateResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetResponse;
 import com.example.quicksells.domain.deal.service.DealService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
