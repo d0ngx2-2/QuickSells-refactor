@@ -40,18 +40,18 @@ public class AuctionController {
         return ResponseEntity.ok(PageResponse.success("경매 목록 조회 성공", page));
     }
 
-    @PutMapping("/auctions/{auctionId}")
-    public ResponseEntity<CommonResponse> updateBidPrice(@PathVariable Long auctionId, @RequestBody AuctionUpdateRequest request) {
+    @PutMapping("/auctions/{id}")
+    public ResponseEntity<CommonResponse> updateBidPrice(@PathVariable Long id, @RequestBody AuctionUpdateRequest request) {
 
-        AuctionUpdateResponse result = auctionService.updateBidPrice(auctionId, request);
+        AuctionUpdateResponse result = auctionService.updateBidPrice(id, request);
 
         return ResponseEntity.ok(CommonResponse.success("상품 입찰 성공", result));
     }
 
-    @DeleteMapping("/auctions/{auctionId}")
-    public ResponseEntity<CommonResponse> deleteAuction(@PathVariable Long auctionId) {
+    @DeleteMapping("/auctions/{id}")
+    public ResponseEntity<CommonResponse> deleteAuction(@PathVariable Long id) {
 
-        auctionService.deleteAuction(auctionId);
+        auctionService.deleteAuction(id);
 
         return ResponseEntity.ok(CommonResponse.success("경매 삭제 성공"));
     }
