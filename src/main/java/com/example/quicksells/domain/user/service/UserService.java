@@ -1,6 +1,7 @@
 package com.example.quicksells.domain.user.service;
 
 import com.example.quicksells.common.enums.ExceptionCode;
+import com.example.quicksells.common.enums.UserRole;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.user.entity.User;
@@ -9,6 +10,8 @@ import com.example.quicksells.domain.user.model.response.UserGetResponse;
 import com.example.quicksells.domain.user.model.response.UserUpdateResponse;
 import com.example.quicksells.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,14 +86,31 @@ public class UserService {
         return response;
     }
 
+    /**
+     * 회원 탈퇴 기능
+     *
+     * @throws CustomException 사용자 체크, 소프트 딜리트 여부 체크
+     */
     @Transactional
     public void delete(AuthUser authUser) {
 
-        // 사용자 체크
-        User user = userRepository.findByIdAndIsDeletedFalse(authUser.getId())
+        // 사용자 및 소프트 딜리트 체크
+        User user = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
 
         user.delete();
 
+    }
+
+    /**
+     * 전제 유저 정보 조회 기능
+     *
+     * @return 전체 유저 정보
+     */
+    @Transactional(readOnly = true)
+    public Page<UserGetResponse> getAllUsers(Pageable pageable) {
+
+        return userRepository.findAllByRole(UserRole.USER, pageable)
+                .map(UserGetResponse::from);
     }
 }

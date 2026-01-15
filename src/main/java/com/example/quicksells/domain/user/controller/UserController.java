@@ -8,6 +8,8 @@ import com.example.quicksells.domain.user.model.response.UserUpdateResponse;
 import com.example.quicksells.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,6 +35,21 @@ public class UserController {
     }
 
     /**
+     * 전체 유저 정보 조회 API
+     * hasRole (ADMIN)
+     *
+     */
+    @GetMapping("/admin/users")
+    public ResponseEntity<CommonResponse> getAllUsers(Pageable pageable) {
+
+        Page<UserGetResponse> response = userService.getAllUsers(pageable);
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("전체 회원 조회 성공", response));
+    }
+
+
+
+    /**
      * 내 정보 수정 API
      *
      * @param request 내 정보 수정 요청 정보
@@ -46,6 +63,10 @@ public class UserController {
 
     }
 
+    /**
+     * 회원 탈퇴 API
+     *
+     */
     @DeleteMapping("/users/me")
     public ResponseEntity<CommonResponse> delete(@AuthenticationPrincipal AuthUser authUser) {
 
