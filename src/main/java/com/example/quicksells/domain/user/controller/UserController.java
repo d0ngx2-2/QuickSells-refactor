@@ -2,6 +2,7 @@ package com.example.quicksells.domain.user.controller;
 
 import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
+import com.example.quicksells.domain.user.model.request.UserRoleUpdateRequest;
 import com.example.quicksells.domain.user.model.request.UserUpdateRequest;
 import com.example.quicksells.domain.user.model.response.UserGetResponse;
 import com.example.quicksells.domain.user.model.response.UserUpdateResponse;
@@ -34,19 +35,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 정보 조회 성공", response));
     }
 
-    /**
-     * 전체 유저 정보 조회 API
-     * hasRole (ADMIN)
-     *
-     */
-    @GetMapping("/admin/users")
-    public ResponseEntity<CommonResponse> getAllUsers(Pageable pageable) {
-
-        Page<UserGetResponse> response = userService.getAllUsers(pageable);
-
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("전체 회원 조회 성공", response));
-    }
-
 
 
     /**
@@ -73,5 +61,31 @@ public class UserController {
         userService.delete(authUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("회원 탈퇴 성공"));
+    }
+
+    /**
+     * 전체 유저 정보 조회 API
+     * hasRole (ADMIN)
+     *
+     */
+    @GetMapping("/admin/users")
+    public ResponseEntity<CommonResponse> getAllUsers(Pageable pageable) {
+
+        Page<UserGetResponse> response = userService.getAllUsers(pageable);
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("전체 회원 조회 성공", response));
+    }
+
+    /**
+     * 유저 권한 변경 API
+     * hasRole (ADMIN)
+     *
+     */
+    @PatchMapping("/admin/users/{userId}")
+    public ResponseEntity<CommonResponse> updateRole(@PathVariable Long userId, @Valid @RequestBody UserRoleUpdateRequest request) {
+
+        UserUpdateResponse response = userService.updateRole(userId, request);
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("유저 권한 변경 성공", response));
     }
 }
