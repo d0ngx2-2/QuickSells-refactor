@@ -24,7 +24,6 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final AppraiseRepository appraiseRepository;
 
     /**
      * 상품 생성 로직
