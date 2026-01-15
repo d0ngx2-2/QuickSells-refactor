@@ -60,5 +60,7 @@ public class User extends BaseEntity {
 
     public void updateAddress(String address) {this.address = address;}
 
+    public void updateRole(String role) {this.role = UserRole.of(role);}
+
     public void delete() {this.isDeleted = true;}
 }
