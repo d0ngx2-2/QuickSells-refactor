@@ -82,6 +82,7 @@ public class AppraiseSevice {
      * USER(판매자) : 본인 상품만 조회 가능
      * ADMIN: 모든 상품 조회 가능
      */
+    @Transactional(readOnly = true)
     public Page<AppraiseResponse> getAppraisesByItemId(Long itemId, Pageable pageable, AuthUser authUser) {
         // 1. 상품 존재 여부 확인
         Item item = getItem(itemId);
@@ -103,6 +104,7 @@ public class AppraiseSevice {
      * USER(판매자) : 본인 상품만 조회 가능
      * ADMIN : 모든 상품 조회 가능
      */
+    @Transactional(readOnly = true)
     public AppraiseResponse getAppraise(Long id, Long itemId, AuthUser authUser) {
         // 1. 상품 존재 여부 확인
         Item item = getItem(itemId);
