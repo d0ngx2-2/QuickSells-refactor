@@ -1,5 +1,6 @@
 package com.example.quicksells.domain.appraise.entity;
 
+import com.example.quicksells.domain.deal.entity.Deal;
 import org.hibernate.annotations.SQLRestriction;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.user.entity.User;
@@ -7,8 +8,6 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Table(name = "appraises")
@@ -30,8 +29,12 @@ public class Appraise {
     @JoinColumn(name = "item_id")
     private Item item; // 상품 ID
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deal_id")
+    private Deal deal; // 거래 ID
+
     @Column(nullable = false)
-    private Integer bidPrice; // 감정 확정 가격
+    private Integer bidPrice; // 감정 가격
 
     @Column(nullable = false, length = 10)
     private boolean isSeleted; // 구매자 선택여부 (false > 경매 돌임, true > 즉시 매임)
@@ -49,9 +52,10 @@ public class Appraise {
         }
     }
 
-    public Appraise(User user, Item item, Integer bidPrice, boolean isSeleted) {
+    public Appraise(User user, Item item, Deal deal, Integer bidPrice, boolean isSeleted) {
         this.user = user;
         this.item = item;
+        this.deal = deal;
         this.bidPrice = bidPrice;
         this.isSeleted = isSeleted;
         this.isDeleted = false;
