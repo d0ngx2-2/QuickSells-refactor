@@ -109,13 +109,6 @@ public class AuctionService {
         // 삭제 검증
         validateIsDelete(foundAuction.isDeleted());
 
-        // 유저 조회
-        User foundUser = userRepository.findById(authUser.getId())
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
-
-        // 삭제전 판매자 검증
-        validateUser(authUser, foundUser);
-
         // 삭제되지 않은 경매 삭제
         foundAuction.auctionDelete();
     }

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +52,8 @@ public class AuctionController {
         return ResponseEntity.ok(CommonResponse.success("상품 입찰 성공", result));
     }
 
-    @DeleteMapping("/auctions/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/auctions/{id}")
     public ResponseEntity<CommonResponse> deleteAuction(@PathVariable Long id, @AuthenticationPrincipal AuthUser authUser) {
 
         auctionService.deleteAuction(id, authUser);
