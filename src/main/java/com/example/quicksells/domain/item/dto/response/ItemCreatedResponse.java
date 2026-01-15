@@ -1,13 +1,13 @@
 package com.example.quicksells.domain.item.dto.response;
 
-import com.example.quicksells.domain.item.dto.dto.ItemDto;
+
 import com.example.quicksells.domain.item.dto.dto.ItemInfoDto;
 import com.example.quicksells.domain.item.entity.Item;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemCreatedResponse {
     private final Long id;
     private final Long userId;
