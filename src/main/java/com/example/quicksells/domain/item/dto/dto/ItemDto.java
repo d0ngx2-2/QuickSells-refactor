@@ -17,7 +17,17 @@ public class ItemDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public ItemDto(Long id, Long userId, String name, Long hopePrice, String description, String image, boolean status, UserRole role, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public ItemDto(
+            Long id,
+            Long userId,
+            String name,
+            Long hopePrice,
+            String description,
+            String image,
+            boolean status,
+            UserRole role,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
 
         this.id = id;
         this.userId = userId;

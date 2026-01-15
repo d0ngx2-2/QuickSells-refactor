@@ -13,7 +13,16 @@ public class ItemCreatedResponse {
     private final ItemInfoDto user;
 
     public static ItemCreatedResponse from(Item item) {
-        return new ItemCreatedResponse(item.getId(), item.getUser().getId(),
-                new ItemInfoDto(item.getName(), item.getHopePrice(), item.getDescription(), item.getImage(), item.isStatus(), item.getUser().getRole(), item.getCreatedAt()));
+        return new ItemCreatedResponse(
+                item.getId(),
+                item.getUser().getId(),
+                new ItemInfoDto(
+                        item.getName(),
+                        item.getHopePrice(),
+                        item.getDescription(),
+                        item.getImage(),
+                        item.isStatus(),
+                        item.getUser().getRole(),
+                        item.getCreatedAt()));
     }
 }
