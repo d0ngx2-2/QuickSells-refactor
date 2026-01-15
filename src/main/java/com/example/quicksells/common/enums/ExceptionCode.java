@@ -25,6 +25,7 @@ public enum ExceptionCode {
     CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다."),
     ;
 
+
     private final HttpStatus status;
     private final String message;
 
