@@ -38,7 +38,7 @@ public class Item extends BaseEntity {
     private String image;
 
     @Column(name = "status", nullable = false, length = 10)
-    private boolean status = true;
+    private boolean status = false;
 
     @Column(name = "is_deleted", nullable = false, length = 10)
     private boolean isDeleted = false;
@@ -60,5 +60,10 @@ public class Item extends BaseEntity {
 
     public void softDelete() {
         this.isDeleted = true;
+    }
+  
+    // 상품 판매 완료시 false > true 변경
+    public void updateItemStatus(boolean status) {
+        this.status = status;
     }
 }
