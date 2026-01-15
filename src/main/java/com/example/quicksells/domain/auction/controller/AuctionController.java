@@ -2,12 +2,13 @@ package com.example.quicksells.domain.auction.controller;
 
 import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
-import com.example.quicksells.domain.auction.dto.request.AuctionCreateRequest;
-import com.example.quicksells.domain.auction.dto.request.AuctionUpdateRequest;
-import com.example.quicksells.domain.auction.dto.response.AuctionCreateResponse;
-import com.example.quicksells.domain.auction.dto.response.AuctionGetAllResponse;
-import com.example.quicksells.domain.auction.dto.response.AuctionUpdateResponse;
+import com.example.quicksells.domain.auction.model.request.AuctionCreateRequest;
+import com.example.quicksells.domain.auction.model.request.AuctionUpdateRequest;
+import com.example.quicksells.domain.auction.model.response.AuctionCreateResponse;
+import com.example.quicksells.domain.auction.model.response.AuctionGetAllResponse;
+import com.example.quicksells.domain.auction.model.response.AuctionUpdateResponse;
 import com.example.quicksells.domain.auction.service.AuctionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +42,7 @@ public class AuctionController {
     }
 
     @PutMapping("/auctions/{id}")
-    public ResponseEntity<CommonResponse> updateBidPrice(@PathVariable Long id, @RequestBody AuctionUpdateRequest request) {
+    public ResponseEntity<CommonResponse> updateBidPrice(@PathVariable Long id, @Valid @RequestBody AuctionUpdateRequest request) {
 
         AuctionUpdateResponse result = auctionService.updateBidPrice(id, request);
 
