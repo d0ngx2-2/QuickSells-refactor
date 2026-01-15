@@ -23,7 +23,7 @@ public enum ExceptionCode {
     //Item
     NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "상품를 찾을 수 없습니다."),
     CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다."),
-    ACCESS_DENIED_EXCEPTION_ITEM(HttpStatus.UNAUTHORIZED, "댓글 수정/삭제 권한이 없습니다."),
+    ACCESS_DENIED_EXCEPTION_ITEM(HttpStatus.FORBIDDEN, "댓글 수정/삭제 권한이 없습니다."),
     ;
 
 

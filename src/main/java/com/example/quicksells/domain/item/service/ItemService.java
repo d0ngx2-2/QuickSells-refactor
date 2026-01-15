@@ -61,15 +61,16 @@ public class ItemService {
     /**
      * 상품 상세 조회
      *
-     * @param itemId 상품 조회 ID
+     * @param id 상품 조회 ID
      * @return 상품 상세 정보 응답 DTO
      */
     @Transactional(readOnly = true)
 
-    public ItemGetDetailResponse itemGetDetail(Long itemId) {
+    public ItemGetDetailResponse itemGetDetail(Long id) {
 
         //상품 조회 및 검증 404에러
-        Item item = itemRepository.findById(itemId)
+
+        Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
         // 조회된 엔티티 -> DTO로 변환
@@ -96,16 +97,16 @@ public class ItemService {
     /**
      * 상품 수정 기능
      * @param authUser 로그인한 사용자 정보
-     * @param itemId 수정하려는 상품 ID
+     * @param id 수정하려는 상품 ID
      * @param request 수정할 상품 정보(이름, 희망가격, 설명, 이미지)
      * @return 수정된 상품 정보를 담은 응답 DTO
      */
     @Transactional
 
-    public ItemUpdateResponse itemUpdated(AuthUser authUser, Long itemId, ItemUpdateRequest request) {
+    public ItemUpdateResponse itemUpdated(AuthUser authUser, Long id, ItemUpdateRequest request) {
 
         //상품 조회 - 존재 안할 시 404에러
-        Item item = itemRepository.findById(itemId)
+        Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
         //상품 작성자와 로그인한 회원이 다르면 수정 불가
@@ -122,13 +123,13 @@ public class ItemService {
 
     /**
      * 상품 삭제 기능
-     * @param itemId 삭제하려는 상품 ID
+     * @param id 삭제하려는 상품 ID
      * @param authUser 로그안한 사용자 정보
      */
     @Transactional
-    public void itemDeleted(Long itemId, AuthUser authUser) {
+    public void itemDeleted(Long id, AuthUser authUser) {
         //삭제 대상 상품 조회
-        Item item = itemRepository.findById(itemId)
+        Item item = itemRepository.findById(id)
 
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
