@@ -1,18 +1,20 @@
 package com.example.quicksells.domain.item.dto.request;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-public class ItemCreatedRequest {
+@RequiredArgsConstructor
+public class ItemUpdateRequest {
     private String name;
     private Long hopePrice;
     private String description;
     private String image;
 
-    public ItemCreatedRequest(String name,
-                              Long hopePrice,
-                              String description,
-                              String image) {
+    public ItemUpdateRequest(String name,
+                             Long hopePrice,
+                             String description,
+                             String image) {
         this.name = name;
         this.hopePrice = hopePrice;
         this.description = description;
