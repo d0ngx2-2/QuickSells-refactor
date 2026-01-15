@@ -161,19 +161,14 @@ public class AppraiseSevice {
         Appraise appraise = appraiseRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
 
-        // 2. 감정이 삭제되지 않았는지 확인
-        if (appraise.isDeleted()) {
-            throw new CustomException(ExceptionCode.ALREADY_DELETE_APPRAISE);
-        }
-
-        // 3. 권한 검증: 본인 상품의 감정인지 확인
+        // 2. 권한 검증: 본인 상품의 감정인지 확인
         Item item = appraise.getItem();
         validateItemOwner(item, authUser.getId());
 
-        // 4. 감정 검증 상태인지 확인
+        // 3. 감정 검증 상태인지 확인
         validateAppraise(appraise, item);
 
-        // 5. 선택 여부에 따른 처리
+        // 4. 선택 여부에 따른 처리
         if (request.getIsSelected()) {
             // 즉시 판매 선택
             handleImmediateSell(appraise, item, request);
