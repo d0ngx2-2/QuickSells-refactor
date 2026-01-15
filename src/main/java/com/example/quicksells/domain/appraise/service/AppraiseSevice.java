@@ -1,13 +1,17 @@
 package com.example.quicksells.domain.appraise.service;
 
+import com.example.quicksells.common.enums.DealType;
 import com.example.quicksells.common.enums.ExceptionCode;
+import com.example.quicksells.common.enums.StatusType;
 import com.example.quicksells.common.enums.UserRole;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.appraise.model.request.AppraiseCreateRequest;
+import com.example.quicksells.domain.appraise.model.request.AppraiseUpdateRequest;
 import com.example.quicksells.domain.appraise.model.response.AppraiseResponse;
 import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
+import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.deal.repository.DealRepository;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.item.repository.ItemRepository;
@@ -146,5 +150,120 @@ public class AppraiseSevice {
         return authUser.getRole() == UserRole.ADMIN;
     }
 
+    /**
+     * 감정 선택 (판매자가 함)
+     * - isSelected = true: 즉시 판매 → Deal 생성 (status: ON_SALE, buyer: null)
+     * - isSelected = false: 판매자가 여러 감정가를 보고도 마음에 들지 않은 경우 경매 전환 > 경매 API 진행
+     */
+    @Transactional
+    public AppraiseResponse updateAppraise(Long id, AppraiseUpdateRequest request, AuthUser authUser) {
+        // 1. 감정 조회
+        Appraise appraise = appraiseRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
 
+        // 2. 감정이 삭제되지 않았는지 확인
+        if (appraise.isDeleted()) {
+            throw new CustomException(ExceptionCode.ALREADY_DELETE_APPRAISE);
+        }
+
+        // 3. 권한 검증: 본인 상품의 감정인지 확인
+        Item item = appraise.getItem();
+        validateItemOwner(item, authUser.getId());
+
+        // 4. 감정 검증 상태인지 확인
+        validateAppraise(appraise, item);
+
+        // 5. 선택 여부에 따른 처리
+        if (request.getIsSelected()) {
+            // 즉시 판매 선택
+            handleImmediateSell(appraise, item, request);
+        }
+
+        appraiseRepository.flush();
+
+        return AppraiseResponse.from(appraise);
+    }
+
+    /**
+     * 즉시 판매 처리
+     * - Item과 Deal은 1:1 관계
+     * - 기존 Deal이 있으면 업데이트, 없으면 생성
+     */
+    private void handleImmediateSell(Appraise appraise, Item item, AppraiseUpdateRequest request) {
+
+        // 1. 해당 Item에 대한 기존 Deal 확인 (Item-Deal 1:1 관계)
+        Deal deal = dealRepository.findByItem(item)
+                // 기존 Deal이 존재하는 경우
+                .map(existingDeal -> {
+                    // 기존 Deal 업데이트
+                    existingDeal.updateForAppraise(
+                            DealType.IMMEDIATE_SELL,     // type: 즉시 판매
+                            StatusType.ON_SALE,          // status: 거래 중
+                            appraise.getBidPrice()       // dealPrice: 감정가
+                    );
+
+                    return dealRepository.save(existingDeal);
+                })
+                .orElseGet(() -> {
+                    // 없으면 새로운 Deal 생성
+                    Deal newDeal = new Deal(
+                            null,                  // buyer: 아직 미정
+                            item.getUser(),              // seller: 상품 판매자
+                            item,                        // item: 상품 (1:1 관계)
+                            DealType.IMMEDIATE_SELL,     // type: 즉시 판매
+                            StatusType.ON_SALE,          // status: 거래 중
+                            appraise.getBidPrice()       // dealPrice: 감정가
+                    );
+
+                    return dealRepository.save(newDeal);
+                });
+
+        dealRepository.flush();
+
+        // 2. Appraise 업데이트
+        appraise.updateSelected(request.getIsSelected());
+        appraise.connectDeal(deal);
+
+        // 3. 명시적 저장
+        appraiseRepository.save(appraise);
+    }
+
+    /**
+     * 감정 선택 가능한지 검증하는 메소드
+     */
+    private void validateAppraise(Appraise appraise, Item item) {
+        // 이미 선택된 감정인지 확인 - (선택한 감정을 다시 선택시)
+        if (appraise.isSeleted()) {
+            throw new CustomException(ExceptionCode.ALREADY_SELETE_APPRAISE);
+        }
+
+        // 해당 상품에 이미 다른 감정이 선택되었는지 확인 - (여러 감정중에 선택한 감정은 되돌릴 수 없음)
+        if (appraiseRepository.existsByItemIdAndIsSelectedTrue(item.getId())) {
+            throw new CustomException(ExceptionCode.EXISTS_ALREADY_SELETE_APPRAISE);
+        }
+    }
+
+    /**
+     * 감정 삭제 (감정사 ADMIN만 가능)
+     * - Soft Delete
+     * - 본인이 작성한 감정만 삭제 가능
+     * - 선택된 감정(isSelected = true)은 삭제 불가
+     */
+    @Transactional
+    public void deleteAppraise(Long itemId, AuthUser authUser) {
+        // 1. 상품 존재 여부 확인
+        Item item = getItem(itemId);
+
+        // 2. 해당 상품에 대한 현재 감정사의 감정 조회
+        Appraise appraise = appraiseRepository.findByItemAndUserId(item, authUser.getId())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
+
+        // 3. 이미 선택된 감정인지 확인 (선택된 감정은 삭제 불가)
+        if (appraise.isSeleted()) {
+            throw new CustomException(ExceptionCode.NOT_DELETE_SELECTED_APPRAISE);
+        }
+
+        // 4. Soft Delete 처리
+        appraise.delete();
+    }
 }
