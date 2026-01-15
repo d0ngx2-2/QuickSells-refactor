@@ -36,7 +36,7 @@ public class AppraiseController {
 
         AppraiseResponse response = appraiseService.createAppraise(itemId, request, adminId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("감정 조회에 성공했습니다.", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("감정 생성에 성공했습니다.", response));
     }
 
     /**
