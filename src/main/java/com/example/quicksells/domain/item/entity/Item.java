@@ -51,6 +51,17 @@ public class Item extends BaseEntity {
         this.image = image;
     }
 
+    public void Update(String name, Long hopePrice, String description, String image) {
+        this.name = name;
+        this.hopePrice = hopePrice;
+        this.description = description;
+        this.image = image;
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
+    }
+  
     // 상품 판매 완료시 false > true 변경
     public void updateItemStatus(boolean status) {
         this.status = status;
