@@ -1,6 +1,9 @@
 package com.example.quicksells.domain.user.repository;
 
+import com.example.quicksells.common.enums.UserRole;
 import com.example.quicksells.domain.user.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -13,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByPhone(String phone);
 
     Optional<User> findByEmail(String email);
+
+    Page<User> findAllByRole(UserRole role, Pageable pageable);
 }
