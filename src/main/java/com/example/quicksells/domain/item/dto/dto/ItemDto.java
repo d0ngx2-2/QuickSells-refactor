@@ -1,7 +1,6 @@
 package com.example.quicksells.domain.item.dto.dto;
 
 import com.example.quicksells.common.enums.UserRole;
-import com.example.quicksells.domain.item.entity.Item;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -33,8 +32,4 @@ public class ItemDto {
         this.updatedAt = updatedAt;
 
     }
-
-//    public static ItemDto from(Item item) {
-//        return new ItemDto(item.getId(), item.getUser().getId(), item.getName(), item.getHopePrice(), item.getDescription(), item.getImage(), item.isStatus(), item.getUser().getRole(), item.getCreatedAt(), item.getUpdatedAt());
-//    }
 }

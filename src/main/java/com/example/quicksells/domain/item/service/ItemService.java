@@ -37,11 +37,11 @@ public class ItemService {
     public ItemCreatedResponse itemCreated(AuthUser authUser, ItemCreatedRequest request) {
 
         //유저(판매자) 조회
-        User seller = userRepository.findByIdAndIsDeletedFalse(authUser.getId())
+        User seller = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
 
         //중복 상품 검증
-        boolean exists = itemRepository.existsByUserIdAndNameAndIsDeletedFalse(authUser.getId(), request.getName());
+        boolean exists = itemRepository.existsByUserIdAndName(authUser.getId(), request.getName());
 
         //중복 시 409에러 발생
         if (exists) {
@@ -69,7 +69,7 @@ public class ItemService {
     public ItemGetDetailResponse itemGetDetail(Long itemId) {
 
         //상품 조회 및 검증 404에러
-        Item item = itemRepository.findByIdAndIsDeletedFalse(itemId)
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
         // 조회된 엔티티 -> DTO로 변환
@@ -87,7 +87,7 @@ public class ItemService {
     public Page<ItemGetListResponse> itemGetAll(Pageable pageable) {
 
         //상품 목록 조회
-        Page<Item> result = itemRepository.findAllByIsDeletedFalse(pageable);
+        Page<Item> result = itemRepository.findAll(pageable);
 
         //맵 사용하여 엔티티 목록 -> 응답 DTO 목록으로 조회
         return result.map(itemDto -> ItemGetListResponse.from(itemDto));
