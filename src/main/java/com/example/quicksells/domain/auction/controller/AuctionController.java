@@ -47,4 +47,12 @@ public class AuctionController {
 
         return ResponseEntity.ok(CommonResponse.success("상품 입찰 성공", result));
     }
+
+    @DeleteMapping("/auctions/{auctionId}")
+    public ResponseEntity<CommonResponse> deleteAuction(@PathVariable Long auctionId) {
+
+        auctionService.deleteAuction(auctionId);
+
+        return ResponseEntity.ok(CommonResponse.success("경매 삭제 성공"));
+    }
 }

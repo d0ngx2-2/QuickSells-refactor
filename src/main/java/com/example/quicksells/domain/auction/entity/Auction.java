@@ -1,9 +1,6 @@
 package com.example.quicksells.domain.auction.entity;
 
 import com.example.quicksells.common.enums.AuctionStatusType;
-import com.example.quicksells.common.enums.ExceptionCode;
-import com.example.quicksells.common.enums.StatusType;
-import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.user.entity.User;
@@ -25,7 +22,7 @@ public class Auction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 경매 ID
 
-    @OneToOne(optional = false) // 거래x -> 경매 등록x
+    @OneToOne(optional = false, cascade = CascadeType.PERSIST) // 거래x -> 경매 등록x
     @JoinColumn(name = "deal_id", nullable = false)
     private Deal deal; // 거래 ID
 
@@ -93,10 +90,14 @@ public class Auction {
 
         if (this.user == null) {
             this.status = AuctionStatusType.UNSUCCESSFUL_BID.toString(); // 유찰완료 상태 변경
-            throw new CustomException(ExceptionCode.AUCTION_EXPIRED_UNSOLD); // 유찰: 입찰자가 없는 경우
         } else {
             this.status = AuctionStatusType.SUCCESSFUL_BID.toString();// 낙찰완료 상태 변경
-            throw new CustomException(ExceptionCode.AUCTION_EXPIRED_SOLD_OUT); // 낙찰: 입찰자가 있는 경우 상태 변경
         }
     }
+
+    public void auctionDelete() {
+        this.status = AuctionStatusType.CANCELED.toString(); // 경매취소 상태 변경
+        this.isDeleted = true;
+    }
+
 }
