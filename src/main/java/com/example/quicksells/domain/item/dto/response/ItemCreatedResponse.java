@@ -1,6 +1,5 @@
 package com.example.quicksells.domain.item.dto.response;
 
-
 import com.example.quicksells.domain.item.dto.dto.ItemInfoDto;
 import com.example.quicksells.domain.item.entity.Item;
 import lombok.Getter;

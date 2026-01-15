@@ -3,16 +3,12 @@ package com.example.quicksells.domain.item.controller;
 import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
-import com.example.quicksells.domain.item.dto.dto.ItemDto;
 import com.example.quicksells.domain.item.dto.request.ItemCreatedRequest;
 import com.example.quicksells.domain.item.dto.response.ItemCreatedResponse;
 import com.example.quicksells.domain.item.dto.response.ItemGetDetailResponse;
 import com.example.quicksells.domain.item.dto.response.ItemGetListResponse;
-import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.item.service.ItemService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,8 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

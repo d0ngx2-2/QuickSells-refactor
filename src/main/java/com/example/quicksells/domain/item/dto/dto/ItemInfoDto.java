@@ -3,7 +3,6 @@ package com.example.quicksells.domain.item.dto.dto;
 import com.example.quicksells.common.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @Getter
