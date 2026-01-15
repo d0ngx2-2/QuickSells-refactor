@@ -23,8 +23,6 @@ public class ItemUpdateResponse {
                         item.getImage(),
                         item.isStatus(),
                         item.getUser().getRole(),
-                        item.getCreatedAt()
-                )
-        );
+                        item.getCreatedAt()));
     }
 }
