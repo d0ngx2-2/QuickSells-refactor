@@ -8,6 +8,7 @@ import com.example.quicksells.domain.auction.model.response.AuctionCreateRespons
 import com.example.quicksells.domain.auction.model.response.AuctionGetAllResponse;
 import com.example.quicksells.domain.auction.model.response.AuctionUpdateResponse;
 import com.example.quicksells.domain.auction.service.AuctionService;
+import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,17 +44,17 @@ public class AuctionController {
     }
 
     @PutMapping("/auctions/{id}")
-    public ResponseEntity<CommonResponse> updateBidPrice(@PathVariable Long id, @Valid @RequestBody AuctionUpdateRequest request) {
+    public ResponseEntity<CommonResponse> updateBidPrice(@PathVariable Long id, @Valid @RequestBody AuctionUpdateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
-        AuctionUpdateResponse result = auctionService.updateBidPrice(id, request);
+        AuctionUpdateResponse result = auctionService.updateBidPrice(id, request, authUser);
 
         return ResponseEntity.ok(CommonResponse.success("상품 입찰 성공", result));
     }
 
     @DeleteMapping("/auctions/{id}")
-    public ResponseEntity<CommonResponse> deleteAuction(@PathVariable Long id) {
+    public ResponseEntity<CommonResponse> deleteAuction(@PathVariable Long id, @AuthenticationPrincipal AuthUser authUser) {
 
-        auctionService.deleteAuction(id);
+        auctionService.deleteAuction(id, authUser);
 
         return ResponseEntity.ok(CommonResponse.success("경매 삭제 성공"));
     }
