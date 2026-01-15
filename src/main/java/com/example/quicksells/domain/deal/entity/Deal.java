@@ -75,7 +75,6 @@ public class Deal {
         this.type = type;
         this.status = status;
         this.dealPrice = dealPrice;
-        System.out.println("   [Deal 엔티티] updateForAppraise 실행: type=" + type + ", status=" + status + ", price=" + dealPrice);
     }
 
     /**
