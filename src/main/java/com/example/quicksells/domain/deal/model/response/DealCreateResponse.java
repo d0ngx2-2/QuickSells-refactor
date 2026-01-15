@@ -14,6 +14,10 @@ public class DealCreateResponse {
     private final DealType status;
 
     public static DealCreateResponse from(Deal deal) {
-        return new DealCreateResponse(deal.getId(), deal.getDealPrice(), deal.getType());
+        return new DealCreateResponse(
+                deal.getId(),
+                deal.getDealPrice(),
+                deal.getType()
+        );
     }
 }

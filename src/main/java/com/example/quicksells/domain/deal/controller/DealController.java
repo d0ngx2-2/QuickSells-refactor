@@ -6,12 +6,15 @@ import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.model.request.DealCreateRequest;
 import com.example.quicksells.domain.deal.model.response.DealCreateResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetResponse;
+import com.example.quicksells.domain.deal.model.response.DealListResponse;
 import com.example.quicksells.domain.deal.service.DealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,6 +51,8 @@ public class DealController {
     @GetMapping("/deals")
     public ResponseEntity<CommonResponse> getDeals(@RequestParam DealType type, @AuthenticationPrincipal AuthUser user) {
 
-        return ResponseEntity.ok(CommonResponse.success("거래 조회 성공", dealService.getDeals(type, user)));
+        List<DealListResponse> response = dealService.getDeals(type, user);
+
+        return ResponseEntity.ok(CommonResponse.success("거래 조회 성공", response));
     }
 }

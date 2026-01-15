@@ -18,6 +18,12 @@ public class DealGetResponse {
     private final LocalDateTime createdAt;
 
     public static DealGetResponse from(Deal deal) {
-        return new DealGetResponse(deal.getId(), deal.getType(), deal.getStatus(), deal.getDealPrice(), deal.getCreatedAt());
+        return new DealGetResponse(
+                deal.getId(),
+                deal.getType(),
+                deal.getStatus(),
+                deal.getDealPrice(),
+                deal.getCreatedAt()
+        );
     }
 }
