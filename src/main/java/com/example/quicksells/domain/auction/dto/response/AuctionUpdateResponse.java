@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class AuctionGetAllResponse {
+public class AuctionUpdateResponse {
 
     private final Long id;
     private final Long appraiseId;
@@ -15,18 +15,16 @@ public class AuctionGetAllResponse {
     private final Long buyerId;
     private final Integer bidPrice;
     private final String status;
-    private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public static AuctionGetAllResponse from(Auction auction) {
-        return new AuctionGetAllResponse(
+    public static AuctionUpdateResponse from(Auction auction) {
+        return new AuctionUpdateResponse(
                 auction.getId(),
                 auction.getAppraise().getId(),
                 auction.getDeal().getId(),
-                auction.getUser() != null ? auction.getUser().getId() : null,// 입찰자가 존재하지 않으면 널을 반환
+                auction.getUser().getId(),
                 auction.getBidPrice(),
                 auction.getStatus(),
-                auction.getCreatedAt(),
                 auction.getUpdatedAt()
         );
     }
