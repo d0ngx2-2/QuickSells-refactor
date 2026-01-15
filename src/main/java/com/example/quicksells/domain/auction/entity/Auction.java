@@ -57,7 +57,7 @@ public class Auction {
         this.appraise = appraise;
         this.user = null;
         this.bidPrice = bidPrice;
-        this.status = StatusType.CONTINUE.toString();
+        this.status = StatusType.ON_SALE.toString();
         this.isDeleted = false;
     }
 
