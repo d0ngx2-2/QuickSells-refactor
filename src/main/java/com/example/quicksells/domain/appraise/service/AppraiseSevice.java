@@ -103,7 +103,7 @@ public class AppraiseSevice {
      * USER(판매자) : 본인 상품만 조회 가능
      * ADMIN : 모든 상품 조회 가능
      */
-    public AppraiseResponse getAppraise(Long itemId, Long appraiseId, AuthUser authUser) {
+    public AppraiseResponse getAppraise(Long id, Long itemId, AuthUser authUser) {
         // 1. 상품 존재 여부 확인
         Item item = getItem(itemId);
 
@@ -113,7 +113,7 @@ public class AppraiseSevice {
         }
 
         // 3. 감정 조회
-        Appraise appraise = appraiseRepository.findByIdAndItemId(appraiseId, itemId)
+        Appraise appraise = appraiseRepository.findByIdAndItemId(id, itemId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
 
         // 4. DTO 변환

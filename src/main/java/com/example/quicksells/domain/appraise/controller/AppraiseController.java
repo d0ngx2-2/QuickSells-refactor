@@ -59,10 +59,10 @@ public class AppraiseController {
     /**
      * 상품별 감정 단건 조회
      */
-    @GetMapping("/appraises/{appraiseId}/items/{itemId}")
-    public ResponseEntity<CommonResponse> getAppraise(@PathVariable Long itemId, @PathVariable Long appraiseId, @AuthenticationPrincipal AuthUser authUser) {
+    @GetMapping("/appraises/{id}/items/{itemId}")
+    public ResponseEntity<CommonResponse> getAppraise(@PathVariable Long id, @PathVariable Long itemId,@AuthenticationPrincipal AuthUser authUser) {
 
-        AppraiseResponse response = appraiseService.getAppraise(itemId, appraiseId ,authUser);
+        AppraiseResponse response = appraiseService.getAppraise(id, itemId, authUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("상품별 감정 단 건 조회에 성공했습니다.", response));
     }
