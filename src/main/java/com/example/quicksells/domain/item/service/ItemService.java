@@ -3,6 +3,7 @@ package com.example.quicksells.domain.item.service;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
+import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.item.dto.request.ItemCreatedRequest;
 import com.example.quicksells.domain.item.dto.response.ItemCreatedResponse;
 import com.example.quicksells.domain.item.dto.response.ItemGetDetailResponse;
@@ -28,16 +29,24 @@ public class ItemService {
     /**
      * 상품 생성 로직
      *
-     * @param userId  판매자 ID
-     * @param request 상품 생성에 필요한 데이터 요청
-     * @return 생성된 상품 정보 응답하는 DTO
+     * @param authUser 상품 생성에 필요한 데이터 요청
+     * @param request  생성된 상품 정보 응답하는 DTO
+     * @return
      */
     @Transactional
-    public ItemCreatedResponse itemCreated(Long userId, ItemCreatedRequest request) {
+    public ItemCreatedResponse itemCreated(AuthUser authUser, ItemCreatedRequest request) {
 
         //유저(판매자) 조회
-        User seller = userRepository.findById(userId)
+        User seller = userRepository.findByIdAndIsDeletedFalse(authUser.getId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
+
+        //중복 상품 검증
+        boolean exists = itemRepository.existsByUserIdAndNameAndIsDeletedFalse(authUser.getId(), request.getName());
+
+        //중복 시 409에러 발생
+        if (exists) {
+            throw new CustomException(ExceptionCode.CONFLICT_ITEM);
+        }
 
         // 엔티티 생성
         Item item = new Item(seller, request.getName(), request.getHopePrice(), request.getDescription(), request.getImage());
@@ -50,7 +59,8 @@ public class ItemService {
     }
 
     /**
-     *상품 상세 조회
+     * 상품 상세 조회
+     *
      * @param itemId 상품 조회 ID
      * @return 상품 상세 정보 응답 DTO
      */
@@ -58,9 +68,8 @@ public class ItemService {
 
     public ItemGetDetailResponse itemGetDetail(Long itemId) {
 
-        //상품 조회 및 검증
+        //상품 조회 및 검증 404에러
         Item item = itemRepository.findByIdAndIsDeletedFalse(itemId)
-
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
         // 조회된 엔티티 -> DTO로 변환
@@ -69,6 +78,7 @@ public class ItemService {
 
     /**
      * (페이징) 상품 목록 조회
+     *
      * @param pageable 페이지, 사이즈 정보
      * @return 페이징된 상품 목록 응답 DTO
      */
