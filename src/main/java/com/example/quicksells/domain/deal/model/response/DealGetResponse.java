@@ -3,12 +3,13 @@ package com.example.quicksells.domain.deal.model.response;
 import com.example.quicksells.common.enums.DealType;
 import com.example.quicksells.common.enums.StatusType;
 import com.example.quicksells.domain.deal.entity.Deal;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DealGetResponse {
 
     private final Long dealId;
