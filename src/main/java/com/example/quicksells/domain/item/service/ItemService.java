@@ -111,7 +111,7 @@ public class ItemService {
 
         //상품 작성자와 로그인한 회원이 다르면 수정 불가
         if (!item.getUser().getId().equals(authUser.getId())) {
-            throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_ITEM); //Todo Enum쪽 수정하기
+            throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_UPDATED_ITEM);
         }
 
         //수정메소드 불러오기
@@ -136,7 +136,7 @@ public class ItemService {
         // 상품 작성자와 로그인한 회원 정보 다르면 삭제 불가
         if (!item.getUser().getId().equals(authUser.getId())) {
 
-            throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_ITEM);
+            throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_DELETED_ITEM);
         }
 
         //소프트 삭제
