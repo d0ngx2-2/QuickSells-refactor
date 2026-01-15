@@ -4,9 +4,11 @@ import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.item.dto.request.ItemCreatedRequest;
+import com.example.quicksells.domain.item.dto.request.ItemUpdateRequest;
 import com.example.quicksells.domain.item.dto.response.ItemCreatedResponse;
 import com.example.quicksells.domain.item.dto.response.ItemGetDetailResponse;
 import com.example.quicksells.domain.item.dto.response.ItemGetListResponse;
+import com.example.quicksells.domain.item.dto.response.ItemUpdateResponse;
 import com.example.quicksells.domain.item.service.ItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -78,5 +80,44 @@ public class ItemController {
 
         //200 상태 코드 반환
         return ResponseEntity.status(HttpStatus.OK).body(itemList);
+    }
+
+    /**
+     * 상품 수정 API
+     * @param authUser 사용자 정보
+     * @param itemId 수정하려는 상품 ID
+     * @param request 수정할 상품 정보(이름, 가격, 설명, 이미지)
+     * @return 수정된 상품 정보 담은 응답 객체
+     */
+    @PutMapping("/items/{itemId}")
+    public ResponseEntity<CommonResponse> itemUpdatedApi(@AuthenticationPrincipal AuthUser authUser,@PathVariable Long itemId, @Valid @RequestBody ItemUpdateRequest request){
+
+        //비지니스 로직
+        ItemUpdateResponse responseDto = itemService.itemUpdated(authUser,itemId, request);
+
+        //공통 응답 포맷 적용 후 DTO 반환
+        CommonResponse response = CommonResponse.success("상품 수정 완료됐습니다.", responseDto);
+
+        //200 상테 코드 반환
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     * 상품 삭제 API
+     * @param itemId 삭제하려는 상품 ID
+     * @param authUser 로그인한 사용자 정보
+     * @return 삭제 성공 메세지를 담은 공통 응답 객체
+     */
+    @DeleteMapping("/items/{itemId}")
+    public ResponseEntity<CommonResponse> itemDeletedApi(@PathVariable Long itemId, @AuthenticationPrincipal AuthUser authUser){
+
+        //비지니스 로직
+        itemService.itemDeleted(itemId, authUser);
+
+        // 성공 응답 생성
+        CommonResponse response =CommonResponse.success("상품이 삭제 됐습니다.",null);
+
+        //반환
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

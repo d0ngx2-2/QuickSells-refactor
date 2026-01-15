@@ -50,4 +50,15 @@ public class Item extends BaseEntity {
         this.description = description;
         this.image = image;
     }
+
+    public void Update(String name, Long hopePrice, String description, String image) {
+        this.name = name;
+        this.hopePrice = hopePrice;
+        this.description = description;
+        this.image = image;
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
+    }
 }

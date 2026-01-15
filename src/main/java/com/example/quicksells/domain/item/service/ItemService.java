@@ -2,12 +2,13 @@ package com.example.quicksells.domain.item.service;
 
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
-import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.item.dto.request.ItemCreatedRequest;
+import com.example.quicksells.domain.item.dto.request.ItemUpdateRequest;
 import com.example.quicksells.domain.item.dto.response.ItemCreatedResponse;
 import com.example.quicksells.domain.item.dto.response.ItemGetDetailResponse;
 import com.example.quicksells.domain.item.dto.response.ItemGetListResponse;
+import com.example.quicksells.domain.item.dto.response.ItemUpdateResponse;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.item.repository.ItemRepository;
 import com.example.quicksells.domain.user.entity.User;
@@ -90,5 +91,54 @@ public class ItemService {
 
         //맵 사용하여 엔티티 목록 -> 응답 DTO 목록으로 조회
         return result.map(itemDto -> ItemGetListResponse.from(itemDto));
+    }
+
+    /**
+     * 상품 수정 기능
+     * @param authUser 로그인한 사용자 정보
+     * @param itemId 수정하려는 상품 ID
+     * @param request 수정할 상품 정보(이름, 희망가격, 설명, 이미지)
+     * @return 수정된 상품 정보를 담은 응답 DTO
+     */
+    @Transactional
+
+    public ItemUpdateResponse itemUpdated(AuthUser authUser, Long itemId, ItemUpdateRequest request) {
+
+        //상품 조회 - 존재 안할 시 404에러
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
+
+        //상품 작성자와 로그인한 회원이 다르면 수정 불가
+        if (!item.getUser().getId().equals(authUser.getId())) {
+            throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_ITEM); //Todo Enum쪽 수정하기
+        }
+
+        //수정메소드 불러오기
+        item.Update(request.getName(), request.getHopePrice(), request.getDescription(), request.getImage());
+
+        //수정 결과 DTO로 변환하여 반환
+        return ItemUpdateResponse.from(item);
+    }
+
+    /**
+     * 상품 삭제 기능
+     * @param itemId 삭제하려는 상품 ID
+     * @param authUser 로그안한 사용자 정보
+     */
+    @Transactional
+    public void itemDeleted(Long itemId, AuthUser authUser) {
+        //삭제 대상 상품 조회
+        Item item = itemRepository.findById(itemId)
+
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
+
+        // 상품 작성자와 로그인한 회원 정보 다르면 삭제 불가
+        if (!item.getUser().getId().equals(authUser.getId())) {
+
+            throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_ITEM);
+        }
+
+        //소프트 삭제
+        item.softDelete();
     }
 }
