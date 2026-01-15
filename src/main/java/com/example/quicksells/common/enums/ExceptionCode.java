@@ -25,7 +25,8 @@ public enum ExceptionCode {
 
     //Item
     NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "상품를 찾을 수 없습니다."),
-    CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다.");
+    CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다."),
+    ;
 
     private final HttpStatus status;
     private final String message;
