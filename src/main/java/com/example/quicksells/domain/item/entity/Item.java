@@ -18,37 +18,36 @@ public class Item extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
-    @Column (name = "id", nullable = false)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "seller_id")
     private User user;
 
-    @Column (name = "name", nullable = false, length = 255)
+    @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    @Column (name = "hope_price", nullable = false)
-    private String hopePrice;
+    @Column(name = "hope_price", nullable = false)
+    private Long hopePrice;
 
-    @Column (name = "description", nullable = false)
+    @Column(name = "description", nullable = false)
     private String description;
 
-    @Column (name = "image", nullable = false, length = 255)
+    @Column(name = "image", nullable = false, length = 255)
     private String image;
 
-    @Column (name = "status", nullable = false, length = 10)
-    private String status;
+    @Column(name = "status", nullable = false, length = 10)
+    private boolean status = true;
 
-    @Column (name = "is_deleted", nullable = false, length = 10)
+    @Column(name = "is_deleted", nullable = false, length = 10)
     private boolean isDeleted = false;
 
-    public Item(User user, String name, String hopePrice, String description, String image, String status){
+    public Item(User user, String name, Long hopePrice, String description, String image) {
         this.user = user;
         this.name = name;
         this.hopePrice = hopePrice;
         this.description = description;
         this.image = image;
-        this.status = status;
     }
 }

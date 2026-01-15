@@ -17,13 +17,12 @@ public enum ExceptionCode {
 
     NOT_FOUND_APPRAISE(HttpStatus.NOT_FOUND, "감정을 찾을 수 없습니다."),
     NOT_FOUND_DEAL(HttpStatus.NOT_FOUND, "거래를 찾을 수 없습니다."),
-    INVALID_USER_ROLE(HttpStatus.BAD_REQUEST, "유효하지 않은 사용자 권한입니다."),
+
+    NO_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "수정할 정보가 없습니다"),
 
     //Item
-    NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
-
-    //Deal
-    NO_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "수정할 정보가 없습니다"),
+    NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "상품를 찾을 수 없습니다."),
+    CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다."),
     ;
 
 
