@@ -85,15 +85,15 @@ public class ItemController {
     /**
      * 상품 수정 API
      * @param authUser 사용자 정보
-     * @param itemId 수정하려는 상품 ID
+     * @param id 수정하려는 상품 ID
      * @param request 수정할 상품 정보(이름, 가격, 설명, 이미지)
      * @return 수정된 상품 정보 담은 응답 객체
      */
     @PutMapping("/items/{id}")
-    public ResponseEntity<CommonResponse> itemUpdatedApi(@AuthenticationPrincipal AuthUser authUser,@PathVariable Long itemId, @Valid @RequestBody ItemUpdateRequest request){
+    public ResponseEntity<CommonResponse> itemUpdatedApi(@AuthenticationPrincipal AuthUser authUser,@PathVariable Long id, @Valid @RequestBody ItemUpdateRequest request){
 
         //비지니스 로직
-        ItemUpdateResponse responseDto = itemService.itemUpdated(authUser,itemId, request);
+        ItemUpdateResponse responseDto = itemService.itemUpdated(authUser,id, request);
 
         //공통 응답 포맷 적용 후 DTO 반환
         CommonResponse response = CommonResponse.success("상품 수정 완료됐습니다.", responseDto);
@@ -104,15 +104,15 @@ public class ItemController {
 
     /**
      * 상품 삭제 API
-     * @param itemId 삭제하려는 상품 ID
+     * @param id 삭제하려는 상품 ID
      * @param authUser 로그인한 사용자 정보
      * @return 삭제 성공 메세지를 담은 공통 응답 객체
      */
     @DeleteMapping("/items/{id}")
-    public ResponseEntity<CommonResponse> itemDeletedApi(@PathVariable Long itemId, @AuthenticationPrincipal AuthUser authUser){
+    public ResponseEntity<CommonResponse> itemDeletedApi(@PathVariable Long id, @AuthenticationPrincipal AuthUser authUser){
 
         //비지니스 로직
-        itemService.itemDeleted(itemId, authUser);
+        itemService.itemDeleted(id, authUser);
 
         // 성공 응답 생성
         CommonResponse response =CommonResponse.success("상품이 삭제 됐습니다.",null);
