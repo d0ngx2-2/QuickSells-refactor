@@ -30,7 +30,7 @@ public class AuctionController {
     private final AuctionService auctionService;
 
     @PostMapping("/auctions")
-    public ResponseEntity<CommonResponse> createAuction(@RequestBody AuctionCreateRequest request) {
+    public ResponseEntity<CommonResponse> createAuction(@Valid @RequestBody AuctionCreateRequest request) {
 
         AuctionCreateResponse result = auctionService.saveAuction(request);
 

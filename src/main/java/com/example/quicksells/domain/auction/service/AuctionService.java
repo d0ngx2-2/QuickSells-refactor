@@ -54,6 +54,9 @@ public class AuctionService {
                 foundAppraise.getBidPrice() // 시작입찰가 -> 감정가격
         );
 
+        // 경매의 생성일과 경매 종료일 설정
+        newAuction.auctionCloseTime(request.getTimeOption());
+
         Auction saveAuction = auctionRepository.save(newAuction);
 
         return AuctionCreateResponse.from(saveAuction);

@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 @Entity
@@ -61,16 +62,16 @@ public class Auction {
         this.isDeleted = false;
     }
 
-    @PrePersist
-    public void auctionCloseTime() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.endTime = createdAt.plusDays(7); // 경매 생성일 기준으로 일주일 뒤 종료
+    public void auctionCloseTime(int timeOption) {
+        Clock clock = Clock.systemDefaultZone(); // 내 시스템 서버 기준 시간대
+        this.createdAt = LocalDateTime.now(clock);
+        this.endTime = createdAt.plusDays(timeOption); // 경매 생성일 기준으로 일주일 뒤 종료
     }
 
     @PreUpdate
     public void auctionUpdateTime() {
-        this.updatedAt = LocalDateTime.now(); // 수정일 적용 후 DB저장
+        Clock clock = Clock.systemDefaultZone();
+        this.updatedAt = LocalDateTime.now(clock); // 수정일 적용 후 DB저장
     }
 
     public void update (User user, Integer bidPrice) {
