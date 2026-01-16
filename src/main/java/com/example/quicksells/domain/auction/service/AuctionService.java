@@ -126,14 +126,14 @@ public class AuctionService {
         }
     }
 
-    private void validateUser(AuthUser authUser, User founUser) {
+    private void validateUser(AuthUser authUser, User foundUser) {
 
         Long authUserId = authUser.getId(); // 인증유저 아이디
-        Long userId = founUser.getId(); // 조회된 유저 아이디
+        Long userId = foundUser.getId(); // 조회된 유저 아이디
 
         // 인증유저와 조회된 유저가 일치하지 않을때 예외
         if (!authUserId.equals(userId)) {
-            throw new CustomException(ExceptionCode.ACCESS_DENIED);
+            throw new CustomException(ExceptionCode.ACCESS_DENIED_ONLY_OWNER);
         }
     }
 
