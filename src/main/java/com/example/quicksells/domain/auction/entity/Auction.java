@@ -22,16 +22,16 @@ public class Auction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 경매 ID
 
-    @OneToOne(optional = false, cascade = CascadeType.PERSIST) // 거래x -> 경매 등록x
-    @JoinColumn(name = "deal_id", nullable = false)
-    private Deal deal; // 거래 ID
-
     @OneToOne(optional = false) // 감정x -> 경매 등록x
     @JoinColumn(name = "appraise_id", nullable = false)
     private Appraise appraise; // 감정 ID
 
+    @OneToOne(optional = false, cascade = CascadeType.PERSIST) // 거래x -> 경매 등록x
+    @JoinColumn(name = "deal_id", nullable = false, unique = true)
+    private Deal deal; // 거래 ID
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id")
+    @JoinColumn(name = "buyer_id", unique = true)
     private User user; // 유저 ID
 
     @Column(name = "bid_price", nullable = false)
@@ -52,7 +52,7 @@ public class Auction {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Auction(Deal deal, Appraise appraise, Integer bidPrice) {
+    public Auction(Appraise appraise, Deal deal, Integer bidPrice) {
         this.deal = deal;
         this.appraise = appraise;
         this.user = null;
