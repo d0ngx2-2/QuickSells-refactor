@@ -4,9 +4,11 @@ import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.item.dto.request.ItemCreatedRequest;
+import com.example.quicksells.domain.item.dto.request.ItemUpdateRequest;
 import com.example.quicksells.domain.item.dto.response.ItemCreatedResponse;
 import com.example.quicksells.domain.item.dto.response.ItemGetDetailResponse;
 import com.example.quicksells.domain.item.dto.response.ItemGetListResponse;
+import com.example.quicksells.domain.item.dto.response.ItemUpdateResponse;
 import com.example.quicksells.domain.item.service.ItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,14 +48,14 @@ public class ItemController {
 
     /**
      * 상품 상세 조회 API
-     * @param itemId
+     * @param id
      * @return
      */
-    @GetMapping("/items/{itemId}")
-    public ResponseEntity<CommonResponse> itemGetDetailApi(@PathVariable Long itemId) {
+    @GetMapping("/items/{id}")
+    public ResponseEntity<CommonResponse> itemGetDetailApi(@PathVariable Long id) {
 
         //상세 조회 비지니스 핵심 로직
-        ItemGetDetailResponse responseDto = itemService.itemGetDetail(itemId);
+        ItemGetDetailResponse responseDto = itemService.itemGetDetail(id);
 
         //공통 응답 포맷 적용 후 DTO 반환
         CommonResponse response = CommonResponse.success("삼품이 조회됐습니다.", responseDto);
@@ -78,5 +80,44 @@ public class ItemController {
 
         //200 상태 코드 반환
         return ResponseEntity.status(HttpStatus.OK).body(itemList);
+    }
+
+    /**
+     * 상품 수정 API
+     * @param authUser 사용자 정보
+     * @param id 수정하려는 상품 ID
+     * @param request 수정할 상품 정보(이름, 가격, 설명, 이미지)
+     * @return 수정된 상품 정보 담은 응답 객체
+     */
+    @PutMapping("/items/{id}")
+    public ResponseEntity<CommonResponse> itemUpdatedApi(@AuthenticationPrincipal AuthUser authUser,@PathVariable Long id, @Valid @RequestBody ItemUpdateRequest request){
+
+        //비지니스 로직
+        ItemUpdateResponse responseDto = itemService.itemUpdated(authUser,id, request);
+
+        //공통 응답 포맷 적용 후 DTO 반환
+        CommonResponse response = CommonResponse.success("상품 수정 완료됐습니다.", responseDto);
+
+        //200 상테 코드 반환
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     * 상품 삭제 API
+     * @param id 삭제하려는 상품 ID
+     * @param authUser 로그인한 사용자 정보
+     * @return 삭제 성공 메세지를 담은 공통 응답 객체
+     */
+    @DeleteMapping("/items/{id}")
+    public ResponseEntity<CommonResponse> itemDeletedApi(@PathVariable Long id, @AuthenticationPrincipal AuthUser authUser){
+
+        //비지니스 로직
+        itemService.itemDeleted(id, authUser);
+
+        // 성공 응답 생성
+        CommonResponse response =CommonResponse.success("상품이 삭제 됐습니다.",null);
+
+        //반환
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

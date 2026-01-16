@@ -1,5 +1,7 @@
 package com.example.quicksells.domain.appraise.entity;
 
+import com.example.quicksells.common.enums.ExceptionCode;
+import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.deal.entity.Deal;
 import org.hibernate.annotations.SQLRestriction;
 import com.example.quicksells.domain.item.entity.Item;
@@ -61,7 +63,20 @@ public class Appraise {
         this.isDeleted = false;
     }
 
-    public void updateSelected(boolean isSeleted) {
-        this.isSeleted = isSeleted;
+    // 여러 감정중 판매자가 선택할때,
+    public void updateSelected(boolean isSelected) {
+        if (this.isSeleted) {
+            throw new CustomException(ExceptionCode.ALREADY_SELETE_APPRAISE);
+        }
+        this.isSeleted = isSelected;
+    }
+
+    public void connectDeal(Deal deal) {
+        this.deal = deal;
+    }
+
+    // 감정 삭제 처리
+    public void delete() {
+        this.isDeleted = true;
     }
 }

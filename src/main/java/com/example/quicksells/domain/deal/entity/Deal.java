@@ -68,18 +68,13 @@ public class Deal {
     // 비즈니스 메서드
 
     /**
-     * 감정 선택 시 거래 시작
-     * - buyer 설정
-     * - type 설정 (IMMEDIATE_SELL)
-     * - status: BEFORE -> ON_SALE
+     * 감정 선택 시 Deal 업데이트
+     * - type, status, dealPrice 업데이트
      */
-    public void startDeal(User buyer, DealType dealType) {
-        if (this.status != StatusType.BEFORE) {
-            throw new CustomException(ExceptionCode.NOT_DEAL_BEFORE);
-        }
-        this.buyer = buyer;
-        this.type = dealType;
-        this.status = StatusType.ON_SALE;
+    public void updateForAppraise(DealType type, StatusType status, Integer dealPrice) {
+        this.type = type;
+        this.status = status;
+        this.dealPrice = dealPrice;
     }
 
     /**
@@ -88,7 +83,7 @@ public class Deal {
      * - 추후 결제 API 붙일때, 활용 하면 좋습니다.
      */
     public void complete() {
-        if (this.status != StatusType.SOLD) {
+        if (this.status != StatusType.ON_SALE) {
             throw new CustomException(ExceptionCode.NOT_DEAL_ON_SALE);
         }
         this.status = StatusType.SOLD;

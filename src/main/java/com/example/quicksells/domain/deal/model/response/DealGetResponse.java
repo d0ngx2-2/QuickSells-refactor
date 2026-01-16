@@ -5,7 +5,6 @@ import com.example.quicksells.common.enums.StatusType;
 import com.example.quicksells.domain.deal.entity.Deal;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Getter
@@ -19,6 +18,12 @@ public class DealGetResponse {
     private final LocalDateTime createdAt;
 
     public static DealGetResponse from(Deal deal) {
-        return new DealGetResponse(deal.getId(), deal.getType(), deal.getStatus(), deal.getDealPrice(), deal.getCreatedAt());
+        return new DealGetResponse(
+                deal.getId(),
+                deal.getType(),
+                deal.getStatus(),
+                deal.getDealPrice(),
+                deal.getCreatedAt()
+        );
     }
 }
