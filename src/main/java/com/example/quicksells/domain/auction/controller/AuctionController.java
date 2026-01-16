@@ -54,9 +54,9 @@ public class AuctionController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/auctions/{id}")
-    public ResponseEntity<CommonResponse> deleteAuction(@PathVariable Long id, @AuthenticationPrincipal AuthUser authUser) {
+    public ResponseEntity<CommonResponse> deleteAuction(@PathVariable Long id) {
 
-        auctionService.deleteAuction(id, authUser);
+        auctionService.deleteAuction(id);
 
         return ResponseEntity.ok(CommonResponse.success("경매 삭제 성공"));
     }
