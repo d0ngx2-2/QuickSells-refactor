@@ -74,9 +74,6 @@ public class AuctionService {
         Auction foundAuction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
 
-        // 삭제 검증
-        validateIsDelete(foundAuction.isDeleted());
-
         // 구매자 조회
         User foundBuyer = userRepository.findById(request.getBuyerId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
@@ -97,7 +94,7 @@ public class AuctionService {
      * 종료된 경매는 삭제요청 불가
      */
     @Transactional
-    public void deleteAuction(Long auctionId, AuthUser authUser) {
+    public void deleteAuction(Long auctionId) {
 
         // 경매 종료 여부 확인 후 결과
         auctionCloseService.auctionIsCloseCheckResult(auctionId);
@@ -105,9 +102,6 @@ public class AuctionService {
         // 경매 조회
         Auction foundAuction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
-
-        // 삭제 검증
-        validateIsDelete(foundAuction.isDeleted());
 
         // 삭제되지 않은 경매 삭제
         foundAuction.auctionDelete();
@@ -134,14 +128,6 @@ public class AuctionService {
         // 인증유저와 조회된 유저가 일치하지 않을때 예외
         if (!authUserId.equals(userId)) {
             throw new CustomException(ExceptionCode.ACCESS_DENIED_ONLY_OWNER);
-        }
-    }
-
-    private void validateIsDelete(boolean isDelete) {
-
-        // 논리삭제 true -> 예외
-        if (isDelete) {
-            throw new CustomException(ExceptionCode.AUCTION_ALREADY_EXPIRED);
         }
     }
 
