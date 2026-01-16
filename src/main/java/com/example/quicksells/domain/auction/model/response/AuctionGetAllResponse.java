@@ -1,4 +1,4 @@
-package com.example.quicksells.domain.auction.dto.response;
+package com.example.quicksells.domain.auction.model.response;
 
 import com.example.quicksells.domain.auction.entity.Auction;
 import lombok.Getter;

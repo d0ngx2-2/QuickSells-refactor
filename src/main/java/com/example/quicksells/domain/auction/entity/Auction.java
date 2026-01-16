@@ -1,7 +1,6 @@
 package com.example.quicksells.domain.auction.entity;
 
 import com.example.quicksells.common.enums.AuctionStatusType;
-import com.example.quicksells.common.enums.StatusType;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.user.entity.User;
@@ -58,7 +57,7 @@ public class Auction {
         this.appraise = appraise;
         this.user = null;
         this.bidPrice = bidPrice;
-        this.status = StatusType.ON_SALE.toString();
+        this.status = AuctionStatusType.AUCTIONING.toString();
         this.isDeleted = false;
     }
 

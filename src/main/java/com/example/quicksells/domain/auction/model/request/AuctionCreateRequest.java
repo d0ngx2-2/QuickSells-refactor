@@ -1,4 +1,4 @@
-package com.example.quicksells.domain.auction.dto.request;
+package com.example.quicksells.domain.auction.model.request;
 
 import lombok.Getter;
 
