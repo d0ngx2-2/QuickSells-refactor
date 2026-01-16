@@ -8,6 +8,7 @@ import com.example.quicksells.domain.auction.model.request.AuctionCreateRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionUpdateRequest;
 import com.example.quicksells.domain.auction.model.response.AuctionCreateResponse;
 import com.example.quicksells.domain.auction.model.response.AuctionGetAllResponse;
+import com.example.quicksells.domain.auction.model.response.AuctionGetResponse;
 import com.example.quicksells.domain.auction.model.response.AuctionUpdateResponse;
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
@@ -55,6 +56,7 @@ public class AuctionService {
         return AuctionCreateResponse.from(saveAuction);
     }
 
+
     @Transactional(readOnly = true)
     public Page<AuctionGetAllResponse> getAllAuction(Pageable pageable) {
 
@@ -63,6 +65,17 @@ public class AuctionService {
 
         return foundAuctionPage.map(AuctionGetAllResponse::from);
     }
+
+    @Transactional(readOnly = true)
+    public AuctionGetResponse getAuction(Long auctionId) {
+
+        // 경매 상세 조회
+        Auction foundAuction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
+
+        return AuctionGetResponse.from(foundAuction);
+    }
+
 
     @Transactional
     public AuctionUpdateResponse updateBidPrice(Long auctionId, AuctionUpdateRequest request, AuthUser authUser) {
@@ -89,6 +102,7 @@ public class AuctionService {
 
         return AuctionUpdateResponse.from(foundAuction);
     }
+
 
     /**
      * 종료된 경매는 삭제요청 불가

@@ -6,6 +6,7 @@ import com.example.quicksells.domain.auction.model.request.AuctionCreateRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionUpdateRequest;
 import com.example.quicksells.domain.auction.model.response.AuctionCreateResponse;
 import com.example.quicksells.domain.auction.model.response.AuctionGetAllResponse;
+import com.example.quicksells.domain.auction.model.response.AuctionGetResponse;
 import com.example.quicksells.domain.auction.model.response.AuctionUpdateResponse;
 import com.example.quicksells.domain.auction.service.AuctionService;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
@@ -42,6 +43,14 @@ public class AuctionController {
         Page<AuctionGetAllResponse> page = auctionService.getAllAuction(pageable);
 
         return ResponseEntity.ok(PageResponse.success("경매 목록 조회 성공", page));
+    }
+
+    @GetMapping("/auctions/{id}")
+    public ResponseEntity<CommonResponse> getAuction(@PathVariable Long id) {
+
+        AuctionGetResponse result = auctionService.getAuction(id);
+
+        return ResponseEntity.ok(CommonResponse.success("경매 상세 조회 성공", result));
     }
 
     @PutMapping("/auctions/{id}")
