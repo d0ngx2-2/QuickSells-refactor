@@ -1,4 +1,4 @@
-package com.example.quicksells.domain.item.dto.request;
+package com.example.quicksells.domain.item.model.request;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
