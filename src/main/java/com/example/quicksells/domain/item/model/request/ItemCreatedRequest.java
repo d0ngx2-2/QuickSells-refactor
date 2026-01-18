@@ -1,22 +1,31 @@
 package com.example.quicksells.domain.item.model.request;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 
 @Getter
 public class ItemCreatedRequest {
-    @NotNull(message = "상품이름은 필수 입니다.")
+    @NotBlank(message = "상품명은 필수 입니다.")
+    @Size(max = 50, message = "상품명은 50자 이내입니다.")
     private String name;
 
-    @NotNull
+    @NotNull(message = "상품 희망 가격은 필수입니다.")
+    @Min(value = 1, message = "상품 희망 가격은 1원 이상이어야 합니다.")
     private Long hopePrice;
+
+    @NotBlank(message = "상품 설명은 필수입니다.")
+    @Size(max = 500, message = "상품 설명은 500자 이내입니다.")
     private String description;
+
+    @NotBlank(message = "이미지 URL은 필수입니다.")
+    @Size(max = 255, message = "이미지 URL은 255자 이내입니다.")
+    @Pattern(
+            regexp = "^(https?:\\/\\/.*\\.(png|jpg|jpeg|gif|webp))(\\?.*)?$",
+            message = "이미지 파일 URL만 허용됩니다."
+    )
     private String image;
 
-    public ItemCreatedRequest(String name,
-                              Long hopePrice,
-                              String description,
-                              String image) {
+    public ItemCreatedRequest(String name, Long hopePrice, String description, String image) {
         this.name = name;
         this.hopePrice = hopePrice;
         this.description = description;

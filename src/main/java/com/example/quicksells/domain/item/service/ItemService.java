@@ -115,7 +115,7 @@ public class ItemService {
         }
 
         //수정메소드 불러오기
-        item.Update(request.getName(), request.getHopePrice(), request.getDescription(), request.getImage());
+        item.update(request.getName(), request.getHopePrice(), request.getDescription(), request.getImage());
 
         //수정 결과 DTO로 변환하여 반환
         return ItemUpdateResponse.from(item);
