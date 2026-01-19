@@ -1,5 +1,6 @@
 package com.example.quicksells.domain.auth.model.request;
 
+import com.example.quicksells.common.annotation.Adult;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -39,5 +40,6 @@ public class AuthSignupRequest {
     @NotBlank(message = "생년월일은 필수입니다.")
     @Pattern(regexp = "^(19|20)\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
             message = "생년월일은 YYYY-MM-DD 형식이어야 합니다.")
+    @Adult
     private String birth;
 }
