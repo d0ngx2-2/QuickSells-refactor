@@ -229,12 +229,12 @@ public class AppraiseSevice {
     private void validateAppraise(Appraise appraise, Item item) {
         // 이미 선택된 감정인지 확인 - (선택한 감정을 다시 선택시)
         if (appraise.isSeleted()) {
-            throw new CustomException(ExceptionCode.ALREADY_SELETE_APPRAISE);
+            throw new CustomException(ExceptionCode.ALREADY_SELECT_APPRAISE);
         }
 
         // 해당 상품에 이미 다른 감정이 선택되었는지 확인 - (여러 감정중에 선택한 감정은 되돌릴 수 없음)
         if (appraiseRepository.existsByItemIdAndIsSelectedTrue(item.getId())) {
-            throw new CustomException(ExceptionCode.EXISTS_ALREADY_SELETE_APPRAISE);
+            throw new CustomException(ExceptionCode.EXISTS_ALREADY_SELECT_APPRAISE);
         }
     }
 
