@@ -5,9 +5,11 @@ import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.information.entity.Information;
 import com.example.quicksells.domain.information.model.request.InformationCreateRequest;
+import com.example.quicksells.domain.information.model.request.InformationUpdateRequest;
 import com.example.quicksells.domain.information.model.response.InformationCreateResponse;
 import com.example.quicksells.domain.information.model.response.InformationGetAllResponse;
 import com.example.quicksells.domain.information.model.response.InformationGetResponse;
+import com.example.quicksells.domain.information.model.response.InformationUpdateResponse;
 import com.example.quicksells.domain.information.repository.InformationRepository;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
@@ -24,12 +26,20 @@ public class InformationService {
     private final InformationRepository informationRepository;
     private final UserRepository userRepository;
 
+    /**
+     * 공지사항 생성 기능
+     *
+     * @param request 공지사항 생성 요청 정보
+     * @return 생성된 공지사항
+     * @throws CustomException 관리자 체크, 공지사항 제목 존재 여부
+     */
     @Transactional
     public InformationCreateResponse create(AuthUser authUser, InformationCreateRequest request) {
 
-        User admin = userRepository.findById(authUser.getId())
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ADMIN));
+        // 관리자 체크
+        User admin = findAdminOrException(authUser);
 
+        // 공지사항 제목 체크
         boolean exitsTitle = informationRepository.existsByTitle(request.getTitle());
 
         if (exitsTitle) throw new CustomException(ExceptionCode.EXISTS_INFORMATION_TITLE);
@@ -41,19 +51,81 @@ public class InformationService {
         return InformationCreateResponse.from(information);
     }
 
+    /**
+     * 공지사항 단건 조회 기능
+     *
+     * @return 단건 조회한 공지사항
+     * @throws CustomException 공지사항 존재 여부
+     */
     @Transactional(readOnly = true)
     public InformationGetResponse getOne(Long informationId) {
 
-        Information information = informationRepository.findById(informationId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_INFORMATION));
+        // 공지사항 체크
+        Information information = findInformationOrException(informationId);
 
         return InformationGetResponse.from(information);
     }
 
+    /**
+     * 공지사항 전체 조회 기능
+     *
+     * @return 전체 조회한 공지사항
+     */
     @Transactional(readOnly = true)
     public Page<InformationGetAllResponse> getAll(Pageable pageable) {
 
         return informationRepository.findAll(pageable)
                 .map(InformationGetAllResponse::from);
     }
+
+    /**
+     * 공지사항 수정 기능
+     *
+     * @param request 공지사항 수정 요청 정보
+     * @return 수정된 공지사항
+     * @throws CustomException 관리자 체크, 공지사항 체크
+     */
+    @Transactional
+    public InformationUpdateResponse update(AuthUser authUser, Long informationId, InformationUpdateRequest request) {
+
+        // 관리자 체크
+        findAdminOrException(authUser);
+
+        // 공지사항 체크
+        Information information = findInformationOrException(informationId);
+
+        information.update(request.getTitle(), request.getDescription(), request.getImageUrl());
+
+        return InformationUpdateResponse.from(information);
+    }
+
+    /**
+     * 공지사항 삭제 기능
+     *
+     * @throws CustomException 관리자 체크, 공지사항 체크
+     */
+    @Transactional
+    public void delete(AuthUser authUser, Long informationId) {
+
+        // 관리자 체크
+        findAdminOrException(authUser);
+
+        // 공지사항 체크
+        Information information = findInformationOrException(informationId);
+
+        information.delete();
+    }
+
+    private Information findInformationOrException(Long informationId) {
+
+        return informationRepository.findById(informationId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_INFORMATION));
+    }
+
+    private User findAdminOrException(AuthUser authUser) {
+
+        return userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ADMIN));
+    }
+
 }
