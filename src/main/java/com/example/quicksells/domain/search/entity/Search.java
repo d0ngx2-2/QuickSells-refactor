@@ -10,7 +10,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLRestriction("is_deleted = false")
+//@SQLRestriction("is_deleted = false")
 public class Search {
 
     @Id

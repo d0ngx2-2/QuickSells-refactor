@@ -8,4 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public interface SearchRepository extends JpaRepository<Search, Long> {}
+public interface SearchRepository extends JpaRepository<Search, Long> {
+    Optional<Search> findByKeyword(String keyword);
+}
