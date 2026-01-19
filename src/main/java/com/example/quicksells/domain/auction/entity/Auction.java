@@ -28,18 +28,19 @@ public class Auction {
     private Appraise appraise; // 감정 ID
 
     @OneToOne(optional = false, cascade = CascadeType.PERSIST) // 거래x -> 경매 등록x
-    @JoinColumn(name = "deal_id", nullable = false, unique = true)
+    @JoinColumn(name = "deal_id")
     private Deal deal; // 거래 ID
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id", unique = true)
+    @JoinColumn(name = "buyer_id")
     private User user; // 유저 ID
 
     @Column(name = "bid_price", nullable = false)
     private Integer bidPrice; // 입찰 확정 가격
 
-    @Column(name = "status", nullable = false)
-    private String status; // 경매 상태
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private AuctionStatusType status; // 경매 상태
 
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
@@ -53,12 +54,12 @@ public class Auction {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Auction(Appraise appraise, Deal deal, Integer bidPrice) {
-        this.deal = deal;
+    public Auction(Appraise appraise, Integer bidPrice) {
+        this.deal = null;
         this.appraise = appraise;
         this.user = null;
         this.bidPrice = bidPrice;
-        this.status = AuctionStatusType.AUCTIONING.toString();
+        this.status = AuctionStatusType.AUCTIONING;
         this.isDeleted = false;
     }
 
@@ -90,14 +91,14 @@ public class Auction {
         this.isDeleted = true; // 종료 시간에 경매 삭제
 
         if (this.user == null) {
-            this.status = AuctionStatusType.UNSUCCESSFUL_BID.toString(); // 유찰완료 상태 변경
+            this.status = AuctionStatusType.UNSUCCESSFUL_BID; // 유찰완료 상태 변경
         } else {
-            this.status = AuctionStatusType.SUCCESSFUL_BID.toString();// 낙찰완료 상태 변경
+            this.status = AuctionStatusType.SUCCESSFUL_BID;// 낙찰완료 상태 변경
         }
     }
 
     public void auctionDelete() {
-        this.status = AuctionStatusType.CANCELED.toString(); // 경매취소 상태 변경
+        this.status = AuctionStatusType.CANCELED; // 경매취소 상태 변경
         this.isDeleted = true;
     }
 

@@ -43,6 +43,7 @@ public enum ExceptionCode {
     NO_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "수정할 정보가 없습니다"),
     INVALID_USER_ROLE(HttpStatus.BAD_REQUEST, "유효하지 않은 사용자 권한입니다."), //UserRole
     CONFLICT_AUCTION(HttpStatus.CONFLICT, "중복된 경매입니다."),
+    CONFLICT_WISHLIST(HttpStatus.CONFLICT, "중복된 관심 목록입니다."),
 
     //ITEM
     NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "상품를 찾을 수 없습니다."), //appraise,Deal,item
