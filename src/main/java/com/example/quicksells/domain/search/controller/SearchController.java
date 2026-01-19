@@ -1,10 +1,6 @@
 package com.example.quicksells.domain.search.controller;
 
 import com.example.quicksells.common.model.PageResponse;
-import com.example.quicksells.domain.item.model.response.ItemGetListResponse;
-
-import com.example.quicksells.domain.item.service.ItemService;
-
 import com.example.quicksells.domain.search.model.response.SearchGetResponse;
 import com.example.quicksells.domain.search.service.SearchService;
 import lombok.RequiredArgsConstructor;

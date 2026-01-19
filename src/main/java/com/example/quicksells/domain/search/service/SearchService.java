@@ -1,9 +1,6 @@
 package com.example.quicksells.domain.search.service;
 
-
-import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.item.entity.Item;
-
 import com.example.quicksells.domain.item.repository.ItemRepository;
 import com.example.quicksells.domain.search.entity.Search;
 import com.example.quicksells.domain.search.model.response.SearchGetResponse;
