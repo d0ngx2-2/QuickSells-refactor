@@ -65,7 +65,7 @@ public class Auction {
     public void auctionCloseTime(int timeOption) {
         Clock clock = Clock.systemDefaultZone(); // 내 시스템 서버 기준 시간대
         this.createdAt = LocalDateTime.now(clock);
-        this.endTime = createdAt.plusDays(timeOption); // 경매 생성일 기준으로 일주일 뒤 종료
+        this.endTime = createdAt.plusDays(timeOption); // timeOption 1~3일 설정가능
     }
 
     @PreUpdate
