@@ -8,6 +8,7 @@ import com.example.quicksells.domain.auction.model.request.AuctionCreateRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionUpdateRequest;
 import com.example.quicksells.domain.auction.model.response.AuctionCreateResponse;
 import com.example.quicksells.domain.auction.model.response.AuctionGetAllResponse;
+import com.example.quicksells.domain.auction.model.response.AuctionGetResponse;
 import com.example.quicksells.domain.auction.model.response.AuctionUpdateResponse;
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
@@ -35,25 +36,32 @@ public class AuctionService {
     @Transactional
     public AuctionCreateResponse saveAuction(AuctionCreateRequest request) {
 
-        // 거래 조회
-        Deal foundDeal = dealRepository.findById(request.getDealId())
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_DEAL));
-
         // 감정 조회
         Appraise foundAppraise = appraiseRepository.findById(request.getAppraiseId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
 
+        // 거래 조회
+        Deal foundDeal = dealRepository.findById(request.getDealId())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_DEAL));
+
+        // 중복 검증
+        deduplicationAuction(foundAppraise, foundDeal);
+
         // 경매 생성
         Auction newAuction = new Auction(
-                foundDeal,
                 foundAppraise,
+                foundDeal,
                 foundAppraise.getBidPrice() // 시작입찰가 -> 감정가격
         );
+
+        // 경매의 생성일과 경매 종료일 설정
+        newAuction.auctionCloseTime(request.getTimeOption());
 
         Auction saveAuction = auctionRepository.save(newAuction);
 
         return AuctionCreateResponse.from(saveAuction);
     }
+
 
     @Transactional(readOnly = true)
     public Page<AuctionGetAllResponse> getAllAuction(Pageable pageable) {
@@ -64,6 +72,17 @@ public class AuctionService {
         return foundAuctionPage.map(AuctionGetAllResponse::from);
     }
 
+    @Transactional(readOnly = true)
+    public AuctionGetResponse getAuction(Long auctionId) {
+
+        // 경매 상세 조회
+        Auction foundAuction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
+
+        return AuctionGetResponse.from(foundAuction);
+    }
+
+
     @Transactional
     public AuctionUpdateResponse updateBidPrice(Long auctionId, AuctionUpdateRequest request, AuthUser authUser) {
 
@@ -73,9 +92,6 @@ public class AuctionService {
         // 경매 조회
         Auction foundAuction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
-
-        // 삭제 검증
-        validateIsDelete(foundAuction.isDeleted());
 
         // 구매자 조회
         User foundBuyer = userRepository.findById(request.getBuyerId())
@@ -93,11 +109,12 @@ public class AuctionService {
         return AuctionUpdateResponse.from(foundAuction);
     }
 
+
     /**
      * 종료된 경매는 삭제요청 불가
      */
     @Transactional
-    public void deleteAuction(Long auctionId, AuthUser authUser) {
+    public void deleteAuction(Long auctionId) {
 
         // 경매 종료 여부 확인 후 결과
         auctionCloseService.auctionIsCloseCheckResult(auctionId);
@@ -105,9 +122,6 @@ public class AuctionService {
         // 경매 조회
         Auction foundAuction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
-
-        // 삭제 검증
-        validateIsDelete(foundAuction.isDeleted());
 
         // 삭제되지 않은 경매 삭제
         foundAuction.auctionDelete();
@@ -137,11 +151,14 @@ public class AuctionService {
         }
     }
 
-    private void validateIsDelete(boolean isDelete) {
+    private void deduplicationAuction(Appraise foundAppraise, Deal foundDeal) {
 
-        // 논리삭제 true -> 예외
-        if (isDelete) {
-            throw new CustomException(ExceptionCode.AUCTION_ALREADY_EXPIRED);
+        boolean duplicatedAppraise = auctionRepository.existsByAppraise(foundAppraise);
+        boolean duplicatedDeal = auctionRepository.existsByDeal(foundDeal);
+
+        // 경매 등록시 기존 경매에 감정 or 거래가 존재하면 중복
+        if (duplicatedAppraise || duplicatedDeal) {
+            throw new CustomException(ExceptionCode.CONFLICT_AUCTION);
         }
     }
 

@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,16 +23,16 @@ public class Auction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 경매 ID
 
-    @OneToOne(optional = false, cascade = CascadeType.PERSIST) // 거래x -> 경매 등록x
-    @JoinColumn(name = "deal_id", nullable = false)
-    private Deal deal; // 거래 ID
-
     @OneToOne(optional = false) // 감정x -> 경매 등록x
     @JoinColumn(name = "appraise_id", nullable = false)
     private Appraise appraise; // 감정 ID
 
+    @OneToOne(optional = false, cascade = CascadeType.PERSIST) // 거래x -> 경매 등록x
+    @JoinColumn(name = "deal_id", nullable = false, unique = true)
+    private Deal deal; // 거래 ID
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id")
+    @JoinColumn(name = "buyer_id", unique = true)
     private User user; // 유저 ID
 
     @Column(name = "bid_price", nullable = false)
@@ -52,7 +53,7 @@ public class Auction {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Auction(Deal deal, Appraise appraise, Integer bidPrice) {
+    public Auction(Appraise appraise, Deal deal, Integer bidPrice) {
         this.deal = deal;
         this.appraise = appraise;
         this.user = null;
@@ -61,16 +62,16 @@ public class Auction {
         this.isDeleted = false;
     }
 
-    @PrePersist
-    public void auctionCloseTime() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.endTime = createdAt.plusDays(7); // 경매 생성일 기준으로 일주일 뒤 종료
+    public void auctionCloseTime(int timeOption) {
+        Clock clock = Clock.systemDefaultZone(); // 내 시스템 서버 기준 시간대
+        this.createdAt = LocalDateTime.now(clock);
+        this.endTime = createdAt.plusDays(timeOption); // timeOption 1~3일 설정가능
     }
 
     @PreUpdate
     public void auctionUpdateTime() {
-        this.updatedAt = LocalDateTime.now(); // 수정일 적용 후 DB저장
+        Clock clock = Clock.systemDefaultZone();
+        this.updatedAt = LocalDateTime.now(clock); // 수정일 적용 후 DB저장
     }
 
     public void update (User user, Integer bidPrice) {
