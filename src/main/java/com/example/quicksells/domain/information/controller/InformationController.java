@@ -26,7 +26,12 @@ public class InformationController {
 
     private final InformationService informationService;
 
-
+    /**
+     * 공지사항 생성 API
+     * hasRole(ADMIN)
+     *
+     * @param request 공지사항 생성 요청 정보
+     */
     @PostMapping("/admin/informations")
     public ResponseEntity<CommonResponse> create(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody InformationCreateRequest request) {
 
@@ -35,6 +40,10 @@ public class InformationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("공지사항 생성 성공하셨습니다.", response));
     }
 
+    /**
+     * 공지사항 단건 조회 API
+     *
+     */
     @GetMapping("/informations/{id}")
     public ResponseEntity<CommonResponse> getOne(@PathVariable Long id) {
 
@@ -43,6 +52,10 @@ public class InformationController {
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("공지사항 단건 조회 성공하셨습니다.", response));
     }
 
+    /**
+     * 공지사항 전제 조회 API
+     *
+     */
     @GetMapping("/informations")
     public ResponseEntity<PageResponse> getAll(Pageable pageable){
 
@@ -51,11 +64,30 @@ public class InformationController {
         return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("공지사항 전체 조회 성공하셨습니다.", responses));
     }
 
+    /**
+     * 공지사항 수정 API
+     * hasRole(ADMIN)
+     *
+     * @param request 공지사항 수정 요청 정보
+     */
     @PatchMapping("/admin/informations/{id}")
-    public ResponseEntity<CommonResponse> update(@PathVariable Long id, @Valid @RequestBody InformationUpdateRequest request) {
+    public ResponseEntity<CommonResponse> update(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @Valid @RequestBody InformationUpdateRequest request) {
 
-        InformationUpdateResponse response = informationService.update(id, request);
+        InformationUpdateResponse response = informationService.update(authUser, id, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("공지사항 수정 성공하셨습니다.", response));
+    }
+
+    /**
+     * 공지사항 삭제 API
+     * hasRole(ADMIN)
+     *
+     */
+    @DeleteMapping("/admin/informations/{id}")
+    public ResponseEntity<CommonResponse> delete(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+
+        informationService.delete(authUser, id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("공지사항 삭제 성공하셨습니다."));
     }
 }

@@ -21,7 +21,7 @@ public class Information extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "admin_id")
-    private User user; // 감정사 ID
+    private User user;
 
     @Column(nullable = false, length = 50)
     private String title;
