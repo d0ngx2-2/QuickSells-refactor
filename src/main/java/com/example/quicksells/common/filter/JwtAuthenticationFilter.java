@@ -1,9 +1,12 @@
 package com.example.quicksells.common.filter;
 
+import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.enums.UserRole;
+import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.common.security.JwtAuthenticationToken;
 import com.example.quicksells.common.util.JwtUtil;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
+import com.example.quicksells.domain.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,6 +27,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws ServletException, IOException {
@@ -69,6 +73,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String name = claims.get("name", String.class);
         // JWT에서 사용자 권한 추출
         UserRole userRole = UserRole.of(claims.get("role", String.class));
+
+        userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
 
         AuthUser authUser = new AuthUser(userId, email, userRole, name);
 
