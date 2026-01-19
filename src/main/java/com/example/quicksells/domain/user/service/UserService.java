@@ -34,7 +34,7 @@ public class UserService {
     public UserGetResponse getMyPage(AuthUser authUser) {
 
         // 사용자 체크
-        User user = findByIdOrException(authUser.getId());
+        User user = findByUserIdOrException(authUser.getId());
 
         return UserGetResponse.from(user);
     }
@@ -50,7 +50,7 @@ public class UserService {
     public UserUpdateResponse update(AuthUser authUser, UserUpdateRequest request) {
 
         // 사용자 체크
-        User user = findByIdOrException(authUser.getId());
+        User user = findByUserIdOrException(authUser.getId());
 
         // request 값이 비었을 경우 예외
         if (request.isAllFieldEmpty()) throw new CustomException(ExceptionCode.NO_UPDATE_FIELD);
@@ -90,7 +90,7 @@ public class UserService {
     public void delete(AuthUser authUser) {
 
         // 사용자 및 소프트 딜리트 체크
-        User user = findByIdOrException(authUser.getId());
+        User user = findByUserIdOrException(authUser.getId());
 
         user.delete();
     }
@@ -101,7 +101,10 @@ public class UserService {
      * @return 전체 유저 정보
      */
     @Transactional(readOnly = true)
-    public Page<UserGetResponse> getAllUsers(Pageable pageable) {
+    public Page<UserGetResponse> getAllUsers(AuthUser authUser, Pageable pageable) {
+
+        // 관리자 체크
+        findByAdminIdOrException(authUser.getId());
 
         // 사용자 전체 조회
         return userRepository.findAllByRole(UserRole.USER, pageable)
@@ -114,10 +117,13 @@ public class UserService {
      * @return 변경된 유저 정보
      */
     @Transactional
-    public UserUpdateResponse updateRole(Long userId, UserRoleUpdateRequest request) {
+    public UserUpdateResponse updateRole(AuthUser authUser, Long userId, UserRoleUpdateRequest request) {
+
+        // 관리자 체크
+        findByAdminIdOrException(authUser.getId());
 
         // 사용자 체크
-        User user = findByIdOrException(userId);
+        User user = findByUserIdOrException(userId);
 
         // 권한 수정
         user.updateRole(request.getRole());
@@ -125,8 +131,14 @@ public class UserService {
         return UserUpdateResponse.from(user);
     }
 
+    // 관리자 체크
+    private void findByAdminIdOrException(Long adminId) {
+        userRepository.findById(adminId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ADMIN));
+    }
 
-    private User findByIdOrException(Long userId) {
+    // 사용자 체크
+    private User findByUserIdOrException(Long userId) {
 
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));

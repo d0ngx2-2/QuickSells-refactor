@@ -78,9 +78,9 @@ public class UserController {
      */
     @Operation(summary = "전체 사용자 정보 조회(관리자)")
     @GetMapping("/admin/users")
-    public ResponseEntity<CommonResponse> getAllUsers(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<CommonResponse> getAllUsers(@AuthenticationPrincipal AuthUser authUser, @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<UserGetResponse> response = userService.getAllUsers(pageable);
+        Page<UserGetResponse> response = userService.getAllUsers(authUser, pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("전체 회원 조회 성공하셨습니다.", response));
     }
@@ -92,9 +92,9 @@ public class UserController {
      */
     @Operation(summary = "사용자 권한 변경(관리자)")
     @PatchMapping("/admin/users/{userId}")
-    public ResponseEntity<CommonResponse> updateRole(@PathVariable Long userId, @Valid @RequestBody UserRoleUpdateRequest request) {
+    public ResponseEntity<CommonResponse> updateRole(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long userId, @Valid @RequestBody UserRoleUpdateRequest request) {
 
-        UserUpdateResponse response = userService.updateRole(userId, request);
+        UserUpdateResponse response = userService.updateRole(authUser ,userId, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("유저 권한 변경 성공하셨습니다.", response));
     }
