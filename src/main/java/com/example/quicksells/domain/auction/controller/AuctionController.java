@@ -34,7 +34,7 @@ public class AuctionController {
 
         AuctionCreateResponse result = auctionService.saveAuction(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("경매장 등록 성공", result));
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("경매장 등록에 성공했습니다.", result));
     }
 
     @GetMapping("/auctions")
@@ -42,7 +42,7 @@ public class AuctionController {
 
         Page<AuctionGetAllResponse> page = auctionService.getAllAuction(pageable);
 
-        return ResponseEntity.ok(PageResponse.success("경매 목록 조회 성공", page));
+        return ResponseEntity.ok(PageResponse.success("경매 목록 조회에 성공했습니다.", page));
     }
 
     @GetMapping("/auctions/{id}")
@@ -50,7 +50,7 @@ public class AuctionController {
 
         AuctionGetResponse result = auctionService.getAuction(id);
 
-        return ResponseEntity.ok(CommonResponse.success("경매 상세 조회 성공", result));
+        return ResponseEntity.ok(CommonResponse.success("경매 상세 조회에 성공했습니다.", result));
     }
 
     @PutMapping("/auctions/{id}")
@@ -58,7 +58,7 @@ public class AuctionController {
 
         AuctionUpdateResponse result = auctionService.updateBidPrice(id, request, authUser);
 
-        return ResponseEntity.ok(CommonResponse.success("상품 입찰 성공", result));
+        return ResponseEntity.ok(CommonResponse.success("상품 입찰에 성공했습니다.", result));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -67,6 +67,6 @@ public class AuctionController {
 
         auctionService.deleteAuction(id);
 
-        return ResponseEntity.ok(CommonResponse.success("경매 삭제 성공"));
+        return ResponseEntity.ok(CommonResponse.success("경매 삭제에 성공했습니다."));
     }
 }
