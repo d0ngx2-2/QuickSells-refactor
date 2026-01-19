@@ -1,19 +1,19 @@
-package com.example.quicksells.domain.item.dto.response;
+package com.example.quicksells.domain.item.model.response;
 
-import com.example.quicksells.domain.item.dto.dto.ItemInfoDto;
+import com.example.quicksells.domain.item.model.dto.ItemInfoDto;
 import com.example.quicksells.domain.item.entity.Item;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class ItemGetDetailResponse {
+public class ItemGetListResponse {
     private final Long id;
     private final Long userId;
     private final ItemInfoDto user;
 
-    public static ItemGetDetailResponse from(Item item) {
-        return new ItemGetDetailResponse(
+    public static ItemGetListResponse from(Item item) {
+        return new ItemGetListResponse(
                 item.getId(),
                 item.getUser().getId(),
                 new ItemInfoDto(

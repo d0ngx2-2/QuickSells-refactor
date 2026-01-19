@@ -3,12 +3,12 @@ package com.example.quicksells.domain.item.service;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
-import com.example.quicksells.domain.item.dto.request.ItemCreatedRequest;
-import com.example.quicksells.domain.item.dto.request.ItemUpdateRequest;
-import com.example.quicksells.domain.item.dto.response.ItemCreatedResponse;
-import com.example.quicksells.domain.item.dto.response.ItemGetDetailResponse;
-import com.example.quicksells.domain.item.dto.response.ItemGetListResponse;
-import com.example.quicksells.domain.item.dto.response.ItemUpdateResponse;
+import com.example.quicksells.domain.item.model.request.ItemCreatedRequest;
+import com.example.quicksells.domain.item.model.request.ItemUpdateRequest;
+import com.example.quicksells.domain.item.model.response.ItemCreatedResponse;
+import com.example.quicksells.domain.item.model.response.ItemGetDetailResponse;
+import com.example.quicksells.domain.item.model.response.ItemGetListResponse;
+import com.example.quicksells.domain.item.model.response.ItemUpdateResponse;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.item.repository.ItemRepository;
 import com.example.quicksells.domain.user.entity.User;
@@ -115,7 +115,7 @@ public class ItemService {
         }
 
         //수정메소드 불러오기
-        item.Update(request.getName(), request.getHopePrice(), request.getDescription(), request.getImage());
+        item.update(request.getName(), request.getHopePrice(), request.getDescription(), request.getImage());
 
         //수정 결과 DTO로 변환하여 반환
         return ItemUpdateResponse.from(item);

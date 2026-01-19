@@ -36,20 +36,26 @@ public class AuctionService {
     @Transactional
     public AuctionCreateResponse saveAuction(AuctionCreateRequest request) {
 
-        // 거래 조회
-        Deal foundDeal = dealRepository.findById(request.getDealId())
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_DEAL));
-
         // 감정 조회
         Appraise foundAppraise = appraiseRepository.findById(request.getAppraiseId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
 
+        // 거래 조회
+        Deal foundDeal = dealRepository.findById(request.getDealId())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_DEAL));
+
+        // 중복 검증
+        deduplicationAuction(foundAppraise, foundDeal);
+
         // 경매 생성
         Auction newAuction = new Auction(
-                foundDeal,
                 foundAppraise,
+                foundDeal,
                 foundAppraise.getBidPrice() // 시작입찰가 -> 감정가격
         );
+
+        // 경매의 생성일과 경매 종료일 설정
+        newAuction.auctionCloseTime(request.getTimeOption());
 
         Auction saveAuction = auctionRepository.save(newAuction);
 
@@ -142,6 +148,17 @@ public class AuctionService {
         // 인증유저와 조회된 유저가 일치하지 않을때 예외
         if (!authUserId.equals(userId)) {
             throw new CustomException(ExceptionCode.ACCESS_DENIED_ONLY_OWNER);
+        }
+    }
+
+    private void deduplicationAuction(Appraise foundAppraise, Deal foundDeal) {
+
+        boolean duplicatedAppraise = auctionRepository.existsByAppraise(foundAppraise);
+        boolean duplicatedDeal = auctionRepository.existsByDeal(foundDeal);
+
+        // 경매 등록시 기존 경매에 감정 or 거래가 존재하면 중복
+        if (duplicatedAppraise || duplicatedDeal) {
+            throw new CustomException(ExceptionCode.CONFLICT_AUCTION);
         }
     }
 
