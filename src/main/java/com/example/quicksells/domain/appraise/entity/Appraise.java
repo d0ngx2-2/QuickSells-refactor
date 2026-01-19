@@ -66,7 +66,7 @@ public class Appraise {
     // 여러 감정중 판매자가 선택할때,
     public void updateSelected(boolean isSelected) {
         if (this.isSeleted) {
-            throw new CustomException(ExceptionCode.ALREADY_SELETE_APPRAISE);
+            throw new CustomException(ExceptionCode.ALREADY_SELECT_APPRAISE);
         }
         this.isSeleted = isSelected;
     }
