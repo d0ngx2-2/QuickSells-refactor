@@ -13,6 +13,9 @@ import com.example.quicksells.domain.auction.model.response.AuctionUpdateRespons
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
+import com.example.quicksells.domain.deal.entity.Deal;
+import com.example.quicksells.domain.deal.service.DealService;
+import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,7 @@ public class AuctionService {
     private final AppraiseRepository appraiseRepository;
     private final UserRepository userRepository;
     private final AuctionCloseService auctionCloseService;
+    private final DealService dealService;
 
     @Transactional
     public AuctionCreateResponse saveAuction(AuctionCreateRequest request) {
@@ -40,11 +44,14 @@ public class AuctionService {
         // 중복 검증
         deduplicationAuction(foundAppraise);
 
+        // 감정에 등록된 상품
+        Item item = foundAppraise.getItem();
+
+        // 거래 생성
+        Deal deal = dealService.createAuctionDeal(item, foundAppraise.getBidPrice());
+
         // 경매 생성
-        Auction newAuction = new Auction(
-                foundAppraise,
-                foundAppraise.getBidPrice() // 시작입찰가 -> 감정가격
-        );
+        Auction newAuction = new Auction(foundAppraise, deal, foundAppraise.getBidPrice());
 
         // 경매의 생성일과 경매 종료일 설정
         newAuction.auctionCloseTime(request.getTimeOption());

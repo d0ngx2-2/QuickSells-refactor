@@ -53,6 +53,6 @@ public class DealController {
 
         List<DealListResponse> response = dealService.getDeals(type, user);
 
-        return ResponseEntity.ok(CommonResponse.success("거래 조회 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("거래 조회를 성공했습니다.", response));
     }
 }
