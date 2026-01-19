@@ -5,9 +5,11 @@ import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.information.entity.Information;
 import com.example.quicksells.domain.information.model.request.InformationCreateRequest;
+import com.example.quicksells.domain.information.model.request.InformationUpdateRequest;
 import com.example.quicksells.domain.information.model.response.InformationCreateResponse;
 import com.example.quicksells.domain.information.model.response.InformationGetAllResponse;
 import com.example.quicksells.domain.information.model.response.InformationGetResponse;
+import com.example.quicksells.domain.information.model.response.InformationUpdateResponse;
 import com.example.quicksells.domain.information.repository.InformationRepository;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
@@ -55,5 +57,16 @@ public class InformationService {
 
         return informationRepository.findAll(pageable)
                 .map(InformationGetAllResponse::from);
+    }
+
+    @Transactional
+    public InformationUpdateResponse update(Long informationId, InformationUpdateRequest request) {
+
+        Information information = informationRepository.findById(informationId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_INFORMATION));
+
+        information.update(request.getTitle(), request.getDescription(), request.getImageUrl());
+
+        return InformationUpdateResponse.from(information);
     }
 }

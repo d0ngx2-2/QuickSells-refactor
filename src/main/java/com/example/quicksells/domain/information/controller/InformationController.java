@@ -4,9 +4,11 @@ import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.information.model.request.InformationCreateRequest;
+import com.example.quicksells.domain.information.model.request.InformationUpdateRequest;
 import com.example.quicksells.domain.information.model.response.InformationCreateResponse;
 import com.example.quicksells.domain.information.model.response.InformationGetAllResponse;
 import com.example.quicksells.domain.information.model.response.InformationGetResponse;
+import com.example.quicksells.domain.information.model.response.InformationUpdateResponse;
 import com.example.quicksells.domain.information.service.InformationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +49,13 @@ public class InformationController {
         Page<InformationGetAllResponse> responses = informationService.getAll(pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("공지사항 전체 조회 성공하셨습니다.", responses));
+    }
+
+    @PatchMapping("/admin/informations/{id}")
+    public ResponseEntity<CommonResponse> update(@PathVariable Long id, @Valid @RequestBody InformationUpdateRequest request) {
+
+        InformationUpdateResponse response = informationService.update(id, request);
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("공지사항 수정 성공하셨습니다.", response));
     }
 }
