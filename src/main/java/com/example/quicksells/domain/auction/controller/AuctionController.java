@@ -20,7 +20,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,7 +46,7 @@ public class AuctionController {
 
         Page<AuctionGetAllResponse> page = auctionService.getAllAuction(pageable);
 
-        return ResponseEntity.ok(PageResponse.success("경매 목록 조회에 성공했습니다.", page));
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("경매 목록 조회에 성공했습니다.", page));
     }
 
     @Operation(summary = "경매 내역 상세 조회")
@@ -56,7 +55,7 @@ public class AuctionController {
 
         AuctionGetResponse result = auctionService.getAuction(id);
 
-        return ResponseEntity.ok(CommonResponse.success("경매 상세 조회에 성공했습니다.", result));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("경매 상세 조회에 성공했습니다.", result));
     }
 
     @Operation(summary = "경매 입찰(구매자)")
@@ -65,7 +64,7 @@ public class AuctionController {
 
         AuctionUpdateResponse result = auctionService.updateBidPrice(id, request, authUser);
 
-        return ResponseEntity.ok(CommonResponse.success("상품 입찰에 성공했습니다.", result));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("상품 입찰에 성공했습니다.", result));
     }
 
     @Operation(summary = "경매 삭제(관리자)")
@@ -74,6 +73,6 @@ public class AuctionController {
 
         auctionService.deleteAuction(id);
 
-        return ResponseEntity.ok(CommonResponse.success("경매 삭제에 성공했습니다."));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("경매 삭제에 성공했습니다."));
     }
 }

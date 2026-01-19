@@ -39,7 +39,7 @@ public class WishListController {
 
         List<MyWishListGetAllResponse> result = wishListService.getAllMyWishList(authUser, buyerId);
 
-        return ResponseEntity.ok(CommonResponse.success("내 관심 목록 조회에 성공했습니다.", result));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 관심 목록 조회에 성공했습니다.", result));
     }
 
     @DeleteMapping("/wishList")
@@ -47,6 +47,6 @@ public class WishListController {
 
         wishListService.deleteMyWishList(authUser, request);
 
-        return ResponseEntity.ok(CommonResponse.success(request.getIndex() + "번째 관심 목록 삭제에 성공했습니다"));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success(request.getIndex() + "번째 관심 목록 삭제에 성공했습니다"));
     }
 }
