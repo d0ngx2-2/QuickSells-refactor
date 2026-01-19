@@ -6,6 +6,7 @@ import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.information.entity.Information;
 import com.example.quicksells.domain.information.model.request.InformationCreateRequest;
 import com.example.quicksells.domain.information.model.response.InformationCreateResponse;
+import com.example.quicksells.domain.information.model.response.InformationGetResponse;
 import com.example.quicksells.domain.information.repository.InformationRepository;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
@@ -28,12 +29,21 @@ public class InformationService {
 
         boolean exitsTitle = informationRepository.existsByTitle(request.getTitle());
 
-        if (!exitsTitle) throw new CustomException(ExceptionCode.EXISTS_INFORMATION_TITLE);
+        if (exitsTitle) throw new CustomException(ExceptionCode.EXISTS_INFORMATION_TITLE);
 
         Information information = new Information(admin, request.getTitle(), request.getDescription(), request.getImageUrl());
 
         informationRepository.save(information);
 
         return InformationCreateResponse.from(information);
+    }
+
+    @Transactional(readOnly = true)
+    public InformationGetResponse getOne(Long informationId) {
+
+        Information information = informationRepository.findById(informationId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_INFORMATION));
+
+        return InformationGetResponse.from(information);
     }
 }

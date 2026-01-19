@@ -47,6 +47,7 @@ public enum ExceptionCode {
 
     // information
     EXISTS_INFORMATION_TITLE(HttpStatus.CONFLICT, "이미 사용 중인 공지사항 제목입니다."),
+    NOT_FOUND_INFORMATION(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다.")
     ;
 
 
