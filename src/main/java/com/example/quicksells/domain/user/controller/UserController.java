@@ -4,6 +4,7 @@ import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.user.model.request.UserRoleUpdateRequest;
 import com.example.quicksells.domain.user.model.request.UserUpdateRequest;
+import com.example.quicksells.domain.user.model.response.UserGetAllResponse;
 import com.example.quicksells.domain.user.model.response.UserGetResponse;
 import com.example.quicksells.domain.user.model.response.UserUpdateResponse;
 import com.example.quicksells.domain.user.service.UserService;
@@ -80,7 +81,7 @@ public class UserController {
     @GetMapping("/admin/users")
     public ResponseEntity<CommonResponse> getAllUsers(@AuthenticationPrincipal AuthUser authUser, @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<UserGetResponse> response = userService.getAllUsers(authUser, pageable);
+        Page<UserGetAllResponse> response = userService.getAllUsers(authUser, pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("전체 회원 조회 성공하셨습니다.", response));
     }

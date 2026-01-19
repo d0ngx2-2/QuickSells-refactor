@@ -7,6 +7,7 @@ import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.model.request.UserRoleUpdateRequest;
 import com.example.quicksells.domain.user.model.request.UserUpdateRequest;
+import com.example.quicksells.domain.user.model.response.UserGetAllResponse;
 import com.example.quicksells.domain.user.model.response.UserGetResponse;
 import com.example.quicksells.domain.user.model.response.UserUpdateResponse;
 import com.example.quicksells.domain.user.repository.UserRepository;
@@ -103,14 +104,14 @@ public class UserService {
      * @return 전체 유저 정보
      */
     @Transactional(readOnly = true)
-    public Page<UserGetResponse> getAllUsers(AuthUser authUser, Pageable pageable) {
+    public Page<UserGetAllResponse> getAllUsers(AuthUser authUser, Pageable pageable) {
 
         // 관리자 체크
         findByAdminIdOrException(authUser.getId());
 
         // 사용자 전체 조회
         return userRepository.findAllByRole(UserRole.USER, pageable)
-                .map(UserGetResponse::from);
+                .map(UserGetAllResponse::from);
     }
 
     /**
