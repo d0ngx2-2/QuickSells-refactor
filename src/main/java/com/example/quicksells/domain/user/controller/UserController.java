@@ -7,6 +7,8 @@ import com.example.quicksells.domain.user.model.request.UserUpdateRequest;
 import com.example.quicksells.domain.user.model.response.UserGetResponse;
 import com.example.quicksells.domain.user.model.response.UserUpdateResponse;
 import com.example.quicksells.domain.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "사용자(user) 관리")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -27,6 +30,7 @@ public class UserController {
      * 내 정보 조회 API
      *
      */
+    @Operation(summary = "내 정보 조회")
     @GetMapping("/users/me")
     public ResponseEntity<CommonResponse> getMyPage(@AuthenticationPrincipal AuthUser authUser) {
 
@@ -42,6 +46,7 @@ public class UserController {
      *
      * @param request 내 정보 수정 요청 정보
      */
+    @Operation(summary = "내 정보 수정")
     @PatchMapping("/users/me")
     public ResponseEntity<CommonResponse> update(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody UserUpdateRequest request) {
 
@@ -55,6 +60,7 @@ public class UserController {
      * 회원 탈퇴 API
      *
      */
+    @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/users/me")
     public ResponseEntity<CommonResponse> delete(@AuthenticationPrincipal AuthUser authUser) {
 
@@ -68,6 +74,7 @@ public class UserController {
      * hasRole (ADMIN)
      *
      */
+    @Operation(summary = "전체 사용자 정보 조회(관리자)")
     @GetMapping("/admin/users")
     public ResponseEntity<CommonResponse> getAllUsers(Pageable pageable) {
 
@@ -81,6 +88,7 @@ public class UserController {
      * hasRole (ADMIN)
      *
      */
+    @Operation(summary = "사용자 권한 변경(관리자)")
     @PatchMapping("/admin/users/{userId}")
     public ResponseEntity<CommonResponse> updateRole(@PathVariable Long userId, @Valid @RequestBody UserRoleUpdateRequest request) {
 

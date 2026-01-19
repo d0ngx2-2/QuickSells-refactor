@@ -1,5 +1,6 @@
 package com.example.quicksells.domain.auction.model.response;
 
+import com.example.quicksells.common.enums.AuctionStatusType;
 import com.example.quicksells.domain.auction.entity.Auction;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ public class AuctionGetResponse {
     private final Long dealId;
     private final Long buyerId;
     private final Integer bidPrice;
-    private final String status;
+    private final AuctionStatusType status;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 

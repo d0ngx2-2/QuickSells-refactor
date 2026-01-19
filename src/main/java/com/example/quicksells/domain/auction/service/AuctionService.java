@@ -14,7 +14,8 @@ import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.entity.Deal;
-import com.example.quicksells.domain.deal.repository.DealRepository;
+import com.example.quicksells.domain.deal.service.DealService;
+import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuctionService {
 
     private final AuctionRepository auctionRepository;
-    private final DealRepository dealRepository;
     private final AppraiseRepository appraiseRepository;
     private final UserRepository userRepository;
     private final AuctionCloseService auctionCloseService;
+    private final DealService dealService;
 
     @Transactional
     public AuctionCreateResponse saveAuction(AuctionCreateRequest request) {
@@ -40,19 +41,17 @@ public class AuctionService {
         Appraise foundAppraise = appraiseRepository.findById(request.getAppraiseId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
 
-        // 거래 조회
-        Deal foundDeal = dealRepository.findById(request.getDealId())
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_DEAL));
-
         // 중복 검증
-        deduplicationAuction(foundAppraise, foundDeal);
+        deduplicationAuction(foundAppraise);
+
+        // 감정에 등록된 상품
+        Item item = foundAppraise.getItem();
+
+        // 거래 생성
+        Deal deal = dealService.createAuctionDeal(item, foundAppraise.getBidPrice());
 
         // 경매 생성
-        Auction newAuction = new Auction(
-                foundAppraise,
-                foundDeal,
-                foundAppraise.getBidPrice() // 시작입찰가 -> 감정가격
-        );
+        Auction newAuction = new Auction(foundAppraise, deal, foundAppraise.getBidPrice());
 
         // 경매의 생성일과 경매 종료일 설정
         newAuction.auctionCloseTime(request.getTimeOption());
@@ -151,13 +150,12 @@ public class AuctionService {
         }
     }
 
-    private void deduplicationAuction(Appraise foundAppraise, Deal foundDeal) {
+    private void deduplicationAuction(Appraise foundAppraise) {
 
         boolean duplicatedAppraise = auctionRepository.existsByAppraise(foundAppraise);
-        boolean duplicatedDeal = auctionRepository.existsByDeal(foundDeal);
 
         // 경매 등록시 기존 경매에 감정 or 거래가 존재하면 중복
-        if (duplicatedAppraise || duplicatedDeal) {
+        if (duplicatedAppraise) {
             throw new CustomException(ExceptionCode.CONFLICT_AUCTION);
         }
     }

@@ -56,6 +56,28 @@ public class DealService {
     }
 
     /**
+     * 경매 서비스 로직에 경매 생성 비지니스 로직
+     */
+    @Transactional
+    public Deal createAuctionDeal(Item item, Integer startPrice) {
+
+        // 판매자 = 현재 아이템 소유자
+        User seller = item.getUser();
+
+        Deal deal = new Deal(
+                null,                 // buyer 없음
+                seller,
+                item,
+                DealType.AUCTION,
+                StatusType.ON_SALE,
+                startPrice
+        );
+
+        return dealRepository.save(deal);
+    }
+
+
+    /**
      * 거래 내역 상세 조회 API 비지니스 로직
      */
     @Transactional(readOnly = true)

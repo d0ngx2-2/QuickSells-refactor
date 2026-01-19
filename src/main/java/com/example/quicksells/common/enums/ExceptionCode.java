@@ -44,6 +44,7 @@ public enum ExceptionCode {
     INVALID_USER_ROLE(HttpStatus.BAD_REQUEST, "유효하지 않은 사용자 권한입니다."), //UserRole
     SAME_AS_OLD_PASSWORD(HttpStatus.BAD_REQUEST, "이전 비밀번호와 동일합니다."),
     CONFLICT_AUCTION(HttpStatus.CONFLICT, "중복된 경매입니다."),
+    CONFLICT_WISHLIST(HttpStatus.CONFLICT, "중복된 관심 목록입니다."),
 
     //ITEM
     NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "상품를 찾을 수 없습니다."), //appraise,Deal,item

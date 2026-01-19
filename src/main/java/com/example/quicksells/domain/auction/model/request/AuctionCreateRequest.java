@@ -9,7 +9,6 @@ import lombok.Getter;
 public class AuctionCreateRequest {
 
     private Long appraiseId;
-    private Long dealId;
 
     @NotNull(message = "경매종료 시간을 입력해주세요.")
     @Min(value = 1, message = "종료시간은 최소 1일부터 선택가능합니다.")
