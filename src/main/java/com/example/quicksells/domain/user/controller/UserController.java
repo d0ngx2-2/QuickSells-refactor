@@ -4,6 +4,7 @@ import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.user.model.request.UserRoleUpdateRequest;
 import com.example.quicksells.domain.user.model.request.UserUpdateRequest;
+import com.example.quicksells.domain.user.model.response.UserGetAllResponse;
 import com.example.quicksells.domain.user.model.response.UserGetResponse;
 import com.example.quicksells.domain.user.model.response.UserUpdateResponse;
 import com.example.quicksells.domain.user.service.UserService;
@@ -13,6 +14,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,7 +39,7 @@ public class UserController {
 
         UserGetResponse response = userService.getMyPage(authUser);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 정보 조회 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 정보 조회 성공하셨습니다.", response));
     }
 
 
@@ -52,7 +55,7 @@ public class UserController {
 
         UserUpdateResponse response = userService.update(authUser, request);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 정보 수정 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 정보 수정 성공하셨습니다.", response));
 
     }
 
@@ -66,7 +69,7 @@ public class UserController {
 
         userService.delete(authUser);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("회원 탈퇴 성공"));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("회원 탈퇴 성공하셨습니다."));
     }
 
     /**
@@ -76,11 +79,11 @@ public class UserController {
      */
     @Operation(summary = "전체 사용자 정보 조회(관리자)")
     @GetMapping("/admin/users")
-    public ResponseEntity<CommonResponse> getAllUsers(Pageable pageable) {
+    public ResponseEntity<CommonResponse> getAllUsers(@AuthenticationPrincipal AuthUser authUser, @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<UserGetResponse> response = userService.getAllUsers(pageable);
+        Page<UserGetAllResponse> response = userService.getAllUsers(authUser, pageable);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("전체 회원 조회 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("전체 회원 조회 성공하셨습니다.", response));
     }
 
     /**
@@ -90,10 +93,10 @@ public class UserController {
      */
     @Operation(summary = "사용자 권한 변경(관리자)")
     @PatchMapping("/admin/users/{userId}")
-    public ResponseEntity<CommonResponse> updateRole(@PathVariable Long userId, @Valid @RequestBody UserRoleUpdateRequest request) {
+    public ResponseEntity<CommonResponse> updateRole(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long userId, @Valid @RequestBody UserRoleUpdateRequest request) {
 
-        UserUpdateResponse response = userService.updateRole(userId, request);
+        UserUpdateResponse response = userService.updateRole(authUser ,userId, request);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("유저 권한 변경 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("유저 권한 변경 성공하셨습니다.", response));
     }
 }

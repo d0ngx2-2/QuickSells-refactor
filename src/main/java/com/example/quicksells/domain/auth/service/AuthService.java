@@ -45,9 +45,7 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        AuthSignupResponse response = AuthSignupResponse.from(savedUser);
-
-        return response;
+        return AuthSignupResponse.from(savedUser);
     }
 
     /**
@@ -71,9 +69,7 @@ public class AuthService {
         // 토큰 생성
         String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getName(), user.getRole());
 
-        AuthLoginResponse response = AuthLoginResponse.from(token);
-
-        return response;
+        return AuthLoginResponse.from(token);
     }
 
 }

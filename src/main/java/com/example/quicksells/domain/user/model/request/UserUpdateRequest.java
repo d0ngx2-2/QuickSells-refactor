@@ -22,5 +22,5 @@ public class UserUpdateRequest {
             message = "주소는 5~100자의 한글, 영문, 숫자 및 특수문자(- , ())만 입력 가능합니다.")
     private String address;
 
-
+    public boolean isAllFieldEmpty() {return password == null && phone == null && address == null;}
 }

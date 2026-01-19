@@ -2,7 +2,6 @@ package com.example.quicksells.domain.user.entity;
 
 import com.example.quicksells.common.entity.BaseEntity;
 import com.example.quicksells.common.enums.UserRole;
-import com.example.quicksells.domain.user.model.request.UserUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -38,6 +37,7 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 25)
     private String birth;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private UserRole role;
 
@@ -54,11 +54,11 @@ public class User extends BaseEntity {
         this.role = UserRole.USER;
         this.isDeleted = false;
     }
-    public void updatePassword(String encodedPassword) {this.password = encodedPassword;}
-
     public void updatePhone(String phone) {this.phone = phone;}
 
     public void updateAddress(String address) {this.address = address;}
+
+    public void updatePassword(String encodedPassword) {this.password = encodedPassword;}
 
     public void updateRole(String role) {this.role = UserRole.of(role);}
 
