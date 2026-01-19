@@ -49,4 +49,10 @@ public class WishList {
         Clock clock = Clock.systemDefaultZone();
         this.createdAt = LocalDateTime.now(clock);
     }
+
+    public void isDeleted(boolean isDeleted) {
+        Clock clock = Clock.systemDefaultZone();
+        this.isDeleted = isDeleted;
+        this.deletedAt = LocalDateTime.now(clock); // 관심 목록 삭제일
+    }
 }
