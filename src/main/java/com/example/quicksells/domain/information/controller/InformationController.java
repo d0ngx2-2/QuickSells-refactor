@@ -1,13 +1,17 @@
 package com.example.quicksells.domain.information.controller;
 
 import com.example.quicksells.common.model.CommonResponse;
+import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.information.model.request.InformationCreateRequest;
 import com.example.quicksells.domain.information.model.response.InformationCreateResponse;
+import com.example.quicksells.domain.information.model.response.InformationGetAllResponse;
 import com.example.quicksells.domain.information.model.response.InformationGetResponse;
 import com.example.quicksells.domain.information.service.InformationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,5 +41,11 @@ public class InformationController {
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("공지사항 단건 조회 성공하셨습니다.", response));
     }
 
+    @GetMapping("/informations")
+    public ResponseEntity<PageResponse> getAll(Pageable pageable){
 
+        Page<InformationGetAllResponse> responses = informationService.getAll(pageable);
+
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("공지사항 전체 조회 성공하셨습니다.", responses));
+    }
 }

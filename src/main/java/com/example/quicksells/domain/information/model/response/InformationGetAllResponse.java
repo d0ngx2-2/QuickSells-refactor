@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class InformationGetResponse {
+public class InformationGetAllResponse {
 
     private final Long id;
     private final Long adminId;
@@ -18,8 +18,8 @@ public class InformationGetResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public static InformationGetResponse from(Information information) {
-        return new InformationGetResponse(
+    public static InformationGetAllResponse from(Information information) {
+        return new InformationGetAllResponse(
                 information.getId(),
                 information.getUser().getId(),
                 information.getTitle(),
