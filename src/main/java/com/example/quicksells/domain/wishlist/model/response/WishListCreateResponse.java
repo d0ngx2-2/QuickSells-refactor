@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 public class WishListCreateResponse {
 
     private final Long id;
-    private final Long userId;
+    private final Long buyerId;
     private final Long itemId;
 
     public static WishListCreateResponse from(WishList wishList) {

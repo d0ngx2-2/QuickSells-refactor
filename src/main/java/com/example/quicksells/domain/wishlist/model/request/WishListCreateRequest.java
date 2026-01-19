@@ -5,6 +5,6 @@ import lombok.Getter;
 @Getter
 public class WishListCreateRequest {
 
-    private Long userId;
+    private Long buyerId;
     private Long itemId;
 }

@@ -25,8 +25,8 @@ public class WishListService {
     @Transactional
     public WishListCreateResponse saveWishList(WishListCreateRequest request) {
 
-        // 유저 조회
-        User foundUser = userRepository.findById(request.getUserId())
+        // 구매자 조회
+        User foundBuyer = userRepository.findById(request.getBuyerId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
 
         // 상품 조회
@@ -34,10 +34,10 @@ public class WishListService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
         // 중복 검증
-        deduplicationWishList(foundUser, foundItem);
+        deduplicationWishList(foundBuyer, foundItem);
 
         // 관심 목록 생성
-        WishList newWishList = new WishList(foundUser, foundItem);
+        WishList newWishList = new WishList(foundBuyer, foundItem);
 
         // 관심 목록 저장
         WishList saveWishList = wishListRepository.save(newWishList);
