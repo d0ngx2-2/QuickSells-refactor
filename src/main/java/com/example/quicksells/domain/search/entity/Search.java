@@ -27,7 +27,7 @@ public class Search {
 
     public Search(String keyword) {
         this.keyword = keyword;
-        this.count = 1L;
+        this.count = 0L;
     }
 
     public void increase() {
