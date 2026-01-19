@@ -1,12 +1,9 @@
 package com.example.quicksells.common.filter;
 
-import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.enums.UserRole;
-import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.common.security.JwtAuthenticationToken;
 import com.example.quicksells.common.util.JwtUtil;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
-import com.example.quicksells.domain.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
