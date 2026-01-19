@@ -27,7 +27,7 @@ public class Auction {
     @JoinColumn(name = "appraise_id", nullable = false)
     private Appraise appraise; // 감정 ID
 
-    @OneToOne(optional = false, cascade = CascadeType.PERSIST) // 거래x -> 경매 등록x
+    @OneToOne(optional = false) // 거래x -> 경매 등록x
     @JoinColumn(name = "deal_id")
     private Deal deal; // 거래 ID
 
