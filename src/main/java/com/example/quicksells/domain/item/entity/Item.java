@@ -22,7 +22,7 @@ public class Item extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "seller_id")
+    @JoinColumn(name = "seller_id", nullable = false)
     private User user;
 
     @Column(name = "name", nullable = false, length = 255)
@@ -31,16 +31,16 @@ public class Item extends BaseEntity {
     @Column(name = "hope_price", nullable = false)
     private Long hopePrice;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", length = 500, nullable = false)
     private String description;
 
-    @Column(name = "image", nullable = false, length = 255)
+    @Column(name = "image", nullable = false)
     private String image;
 
-    @Column(name = "status", nullable = false, length = 10)
+    @Column(name = "status", nullable = false)
     private boolean status = false;
 
-    @Column(name = "is_deleted", nullable = false, length = 10)
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
     public Item(User user, String name, Long hopePrice, String description, String image) {
@@ -51,7 +51,7 @@ public class Item extends BaseEntity {
         this.image = image;
     }
 
-    public void Update(String name, Long hopePrice, String description, String image) {
+    public void update(String name, Long hopePrice, String description, String image) {
         this.name = name;
         this.hopePrice = hopePrice;
         this.description = description;
@@ -61,7 +61,7 @@ public class Item extends BaseEntity {
     public void softDelete() {
         this.isDeleted = true;
     }
-  
+
     // 상품 판매 완료시 false > true 변경
     public void updateItemStatus(boolean status) {
         this.status = status;

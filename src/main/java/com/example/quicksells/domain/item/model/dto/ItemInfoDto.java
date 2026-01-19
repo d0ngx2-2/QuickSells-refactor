@@ -1,4 +1,4 @@
-package com.example.quicksells.domain.item.dto.dto;
+package com.example.quicksells.domain.item.model.dto;
 
 import com.example.quicksells.common.enums.UserRole;
 import lombok.AllArgsConstructor;
