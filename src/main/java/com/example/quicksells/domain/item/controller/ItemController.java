@@ -10,6 +10,8 @@ import com.example.quicksells.domain.item.model.response.ItemGetDetailResponse;
 import com.example.quicksells.domain.item.model.response.ItemGetListResponse;
 import com.example.quicksells.domain.item.model.response.ItemUpdateResponse;
 import com.example.quicksells.domain.item.service.ItemService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "상품(item) 관리")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -33,6 +36,7 @@ public class ItemController {
      * @param request
      * @return
      */
+    @Operation(summary = "상품 등록")
     @PostMapping("/items")
     public ResponseEntity<CommonResponse> itemCreatedApi(@AuthenticationPrincipal AuthUser authUser,@Valid @RequestBody ItemCreatedRequest request) {
 
@@ -51,6 +55,7 @@ public class ItemController {
      * @param id
      * @return
      */
+    @Operation(summary = "상품 상세 조회")
     @GetMapping("/items/{id}")
     public ResponseEntity<CommonResponse> itemGetDetailApi(@PathVariable Long id) {
 
@@ -69,6 +74,7 @@ public class ItemController {
      * @param pageable
      * @return
      */
+    @Operation(summary = "상품 전체 조회")
     @GetMapping("/items")
     public ResponseEntity<PageResponse> itemGetListApi(@PageableDefault(page = 0, size = 10) Pageable pageable) {
 
@@ -89,6 +95,7 @@ public class ItemController {
      * @param request 수정할 상품 정보(이름, 가격, 설명, 이미지)
      * @return 수정된 상품 정보 담은 응답 객체
      */
+    @Operation(summary = "상품 수정")
     @PutMapping("/items/{id}")
     public ResponseEntity<CommonResponse> itemUpdatedApi(@AuthenticationPrincipal AuthUser authUser,@PathVariable Long id, @Valid @RequestBody ItemUpdateRequest request){
 
@@ -108,6 +115,7 @@ public class ItemController {
      * @param authUser 로그인한 사용자 정보
      * @return 삭제 성공 메세지를 담은 공통 응답 객체
      */
+    @Operation(summary = "상품 삭제")
     @DeleteMapping("/items/{id}")
     public ResponseEntity<CommonResponse> itemDeletedApi(@PathVariable Long id, @AuthenticationPrincipal AuthUser authUser){
 

@@ -8,6 +8,8 @@ import com.example.quicksells.domain.wishlist.model.response.MyWishListGetAllRes
 import com.example.quicksells.domain.wishlist.model.response.WishListCreateResponse;
 import com.example.quicksells.domain.wishlist.service.WishListService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+@Tag(name = "관심 목록(wish_list) 관리")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class WishListController {
 
     private final WishListService wishListService;
 
+    @Operation(summary = "관심 목록 등록")
     @PostMapping("/wishList")
     public ResponseEntity<CommonResponse> createWishList(@RequestBody WishListCreateRequest request) {
 

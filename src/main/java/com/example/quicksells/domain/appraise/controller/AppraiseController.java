@@ -7,6 +7,8 @@ import com.example.quicksells.domain.appraise.model.request.AppraiseUpdateReques
 import com.example.quicksells.domain.appraise.model.response.AppraiseResponse;
 import com.example.quicksells.domain.appraise.service.AppraiseSevice;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +21,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+// swagger 컨트롤러 그룹화
+@Tag(name = "감정(appraise) 관리")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -29,8 +33,8 @@ public class AppraiseController {
     /**
      * 감정 생성 (ADMIN(감정사) 권한)
      */
+    @Operation(summary = "감정 생성(관리자(감정사))") // 각 API의 설명
     @PostMapping("/admin/appraises/items/{itemId}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CommonResponse> createAppraise(@PathVariable Long itemId, @Valid @RequestBody AppraiseCreateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
         Long adminId = authUser.getId();
@@ -43,6 +47,7 @@ public class AppraiseController {
     /**
      * 상품별 감정 목록 전체 조회 (페이징)
      */
+    @Operation(summary = "상품별 감정 목록 전체 조회")
     @GetMapping("/appraises/items/{itemId}")
     public ResponseEntity<PageResponse> getAppraises(@PathVariable Long itemId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "desc") String order, @AuthenticationPrincipal AuthUser authUser) {
 
@@ -60,6 +65,7 @@ public class AppraiseController {
     /**
      * 상품별 감정 단건 조회
      */
+    @Operation(summary = "상품별 감정 단건 조회")
     @GetMapping("/appraises/{id}/items/{itemId}")
     public ResponseEntity<CommonResponse> getAppraise(@PathVariable Long id, @PathVariable Long itemId,@AuthenticationPrincipal AuthUser authUser) {
 
@@ -74,6 +80,7 @@ public class AppraiseController {
      * 1. 판매자가 감정을 선택하여 즉시 판매 - 현재 감정 선택 API
      * 2. 감정사가 제시한 감정가가 마음에 들지 않는 경우 경매 처리 > 경매 생성 API에서 진행
      */
+    @Operation(summary = "감정 선택(판매자)")
     @PutMapping("/appraises/{id}")
     public ResponseEntity<CommonResponse> updateAppraise(@PathVariable Long id, @Valid @RequestBody AppraiseUpdateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
@@ -89,8 +96,8 @@ public class AppraiseController {
      * - 본인이 작성한 감정만 삭제 가능
      * - 선택된 감정(isSelected = true)은 삭제 불가
      */
+    @Operation(summary = "감정 삭제(관리자)")
     @DeleteMapping("/admin/appraises/items/{itemId}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CommonResponse> deleteAppraise(@PathVariable Long itemId, @AuthenticationPrincipal AuthUser authUser) {
 
         appraiseService.deleteAppraise(itemId, authUser);
