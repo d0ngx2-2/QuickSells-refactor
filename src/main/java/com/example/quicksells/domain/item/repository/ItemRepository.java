@@ -18,4 +18,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     //상품 목록 조회 검증 시 사용
     Page<Item> findAll(Pageable pageable);
 
+    //상품 삭제 안된 상품 검색 시 사용
+    Page<Item> findByNameContaining(String keyword, Pageable pageable);
 }
