@@ -32,7 +32,7 @@ public class AuthController {
 
         AuthSignupResponse response = authService.createUser(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("회원 가입 성공.", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("회원 가입 성공하셨습니다..", response));
     }
 
     /**
@@ -45,6 +45,6 @@ public class AuthController {
 
         AuthLoginResponse response = authService.login(request);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("로그인 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("로그인 성공하셨습니다.", response));
     }
 }

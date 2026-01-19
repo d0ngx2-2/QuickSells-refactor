@@ -36,10 +36,7 @@ public class UserService {
         // 사용자 체크
         User user = findByIdOrException(authUser.getId());
 
-        UserGetResponse response = UserGetResponse.from(user);
-
-        return response;
-
+        return UserGetResponse.from(user);
     }
 
     /**
@@ -56,33 +53,32 @@ public class UserService {
         User user = findByIdOrException(authUser.getId());
 
         // request 값이 비었을 경우 예외
-        if (request.getPassword() == null && request.getPhone() == null && request.getAddress() == null) {
+        if (request.isAllFieldEmpty()) throw new CustomException(ExceptionCode.NO_UPDATE_FIELD);
 
-            throw new CustomException(ExceptionCode.NO_UPDATE_FIELD);
-        }
-
-        // 비밀번호 변경
+        // 비빌번호 변경 로직
         if (request.getPassword() != null) {
-            String encoded = passwordEncoder.encode(request.getPassword());
-            user.updatePassword(encoded);
+
+            // 이전과 동일한 비밀번호인지 체크
+            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                throw new CustomException(ExceptionCode.SAME_AS_OLD_PASSWORD);
+            }
+
+            String encodedPassword = passwordEncoder.encode(request.getPassword());
+            user.updatePassword(encodedPassword);
         }
 
-        // 전화번호 변경
-        if (request.getPhone() != null) {
+        if (request.getPhone() != null && !request.getPhone().equals(user.getPhone())) {
             if (userRepository.existsByPhone(request.getPhone())) {
                 throw new CustomException(ExceptionCode.EXISTS_PHONE);
             }
             user.updatePhone(request.getPhone());
         }
 
-        // 주소 변경
-        if (request.getAddress() != null) {
+        if (request.getAddress() != null && !request.getAddress().equals(user.getAddress())) {
             user.updateAddress(request.getAddress());
         }
 
-        UserUpdateResponse response = UserUpdateResponse.from(user);
-
-        return response;
+        return UserUpdateResponse.from(user);
     }
 
     /**
@@ -97,7 +93,6 @@ public class UserService {
         User user = findByIdOrException(authUser.getId());
 
         user.delete();
-
     }
 
     /**
@@ -127,9 +122,7 @@ public class UserService {
         // 권한 수정
         user.updateRole(request.getRole());
 
-        UserUpdateResponse response = UserUpdateResponse.from(user);
-
-        return response;
+        return UserUpdateResponse.from(user);
     }
 
 

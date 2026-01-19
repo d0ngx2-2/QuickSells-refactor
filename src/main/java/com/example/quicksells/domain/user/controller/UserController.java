@@ -32,7 +32,7 @@ public class UserController {
 
         UserGetResponse response = userService.getMyPage(authUser);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 정보 조회 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 정보 조회 성공하셨습니다.", response));
     }
 
 
@@ -47,7 +47,7 @@ public class UserController {
 
         UserUpdateResponse response = userService.update(authUser, request);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 정보 수정 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 정보 수정 성공하셨습니다.", response));
 
     }
 
@@ -60,7 +60,7 @@ public class UserController {
 
         userService.delete(authUser);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("회원 탈퇴 성공"));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("회원 탈퇴 성공하셨습니다."));
     }
 
     /**
@@ -73,7 +73,7 @@ public class UserController {
 
         Page<UserGetResponse> response = userService.getAllUsers(pageable);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("전체 회원 조회 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("전체 회원 조회 성공하셨습니다.", response));
     }
 
     /**
@@ -86,6 +86,6 @@ public class UserController {
 
         UserUpdateResponse response = userService.updateRole(userId, request);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("유저 권한 변경 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("유저 권한 변경 성공하셨습니다.", response));
     }
 }
