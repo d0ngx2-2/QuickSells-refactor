@@ -26,6 +26,10 @@ public enum ExceptionCode {
     //deal
     NOT_DEAL_ON_SALE(HttpStatus.NOT_FOUND, "거래 중 상태가 아닙니다."),//deal entity
 
+    //information
+    NOT_FOUND_INFORMATION(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."),
+    EXISTS_INFORMATION_TITLE(HttpStatus.CONFLICT, "이미 존재하는 공지사항 제목입니다.."),
+
     //auth
     NOT_FOUND_EMAIL(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없습니다."),
     NOT_MATCHES_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다"),
@@ -33,6 +37,7 @@ public enum ExceptionCode {
 
     //USER
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."), //auction,Deal,User,Item
+    NOT_FOUND_ADMIN(HttpStatus.NOT_FOUND, "관리자를 찾을 수 없습니다."),
     NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND, "토큰을 찾을 수 없습니다."),
     EXISTS_PHONE(HttpStatus.CONFLICT, "이미 존재하는 핸드폰 번호입니다."), //auth,User
     NO_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "수정할 정보가 없습니다"),
