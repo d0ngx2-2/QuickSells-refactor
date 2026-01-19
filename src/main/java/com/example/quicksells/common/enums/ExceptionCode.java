@@ -28,7 +28,7 @@ public enum ExceptionCode {
 
     //information
     NOT_FOUND_INFORMATION(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."),
-    EXISTS_INFORMATION_TITLE(HttpStatus.CONFLICT, "이미 존재하는 공지사항 제목입니다.."),
+    EXISTS_INFORMATION_TITLE(HttpStatus.CONFLICT, "이미 존재하는 공지사항 제목입니다."),
 
     //auth
     NOT_FOUND_EMAIL(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없습니다."),
