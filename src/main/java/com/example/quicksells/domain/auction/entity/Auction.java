@@ -54,9 +54,9 @@ public class Auction {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Auction(Appraise appraise, Integer bidPrice) {
-        this.deal = null;
+    public Auction(Appraise appraise, Deal deal, Integer bidPrice) {
         this.appraise = appraise;
+        this.deal = deal;
         this.user = null;
         this.bidPrice = bidPrice;
         this.status = AuctionStatusType.AUCTIONING;
@@ -94,6 +94,7 @@ public class Auction {
             this.status = AuctionStatusType.UNSUCCESSFUL_BID; // 유찰완료 상태 변경
         } else {
             this.status = AuctionStatusType.SUCCESSFUL_BID;// 낙찰완료 상태 변경
+            this.deal.completeAuction(this.user, this.bidPrice); // 거래 완료 상태 변경
         }
     }
 
