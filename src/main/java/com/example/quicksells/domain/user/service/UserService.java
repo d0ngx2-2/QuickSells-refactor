@@ -67,6 +67,7 @@ public class UserService {
             user.updatePassword(encodedPassword);
         }
 
+        // 핸드폰 변경 로직
         if (request.getPhone() != null && !request.getPhone().equals(user.getPhone())) {
             if (userRepository.existsByPhone(request.getPhone())) {
                 throw new CustomException(ExceptionCode.EXISTS_PHONE);
@@ -74,6 +75,7 @@ public class UserService {
             user.updatePhone(request.getPhone());
         }
 
+        // 주소 변경 로직
         if (request.getAddress() != null && !request.getAddress().equals(user.getAddress())) {
             user.updateAddress(request.getAddress());
         }
@@ -133,6 +135,7 @@ public class UserService {
 
     // 관리자 체크
     private void findByAdminIdOrException(Long adminId) {
+
         userRepository.findById(adminId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ADMIN));
     }
