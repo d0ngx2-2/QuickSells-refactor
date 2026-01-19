@@ -3,28 +3,27 @@ package com.example.quicksells.domain.answer.model.response;
 import com.example.quicksells.domain.answer.entity.Answer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class AnswerCreateResponse {
+public class AnswerGetResponse {
 
     private final Long answerId;
-    private final Long askId;
-    private final Long adminId;
-    private final String adminName;
+    private final Long askInd;
     private final String title;
-    private final String content;
+    private final String Content;
+    private final String adminName;
     private final LocalDateTime createdAt;
 
-    public static AnswerCreateResponse from(Answer answer) {
-        return new AnswerCreateResponse(
+    public static AnswerGetResponse from(Answer answer) {
+        return new AnswerGetResponse(
                 answer.getId(),
                 answer.getAsk().getId(),
-                answer.getAdmin().getId(),
-                answer.getAdmin().getName(),
                 answer.getTitle(),
                 answer.getContent(),
+                answer.getAdmin().getName(),
                 answer.getCreatedAt()
         );
     }

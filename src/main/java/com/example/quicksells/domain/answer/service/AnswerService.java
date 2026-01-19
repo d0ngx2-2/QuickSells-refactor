@@ -6,6 +6,7 @@ import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.answer.entity.Answer;
 import com.example.quicksells.domain.answer.model.request.AnswerCreateRequest;
 import com.example.quicksells.domain.answer.model.response.AnswerCreateResponse;
+import com.example.quicksells.domain.answer.model.response.AnswerGetResponse;
 import com.example.quicksells.domain.answer.repository.AnswerRepository;
 import com.example.quicksells.domain.ask.entity.Ask;
 import com.example.quicksells.domain.ask.repository.AskRepository;
@@ -37,11 +38,11 @@ public class AnswerService {
 
         // 질문 찾기(Answer로 바꾸기 메세지)
         Ask ask = askRepository.findById(askId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ASK));
 
         // 답변 존재여부 (ANSWER로 바꾸기)
         if (answerRepository.existsByAsk(ask)) {
-            throw new CustomException(ExceptionCode.CONFLICT_AUCTION);
+            throw new CustomException(ExceptionCode.NOT_FOUND_ANSWER);
         }
 
         // 관리자 유저 존재여부
@@ -55,4 +56,17 @@ public class AnswerService {
 
         return AnswerCreateResponse.from(savedAnswer);
     }
+
+    /**
+     * 답변 조회(유저/관리자)
+     */
+    @Transactional(readOnly = true)
+    public AnswerGetResponse getAnswer(Long askId) {
+
+        Answer answer = answerRepository.findbyAskId(askId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ANSWER));
+
+        return AnswerGetResponse.from(answer);
+    }
+
 }
