@@ -10,15 +10,22 @@ import com.example.quicksells.domain.information.model.response.InformationGetAl
 import com.example.quicksells.domain.information.model.response.InformationGetResponse;
 import com.example.quicksells.domain.information.model.response.InformationUpdateResponse;
 import com.example.quicksells.domain.information.service.InformationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+@Tag(name = "공지사항(information) 관리")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -32,10 +39,11 @@ public class InformationController {
      *
      * @param request 공지사항 생성 요청 정보
      */
-    @PostMapping("/admin/informations")
-    public ResponseEntity<CommonResponse> create(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody InformationCreateRequest request) {
+    @Operation(summary = "공지사항 생성(관리자)")
+    @PostMapping(value = "/admin/informations", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CommonResponse> create(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestPart("request") InformationCreateRequest request, @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        InformationCreateResponse response = informationService.create(authUser, request);
+        InformationCreateResponse response = informationService.create(authUser, request, image);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("공지사항 생성 성공하셨습니다.", response));
     }
@@ -44,6 +52,7 @@ public class InformationController {
      * 공지사항 단건 조회 API
      *
      */
+    @Operation(summary = "공지사항 단건 조회")
     @GetMapping("/informations/{id}")
     public ResponseEntity<CommonResponse> getOne(@PathVariable Long id) {
 
@@ -56,8 +65,9 @@ public class InformationController {
      * 공지사항 전제 조회 API
      *
      */
+    @Operation(summary = "공지사항 전체 조회")
     @GetMapping("/informations")
-    public ResponseEntity<PageResponse> getAll(Pageable pageable){
+    public ResponseEntity<PageResponse> getAll(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable){
 
         Page<InformationGetAllResponse> responses = informationService.getAll(pageable);
 
@@ -70,10 +80,11 @@ public class InformationController {
      *
      * @param request 공지사항 수정 요청 정보
      */
-    @PatchMapping("/admin/informations/{id}")
-    public ResponseEntity<CommonResponse> update(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @Valid @RequestBody InformationUpdateRequest request) {
+    @Operation(summary = "공지사항 수정(관리자)")
+    @PatchMapping(value = "/admin/informations/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CommonResponse> update(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @Valid @RequestPart(value = "request", required = false) InformationUpdateRequest request, @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        InformationUpdateResponse response = informationService.update(authUser, id, request);
+        InformationUpdateResponse response = informationService.update(authUser, id, request, image);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("공지사항 수정 성공하셨습니다.", response));
     }
@@ -83,6 +94,7 @@ public class InformationController {
      * hasRole(ADMIN)
      *
      */
+    @Operation(summary = "공지사항 삭제(관리자)")
     @DeleteMapping("/admin/informations/{id}")
     public ResponseEntity<CommonResponse> delete(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
 

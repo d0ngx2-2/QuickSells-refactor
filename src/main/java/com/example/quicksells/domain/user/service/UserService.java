@@ -7,6 +7,7 @@ import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.model.request.UserRoleUpdateRequest;
 import com.example.quicksells.domain.user.model.request.UserUpdateRequest;
+import com.example.quicksells.domain.user.model.response.UserGetAllResponse;
 import com.example.quicksells.domain.user.model.response.UserGetResponse;
 import com.example.quicksells.domain.user.model.response.UserUpdateResponse;
 import com.example.quicksells.domain.user.repository.UserRepository;
@@ -34,12 +35,9 @@ public class UserService {
     public UserGetResponse getMyPage(AuthUser authUser) {
 
         // 사용자 체크
-        User user = findByIdOrException(authUser.getId());
+        User user = findByUserIdOrException(authUser.getId());
 
-        UserGetResponse response = UserGetResponse.from(user);
-
-        return response;
-
+        return UserGetResponse.from(user);
     }
 
     /**
@@ -53,36 +51,37 @@ public class UserService {
     public UserUpdateResponse update(AuthUser authUser, UserUpdateRequest request) {
 
         // 사용자 체크
-        User user = findByIdOrException(authUser.getId());
+        User user = findByUserIdOrException(authUser.getId());
 
         // request 값이 비었을 경우 예외
-        if (request.getPassword() == null && request.getPhone() == null && request.getAddress() == null) {
+        if (request.isAllFieldEmpty()) throw new CustomException(ExceptionCode.NO_UPDATE_FIELD);
 
-            throw new CustomException(ExceptionCode.NO_UPDATE_FIELD);
-        }
-
-        // 비밀번호 변경
+        // 비빌번호 변경 로직
         if (request.getPassword() != null) {
-            String encoded = passwordEncoder.encode(request.getPassword());
-            user.updatePassword(encoded);
+
+            // 이전과 동일한 비밀번호인지 체크
+            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                throw new CustomException(ExceptionCode.SAME_AS_OLD_PASSWORD);
+            }
+
+            String encodedPassword = passwordEncoder.encode(request.getPassword());
+            user.updatePassword(encodedPassword);
         }
 
-        // 전화번호 변경
-        if (request.getPhone() != null) {
+        // 핸드폰 변경 로직
+        if (request.getPhone() != null && !request.getPhone().equals(user.getPhone())) {
             if (userRepository.existsByPhone(request.getPhone())) {
                 throw new CustomException(ExceptionCode.EXISTS_PHONE);
             }
             user.updatePhone(request.getPhone());
         }
 
-        // 주소 변경
-        if (request.getAddress() != null) {
+        // 주소 변경 로직
+        if (request.getAddress() != null && !request.getAddress().equals(user.getAddress())) {
             user.updateAddress(request.getAddress());
         }
 
-        UserUpdateResponse response = UserUpdateResponse.from(user);
-
-        return response;
+        return UserUpdateResponse.from(user);
     }
 
     /**
@@ -94,10 +93,9 @@ public class UserService {
     public void delete(AuthUser authUser) {
 
         // 사용자 및 소프트 딜리트 체크
-        User user = findByIdOrException(authUser.getId());
+        User user = findByUserIdOrException(authUser.getId());
 
         user.delete();
-
     }
 
     /**
@@ -106,11 +104,14 @@ public class UserService {
      * @return 전체 유저 정보
      */
     @Transactional(readOnly = true)
-    public Page<UserGetResponse> getAllUsers(Pageable pageable) {
+    public Page<UserGetAllResponse> getAllUsers(AuthUser authUser, Pageable pageable) {
+
+        // 관리자 체크
+        findByAdminIdOrException(authUser.getId());
 
         // 사용자 전체 조회
         return userRepository.findAllByRole(UserRole.USER, pageable)
-                .map(UserGetResponse::from);
+                .map(UserGetAllResponse::from);
     }
 
     /**
@@ -119,21 +120,29 @@ public class UserService {
      * @return 변경된 유저 정보
      */
     @Transactional
-    public UserUpdateResponse updateRole(Long userId, UserRoleUpdateRequest request) {
+    public UserUpdateResponse updateRole(AuthUser authUser, Long userId, UserRoleUpdateRequest request) {
+
+        // 관리자 체크
+        findByAdminIdOrException(authUser.getId());
 
         // 사용자 체크
-        User user = findByIdOrException(userId);
+        User user = findByUserIdOrException(userId);
 
         // 권한 수정
         user.updateRole(request.getRole());
 
-        UserUpdateResponse response = UserUpdateResponse.from(user);
-
-        return response;
+        return UserUpdateResponse.from(user);
     }
 
+    // 관리자 체크
+    private void findByAdminIdOrException(Long adminId) {
 
-    private User findByIdOrException(Long userId) {
+        userRepository.findById(adminId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ADMIN));
+    }
+
+    // 사용자 체크
+    private User findByUserIdOrException(Long userId) {
 
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));

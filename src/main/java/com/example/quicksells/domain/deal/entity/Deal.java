@@ -29,7 +29,7 @@ public class Deal {
     @JoinColumn(name = "seller_id")
     private User seller;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private Item item;
 
@@ -82,10 +82,14 @@ public class Deal {
      * - status: ON_SALE -> SOLD
      * - 추후 결제 API 붙일때, 활용 하면 좋습니다.
      */
-    public void complete() {
+    public void completeAuction(User buyer, Integer finalPrice) {
+
         if (this.status != StatusType.ON_SALE) {
             throw new CustomException(ExceptionCode.NOT_DEAL_ON_SALE);
         }
+
+        this.buyer = buyer;
+        this.dealPrice = finalPrice;
         this.status = StatusType.SOLD;
     }
 

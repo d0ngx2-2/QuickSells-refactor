@@ -28,7 +28,8 @@ public enum ExceptionCode {
 
     //information
     NOT_FOUND_INFORMATION(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."),
-    EXISTS_INFORMATION_TITLE(HttpStatus.CONFLICT, "이미 존재하는 공지사항 제목입니다.."),
+    EXISTS_INFORMATION_TITLE(HttpStatus.CONFLICT, "이미 존재하는 공지사항 제목입니다."),
+    INFORMATION_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "공지사항 생성에 실패했습니다."),
 
     //auth
     NOT_FOUND_EMAIL(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없습니다."),
@@ -42,7 +43,9 @@ public enum ExceptionCode {
     EXISTS_PHONE(HttpStatus.CONFLICT, "이미 존재하는 핸드폰 번호입니다."), //auth,User
     NO_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "수정할 정보가 없습니다"),
     INVALID_USER_ROLE(HttpStatus.BAD_REQUEST, "유효하지 않은 사용자 권한입니다."), //UserRole
+    SAME_AS_OLD_PASSWORD(HttpStatus.BAD_REQUEST, "이전 비밀번호와 동일합니다."),
     CONFLICT_AUCTION(HttpStatus.CONFLICT, "중복된 경매입니다."),
+    CONFLICT_WISHLIST(HttpStatus.CONFLICT, "중복된 관심 목록입니다."),
 
     //ITEM
     NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "상품를 찾을 수 없습니다."), //appraise,Deal,item
@@ -50,8 +53,18 @@ public enum ExceptionCode {
     ACCESS_DENIED_EXCEPTION_DELETED_ITEM(HttpStatus.FORBIDDEN, "상품 삭제 권한이 없습니다."),
     CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다."),
 
-    //SEARCH
-    INVALID_SEARCH_KEYWORD(HttpStatus.BAD_REQUEST,"검색어 입력은 필수입니다." ),
+    //AWS
+    NOT_FOUND_FILE(HttpStatus.NOT_FOUND,"파일 이름이 존재하지 않습니다."),
+    INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "이미지 파일만 업로드 가능합니다. (jpg, jpeg, png, gif)"),
+    FILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 오류가 발생했습니다."),
+    FILE_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "파일 삭제 중 오류가 발생했습니다."),
+
+    //ANSWER
+    NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "답변 내역을 찾을 수 없습니다."),
+
+    //ASK
+    NOT_FOUND_ASK(HttpStatus.NOT_FOUND, "문의 내역을 찾을 수 없습니다."),
+    ONLY_OWNER_ASK(HttpStatus.NOT_FOUND, "본인의 문의 내역만 접근할 수 있습니다."),
 
     //미사용
     AUCTION_EXPIRED_SOLD_OUT(HttpStatus.BAD_REQUEST, "경매 시간이 종료되어 낙찰이 완료 되었습니다."),
@@ -59,8 +72,11 @@ public enum ExceptionCode {
     NOT_DEAL_BEFORE(HttpStatus.NOT_FOUND, "거래 전 상태가 아닙니다."),
     ALREADY_DELETE_APPRAISE(HttpStatus.CONFLICT, "이미 삭제된 감정입니다."),
     NULL_POINT_BID_PRICE(HttpStatus.INTERNAL_SERVER_ERROR, "입찰 금액을 작성해주세요."),
-    ;
 
+    NOT_FOUND_MY_WISHLIST(HttpStatus.NOT_FOUND, "내 관심 목록을 찾을 수 없습니다."),
+    ACCESS_DENIED_EXCEPTION_WISHLIST(HttpStatus.FORBIDDEN, "관심 목록 대한 권한이 없습니다."),
+    NOT_EXIST_ONE_WISHLIST(HttpStatus.NOT_FOUND, "해당 관심 목록은 존재하지 않습니다.")
+    ;
 
     private final HttpStatus status;
     private final String message;
