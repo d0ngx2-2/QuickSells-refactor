@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Table(name = "wish_list", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "item_id"})) // 중복 저장 x
+@Table(name = "wish_list", uniqueConstraints = @UniqueConstraint(columnNames = {"buyer_id", "item_id"})) // 중복 저장 x
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("is_deleted = false")
 public class WishList {
@@ -23,7 +23,7 @@ public class WishList {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id", nullable = false)
-    private User user;
+    private User buyer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
@@ -38,8 +38,8 @@ public class WishList {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public WishList(User user, Item item) {
-        this.user = user;
+    public WishList(User buyer, Item item) {
+        this.buyer = buyer;
         this.item = item;
         this.isDeleted = false;
     }
