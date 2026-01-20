@@ -49,4 +49,9 @@ public class Answer extends BaseEntity {
     public void delete() {
         this.isDeleted = true;
     }
+
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }
