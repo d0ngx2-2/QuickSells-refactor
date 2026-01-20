@@ -17,9 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "공지사항(information) 관리")
 @RestController
@@ -36,10 +38,10 @@ public class InformationController {
      * @param request 공지사항 생성 요청 정보
      */
     @Operation(summary = "공지사항 생성(관리자)")
-    @PostMapping("/admin/informations")
-    public ResponseEntity<CommonResponse> create(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody InformationCreateRequest request) {
+    @PostMapping(value = "/admin/informations", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CommonResponse> create(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestPart("request") InformationCreateRequest request, @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        InformationCreateResponse response = informationService.create(authUser, request);
+        InformationCreateResponse response = informationService.create(authUser, request, image);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("공지사항 생성 성공하셨습니다.", response));
     }
@@ -77,10 +79,10 @@ public class InformationController {
      * @param request 공지사항 수정 요청 정보
      */
     @Operation(summary = "공지사항 수정(관리자)")
-    @PatchMapping("/admin/informations/{id}")
-    public ResponseEntity<CommonResponse> update(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @Valid @RequestBody InformationUpdateRequest request) {
+    @PatchMapping(value = "/admin/informations/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CommonResponse> update(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @Valid @RequestPart(value = "request", required = false) InformationUpdateRequest request, @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        InformationUpdateResponse response = informationService.update(authUser, id, request);
+        InformationUpdateResponse response = informationService.update(authUser, id, request, image);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("공지사항 수정 성공하셨습니다.", response));
     }

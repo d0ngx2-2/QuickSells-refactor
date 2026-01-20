@@ -23,13 +23,13 @@ public class Information extends BaseEntity {
     @JoinColumn(name = "admin_id")
     private User user;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, unique = true, length = 50)
     private String title;
 
     @Column(nullable = false, length = 500)
     private String description;
 
-    @Column(nullable = false, length = 500)
+    @Column(length = 500)
     private String imageUrl;
 
     @Column(nullable = false, length = 10)
@@ -50,4 +50,12 @@ public class Information extends BaseEntity {
     }
 
     public void delete() {this.isDeleted = true;}
+
+    public void updateTitle(String title) {this.title = title;}
+
+    public void updateDescription(String description) {this.description = description;}
+
+    public void updateImage(String imageUrl) {this.imageUrl = imageUrl;}
+
+    public void removeImage() {this.imageUrl = null;}
 }

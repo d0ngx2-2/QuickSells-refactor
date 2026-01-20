@@ -52,6 +52,12 @@ public enum ExceptionCode {
     ACCESS_DENIED_EXCEPTION_DELETED_ITEM(HttpStatus.FORBIDDEN, "상품 삭제 권한이 없습니다."),
     CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다."),
 
+    //AWS
+    NOT_FOUND_FILE(HttpStatus.NOT_FOUND,"파일 이름이 존재하지 않습니다."),
+    INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "이미지 파일만 업로드 가능합니다. (jpg, jpeg, png, gif)"),
+    FILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 오류가 발생했습니다."),
+    FILE_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "파일 삭제 중 오류가 발생했습니다."),
+
     //ASWER
     NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "답변 내역을 찾을 수 없습니다."),
 
