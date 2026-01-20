@@ -75,7 +75,7 @@ public class AskController {
      * 문의 수정 (본인만 가능)
      */
     @Operation(summary = "문의 수정")
-    @PutMapping("/asks/{id}")
+    @PatchMapping("/asks/{id}")
     public ResponseEntity<CommonResponse> updateAsk(@PathVariable Long id, @Valid @RequestBody AskUpdateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
         AskUpdateReponse response = askService.updateAsk(id, request, authUser);
