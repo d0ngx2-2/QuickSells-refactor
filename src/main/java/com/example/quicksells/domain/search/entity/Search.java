@@ -17,7 +17,7 @@ public class Search {
     @Column(name = "search_id", nullable = false)
     private Long id;
 
-    @Column(name = "keyword", length = 50, nullable = false,unique = true)
+    @Column(name = "keyword", length = 50, nullable = false)
     private String keyword;
 
     @Column(name = "count", nullable = false)
@@ -25,7 +25,7 @@ public class Search {
 
     public Search(String keyword) {
         this.keyword = keyword;
-        this.count = 0L; //0 부터 카운트 증가
+        this.count = 1L;
     }
 
     public void increase() {

@@ -18,7 +18,6 @@ public class SearchService {
     private final KeywordService keywordService;
     private final ItemRepository itemRepository;
 
-
     @Transactional
     public Page<SearchGetResponse> search(String keyword, Pageable
             pageable) {
@@ -50,3 +49,4 @@ public class SearchService {
         return searchKeyword;
     }
 }
+

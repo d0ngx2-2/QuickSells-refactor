@@ -96,9 +96,10 @@ public class ItemService {
 
     /**
      * 상품 수정 기능
+     *
      * @param authUser 로그인한 사용자 정보
-     * @param id 수정하려는 상품 ID
-     * @param request 수정할 상품 정보(이름, 희망가격, 설명, 이미지)
+     * @param id       수정하려는 상품 ID
+     * @param request  수정할 상품 정보(이름, 희망가격, 설명, 이미지)
      * @return 수정된 상품 정보를 담은 응답 DTO
      */
     @Transactional
@@ -114,6 +115,13 @@ public class ItemService {
             throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_UPDATED_ITEM);
         }
 
+//        //이름 중복 시 에러 409에러 발생
+        if (request.getName() != null && !request.getName().equals(item.getName())) {
+            if (itemRepository.existsByNameAndIdNot(request.getName(), id)) {
+                throw new CustomException(ExceptionCode.CONFLICT_ITEM);
+            }
+        }
+
         //수정메소드 불러오기
         item.update(request.getName(), request.getHopePrice(), request.getDescription(), request.getImage());
 
@@ -123,7 +131,8 @@ public class ItemService {
 
     /**
      * 상품 삭제 기능
-     * @param id 삭제하려는 상품 ID
+     *
+     * @param id       삭제하려는 상품 ID
      * @param authUser 로그안한 사용자 정보
      */
     @Transactional

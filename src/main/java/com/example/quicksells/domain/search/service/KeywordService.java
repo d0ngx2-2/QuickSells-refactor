@@ -19,7 +19,6 @@ public class KeywordService {
 
         //keyword -> 공백 처리
         String readKeyword = keyword == null ? "" : keyword.trim();
-
         if (readKeyword.isEmpty()) {
             throw new RuntimeException("검색어 입력은 필수입니다.");
         }
