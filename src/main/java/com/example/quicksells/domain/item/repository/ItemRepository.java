@@ -25,6 +25,4 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     //상품 수정 중복 검증 시 사용
     boolean existsByNameAndIdNot(String name, Long id);
 
-    List<Item> findByNameContainingIgnoreCase(String name);
-
 }
