@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 public class AuctionCreateRequest {
 
+    @NotNull(message = "감정은 필수입니다.")
     private Long appraiseId;
 
     @NotNull(message = "경매종료 시간을 입력해주세요.")
