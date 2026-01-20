@@ -20,6 +20,10 @@ public interface AppraiseRepository extends JpaRepository<Appraise, Long> {
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appraise a WHERE a.item.id = :itemId AND a.isSeleted = true")
     boolean existsByItemIdAndIsSelectedTrue(@Param("itemId") Long itemId);
 
+    // 특정 상품에 대해 특정 감정사가 이미 감정을 등록했는지 확인
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appraise a WHERE a.item.id = :itemId AND a.user.id = :adminId")
+    boolean existsByItemIdAndUserId(@Param("itemId") Long itemId, @Param("adminId") Long adminId);
+
     // 특정 상품에 대한 특정 감정 조회 (삭제되지 않은 것만)
     @Query("SELECT a FROM Appraise a WHERE a.id = :appraiseId AND a.item.id = :itemId")
     Optional<Appraise> findByIdAndItemId(@Param("appraiseId") Long appraiseId, @Param("itemId") Long itemId);
