@@ -22,7 +22,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     //상품 삭제 안된 상품 검색 시 사용
     Page<Item> findByNameContaining(String keyword, Pageable pageable);
+
     //상품 수정 중복 검증 시 사용
     boolean existsByNameAndIdNot(String name, Long id);
-
 }
