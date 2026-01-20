@@ -1,5 +1,6 @@
 package com.example.quicksells.domain.information.service;
 
+import com.example.quicksells.common.aws.service.S3Service;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class InformationService {
 
     private final InformationRepository informationRepository;
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     /**
      * 공지사항 생성 기능
@@ -34,21 +37,32 @@ public class InformationService {
      * @throws CustomException 관리자 체크, 공지사항 제목 존재 여부
      */
     @Transactional
-    public InformationCreateResponse create(AuthUser authUser, InformationCreateRequest request) {
+    public InformationCreateResponse create(AuthUser authUser, InformationCreateRequest request, MultipartFile image) {
 
         // 관리자 체크
         User admin = findAdminOrException(authUser);
 
         // 공지사항 제목 체크
-        boolean exitsTitle = informationRepository.existsByTitle(request.getTitle());
+        validateExistTitle(request.getTitle());
 
-        if (exitsTitle) throw new CustomException(ExceptionCode.EXISTS_INFORMATION_TITLE);
+        // 이미지 체크
+        String imageUrl = uploadImageIfPresent(image);
 
-        Information information = new Information(admin, request.getTitle(), request.getDescription(), request.getImageUrl());
+        try {
+
+        Information information = new Information(admin, request.getTitle(), request.getDescription(), imageUrl);
 
         informationRepository.save(information);
 
         return InformationCreateResponse.from(information);
+
+        } catch (Exception e) {
+
+            if (imageUrl != null) {
+                s3Service.deleteImage(imageUrl);
+            }
+            throw new CustomException(ExceptionCode.INFORMATION_CREATE_FAILED);
+        }
     }
 
     /**
@@ -86,7 +100,12 @@ public class InformationService {
      * @throws CustomException 관리자 체크, 공지사항 체크
      */
     @Transactional
-    public InformationUpdateResponse update(AuthUser authUser, Long informationId, InformationUpdateRequest request) {
+    public InformationUpdateResponse update(AuthUser authUser, Long informationId, InformationUpdateRequest request, MultipartFile image) {
+
+        // request 값이 비었을 경우 예외
+        if (request.isAllFieldEmpty() && (image == null || image.isEmpty())) {
+            throw new CustomException(ExceptionCode.NO_UPDATE_FIELD);
+        }
 
         // 관리자 체크
         findAdminOrException(authUser);
@@ -94,7 +113,15 @@ public class InformationService {
         // 공지사항 체크
         Information information = findInformationOrException(informationId);
 
-        information.update(request.getTitle(), request.getDescription(), request.getImageUrl());
+        // 제목 중복 체크
+        if (request.getTitle() != null && !request.getTitle().equals(information.getTitle())) {
+
+            validateExistTitle(request.getTitle());
+        }
+
+        information.update(request.getTitle(), request.getDescription());
+
+        handleImageUpdate(information, image, Boolean.TRUE.equals(request.getDeleteImage()));
 
         return InformationUpdateResponse.from(information);
     }
@@ -116,16 +143,54 @@ public class InformationService {
         information.delete();
     }
 
+    // 공지사항 제목 중보 체크
+    private void validateExistTitle(String title) {
+
+        if (informationRepository.existsByTitle(title)) {
+            throw new CustomException(ExceptionCode.EXISTS_INFORMATION_TITLE);
+        }
+    }
+
+    // 이미지 체크
+    private String uploadImageIfPresent(MultipartFile image) {
+
+        return (image != null && !image.isEmpty()) ? s3Service.uploadImage(image) : null;
+    }
+
+    // 공지사항 체크
     private Information findInformationOrException(Long informationId) {
 
         return informationRepository.findById(informationId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_INFORMATION));
     }
 
+    // 관리자 체크
     private User findAdminOrException(AuthUser authUser) {
 
         return userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ADMIN));
     }
 
+    // 이미지 변경 메서드
+    private void handleImageUpdate(Information information, MultipartFile image, boolean deleteImage) {
+
+        // 이미지 삭제 요청
+        if (deleteImage) {
+            if (information.getImageUrl() != null) {
+                s3Service.deleteImage(information.getImageUrl());
+                information.removeImage();
+            }
+            return;
+        }
+
+        // 이미지 변경 요청
+        if (image != null && !image.isEmpty()) {
+            if (information.getImageUrl() != null) {
+                s3Service.deleteImage(information.getImageUrl());
+            }
+
+            String imageUrl = s3Service.uploadImage(image);
+            information.updateImage(imageUrl);
+        }
+    }
 }
