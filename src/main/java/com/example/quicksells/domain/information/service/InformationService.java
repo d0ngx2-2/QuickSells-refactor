@@ -1,5 +1,6 @@
 package com.example.quicksells.domain.information.service;
 
+import com.example.quicksells.common.aws.service.S3Service;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class InformationService {
 
     private final InformationRepository informationRepository;
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     /**
      * 공지사항 생성 기능
@@ -34,7 +37,7 @@ public class InformationService {
      * @throws CustomException 관리자 체크, 공지사항 제목 존재 여부
      */
     @Transactional
-    public InformationCreateResponse create(AuthUser authUser, InformationCreateRequest request) {
+    public InformationCreateResponse create(AuthUser authUser, InformationCreateRequest request, MultipartFile image) {
 
         // 관리자 체크
         User admin = findAdminOrException(authUser);
@@ -44,7 +47,13 @@ public class InformationService {
 
         if (exitsTitle) throw new CustomException(ExceptionCode.EXISTS_INFORMATION_TITLE);
 
-        Information information = new Information(admin, request.getTitle(), request.getDescription(), request.getImageUrl());
+        String imageUrl = null;
+
+        if (image != null && !image.isEmpty()) {
+            imageUrl = s3Service.uploadImage(image);
+        }
+
+        Information information = new Information(admin, request.getTitle(), request.getDescription(), imageUrl);
 
         informationRepository.save(information);
 
@@ -86,7 +95,12 @@ public class InformationService {
      * @throws CustomException 관리자 체크, 공지사항 체크
      */
     @Transactional
-    public InformationUpdateResponse update(AuthUser authUser, Long informationId, InformationUpdateRequest request) {
+    public InformationUpdateResponse update(AuthUser authUser, Long informationId, InformationUpdateRequest request, MultipartFile image) {
+
+        // request 값이 비었을 경우 예외
+        if (request.isAllFieldEmpty() && (image == null || image.isEmpty())) {
+            throw new CustomException(ExceptionCode.NO_UPDATE_FIELD);
+        }
 
         // 관리자 체크
         findAdminOrException(authUser);
@@ -94,7 +108,22 @@ public class InformationService {
         // 공지사항 체크
         Information information = findInformationOrException(informationId);
 
-        information.update(request.getTitle(), request.getDescription(), request.getImageUrl());
+        // 제목 변경
+        if (request.getTitle() != null && !request.getTitle().equals(information.getTitle())) {
+
+            if (informationRepository.existsByTitle(request.getTitle())) {
+                throw new CustomException(ExceptionCode.EXISTS_INFORMATION_TITLE);
+            }
+            information.updateTitle(request.getTitle());
+        }
+
+        // 내용 변경
+        if (request.getDescription() != null) {
+            information.updateDescription(request.getDescription());
+        }
+
+        // 사진 변경
+        handleImageUpdate(information, image, request.isDeleteImage());
 
         return InformationUpdateResponse.from(information);
     }
@@ -128,4 +157,26 @@ public class InformationService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ADMIN));
     }
 
+    // 이미지 변경 메서드
+    private void handleImageUpdate(Information information, MultipartFile image, boolean deleteImage) {
+
+        // 이미지 삭제 요청
+        if (deleteImage) {
+            if (information.getImageUrl() != null) {
+                s3Service.deleteImage(information.getImageUrl());
+                information.removeImage();
+            }
+            return;
+        }
+
+        // 이미지 변경 요청
+        if (image != null && !image.isEmpty()) {
+            if (information.getImageUrl() != null) {
+                s3Service.deleteImage(information.getImageUrl());
+            }
+
+            String imageUrl = s3Service.uploadImage(image);
+            information.updateImage(imageUrl);
+        }
+    }
 }
