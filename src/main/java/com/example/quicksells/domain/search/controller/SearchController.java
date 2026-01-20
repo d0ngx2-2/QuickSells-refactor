@@ -28,7 +28,7 @@ public class SearchController {
     @GetMapping("/item/searchs")
     public ResponseEntity<PageResponse> keywordGet(@RequestParam String keyword, @PageableDefault(page = 0, size = 10) Pageable pageable) {
 
-        //비지니스로작
+        //비지니스 로직
         Page<SearchGetResponse> responsesDto = searchService.search(keyword, pageable);
 
         //응답 값
