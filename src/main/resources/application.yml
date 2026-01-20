@@ -13,7 +13,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: false
@@ -22,3 +22,14 @@ spring:
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region: ap-northeast-2
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+    stack:
+      auto: false
