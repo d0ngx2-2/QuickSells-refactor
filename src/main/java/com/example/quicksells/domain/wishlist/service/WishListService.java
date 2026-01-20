@@ -56,8 +56,7 @@ public class WishListService {
         validateUser(authUser, buyerId);
 
         // 구매자의 관심 목록 조회 (생성일 기준 내림차순)
-        List<WishList> myWishList = wishListRepository.findAllByUserIdOrderByCreatedAtDesc(buyerId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_MY_WISHLIST));
+        List<WishList> myWishList = wishListRepository.findAllByBuyerOrderByCreatedAtDesc(buyerId);
 
         return MyWishListGetAllResponse.from(myWishList);
     }
@@ -69,8 +68,7 @@ public class WishListService {
         validateUser(authUser, request.getBuyerId());
 
         // 구매자의 관심 목록 조회 (생성일 기준 내림차순)
-        List<WishList> myWishList = wishListRepository.findAllByUserIdOrderByCreatedAtDesc(request.getBuyerId())
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_MY_WISHLIST));
+        List<WishList> myWishList = wishListRepository.findAllByBuyerOrderByCreatedAtDesc(request.getBuyerId());
 
         // 내 관심 목록 인덱스 번호
         int myWishListIndex = request.getIndex() - 1;
@@ -92,7 +90,7 @@ public class WishListService {
 
     private void deduplicationWishList(User foundUser, Item foundItem) {
 
-        boolean duplicatedUserAndItem = wishListRepository.existsByUserAndItem(foundUser, foundItem);
+        boolean duplicatedUserAndItem = wishListRepository.existsByBuyerAndItem(foundUser, foundItem);
 
         if (duplicatedUserAndItem) {
             throw new CustomException(ExceptionCode.CONFLICT_WISHLIST); // 중복된 관심 목록 에외
