@@ -26,7 +26,7 @@ public class AnswerController {
      * 답변 생성 API (관리자)
      */
     @PostMapping("/answer/ask/{askId}")
-    public ResponseEntity<CommonResponse> createAnswer(@PathVariable Long askId, @Valid AnswerCreateRequest request, @AuthenticationPrincipal AuthUser authUser) {
+    public ResponseEntity<CommonResponse> createAnswer(@PathVariable Long askId, @Valid @RequestBody AnswerCreateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
         AnswerCreateResponse response = answerService.createAnswer(askId, request, authUser);
 

@@ -9,7 +9,7 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
 
     boolean existsByAsk(Ask ask);
 
-    Optional<Answer> findbyAskId(Long askId);
+    Optional<Answer> findByAskId(Long askId);
 
     Long ask(Ask ask);
 }

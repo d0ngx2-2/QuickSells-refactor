@@ -63,7 +63,7 @@ public class AnswerService {
     @Transactional(readOnly = true)
     public AnswerGetResponse getAnswer(Long askId) {
 
-        Answer answer = answerRepository.findbyAskId(askId)
+        Answer answer = answerRepository.findByAskId(askId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ANSWER));
 
         return AnswerGetResponse.from(answer);
