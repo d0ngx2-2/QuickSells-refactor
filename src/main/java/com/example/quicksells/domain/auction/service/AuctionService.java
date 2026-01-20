@@ -131,10 +131,10 @@ public class AuctionService {
      * 검증 메서드
      */
 
-    private void validateBidPrice(Integer requestBidPrice, Integer AuctionBiePrice) {
+    private void validateBidPrice(Integer requestBidPrice, Integer auctionBidPrice) {
 
         // 요청 입찰가가 경매 입찰가보다 같거나 낮으면 예외
-        if (requestBidPrice <= AuctionBiePrice) {
+        if (requestBidPrice <= auctionBidPrice) {
             throw new CustomException(ExceptionCode.BID_PRICE_TOO_LOW);
         }
     }
