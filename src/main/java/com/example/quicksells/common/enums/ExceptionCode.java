@@ -52,6 +52,12 @@ public enum ExceptionCode {
     ACCESS_DENIED_EXCEPTION_DELETED_ITEM(HttpStatus.FORBIDDEN, "상품 삭제 권한이 없습니다."),
     CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다."),
 
+    //ASWER
+    NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "답변 내역을 찾을 수 없습니다."),
+
+    //ASK
+    NOT_FOUND_ASK(HttpStatus.NOT_FOUND, "문의 내역을 찾을 수 없습니다."),
+
     //미사용
     AUCTION_EXPIRED_SOLD_OUT(HttpStatus.BAD_REQUEST, "경매 시간이 종료되어 낙찰이 완료 되었습니다."),
     AUCTION_EXPIRED_UNSOLD(HttpStatus.BAD_REQUEST, "경매시간이 종료되었으나 낙찰자가 없습니다."),
