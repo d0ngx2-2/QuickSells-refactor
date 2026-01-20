@@ -43,17 +43,12 @@ public class Information extends BaseEntity {
         this.isDeleted = false;
     }
 
-    public void update(String title, String description, String imageUrl) {
-        this.title = title;
-        this.description = description;
-        this.imageUrl = imageUrl;
+    public void update(String title, String description) {
+        this.title = (title != null && !title.isBlank()) ? title : this.title;
+        this.description = (description != null && !description.isBlank()) ? description : this.description;
     }
 
     public void delete() {this.isDeleted = true;}
-
-    public void updateTitle(String title) {this.title = title;}
-
-    public void updateDescription(String description) {this.description = description;}
 
     public void updateImage(String imageUrl) {this.imageUrl = imageUrl;}
 
