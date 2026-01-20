@@ -4,13 +4,11 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLRestriction;
 
 @Table(name = "searchs")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-//@SQLRestriction("is_deleted = false")
 public class Search {
 
     @Id
@@ -19,7 +17,7 @@ public class Search {
     @Column(name = "search_id", nullable = false)
     private Long id;
 
-    @Column(name = "keyword", length = 50, nullable = false)
+    @Column(name = "keyword", length = 50, nullable = false,unique = true)
     private String keyword;
 
     @Column(name = "count", nullable = false)
@@ -27,7 +25,7 @@ public class Search {
 
     public Search(String keyword) {
         this.keyword = keyword;
-        this.count = 0L;
+        this.count = 0L; //0 부터 카운트 증가
     }
 
     public void increase() {
