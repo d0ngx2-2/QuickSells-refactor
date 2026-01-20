@@ -40,11 +40,11 @@ public class AnswerService {
             throw new CustomException(ExceptionCode.ACCESS_DENIED_ONLY_OWNER);
         }
 
-        // 질문 찾기(Answer로 바꾸기 메세지)
+        // 질문 찾기
         Ask ask = askRepository.findById(askId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ASK));
 
-        // 답변 존재여부 (ANSWER로 바꾸기)
+        // 답변 존재여부
         if (answerRepository.existsByAsk(ask)) {
             throw new CustomException(ExceptionCode.NOT_FOUND_ANSWER);
         }
@@ -95,6 +95,18 @@ public class AnswerService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ANSWER));
 
         answer.update(request.getTitle(), request.getContent());
+    }
+
+    /**
+     * 답변 삭제
+     */
+    @Transactional
+    public void deleteAnswer(Long answerId) {
+
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ANSWER));
+
+        answer.delete();
     }
 
 }

@@ -59,11 +59,25 @@ public class AnswerController {
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("답변 전체조회를 성공하였습니다.", response));
     }
 
+    /**
+     * 답변 수정
+     */
     @PutMapping("/answers/{id}")
     public ResponseEntity<CommonResponse> updateAnswer(@PathVariable Long id, @Valid @RequestBody AnswerUpdateRequest request) {
 
         answerService.updateAnswer(id, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("답변 수정이 완료되었습니다."));
+    }
+
+    /**
+     * 답변 삭제
+     */
+    @DeleteMapping("/answers/{id}")
+    public ResponseEntity<CommonResponse> deleteAnswer(@PathVariable Long id) {
+
+        answerService.deleteAnswer(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("답변을 삭제하였습니다."));
     }
 }
