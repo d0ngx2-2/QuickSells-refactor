@@ -4,8 +4,11 @@ import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.appraise.model.request.AppraiseCreateRequest;
 import com.example.quicksells.domain.appraise.model.request.AppraiseUpdateRequest;
-import com.example.quicksells.domain.appraise.model.response.AppraiseResponse;
-import com.example.quicksells.domain.appraise.service.AppraiseSevice;
+import com.example.quicksells.domain.appraise.model.response.AppraiseCreateResponse;
+import com.example.quicksells.domain.appraise.model.response.AppraiseGetAllResponse;
+import com.example.quicksells.domain.appraise.model.response.AppraiseGetResponse;
+import com.example.quicksells.domain.appraise.model.response.AppraiseUpdateResponse;
+import com.example.quicksells.domain.appraise.service.AppraiseService;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AppraiseController {
 
-    private final AppraiseSevice appraiseService;
+    private final AppraiseService appraiseService;
 
     /**
      * 감정 생성 (ADMIN(감정사) 권한)
@@ -39,7 +41,7 @@ public class AppraiseController {
 
         Long adminId = authUser.getId();
 
-        AppraiseResponse response = appraiseService.createAppraise(itemId, request, adminId);
+        AppraiseCreateResponse response = appraiseService.createAppraise(itemId, request, adminId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("감정 생성에 성공했습니다.", response));
     }
@@ -57,7 +59,7 @@ public class AppraiseController {
         // Pageable 생성 (생성일자 기준 정렬)
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
 
-        Page<AppraiseResponse> response = appraiseService.getAppraisesByItemId(itemId, pageable, authUser);
+        Page<AppraiseGetAllResponse> response = appraiseService.getAppraisesByItemId(itemId, pageable, authUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("상품별 감정 전체 조회에 성공했습니다.", response));
     }
@@ -69,7 +71,7 @@ public class AppraiseController {
     @GetMapping("/appraises/{id}/items/{itemId}")
     public ResponseEntity<CommonResponse> getAppraise(@PathVariable Long id, @PathVariable Long itemId,@AuthenticationPrincipal AuthUser authUser) {
 
-        AppraiseResponse response = appraiseService.getAppraise(id, itemId, authUser);
+        AppraiseGetResponse response = appraiseService.getAppraise(id, itemId, authUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("상품별 감정 단 건 조회에 성공했습니다.", response));
     }
@@ -84,7 +86,7 @@ public class AppraiseController {
     @PutMapping("/appraises/{id}")
     public ResponseEntity<CommonResponse> updateAppraise(@PathVariable Long id, @Valid @RequestBody AppraiseUpdateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
-        AppraiseResponse response = appraiseService.updateAppraise(id, request, authUser);
+        AppraiseUpdateResponse response = appraiseService.updateAppraise(id, request, authUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("감정 선택에 성공했습니다.", response));
     }

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class AppraiseResponse {
+public class AppraiseUpdateResponse {
 
     private final Long appraiseId;
     private final Long itemId;
@@ -22,8 +22,8 @@ public class AppraiseResponse {
     private final LocalDateTime createdAt;
 
     // Entity -> DTO 변환
-    public static AppraiseResponse from(Appraise appraise) {
-        return new AppraiseResponse(
+    public static AppraiseUpdateResponse from(Appraise appraise) {
+        return new AppraiseUpdateResponse(
                 appraise.getId(),
                 appraise.getItem().getId(),
                 appraise.getItem().getName(),
