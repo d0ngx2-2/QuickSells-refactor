@@ -43,21 +43,26 @@ public class InformationService {
         User admin = findAdminOrException(authUser);
 
         // 공지사항 제목 체크
-        boolean exitsTitle = informationRepository.existsByTitle(request.getTitle());
+        validateExistTitle(request.getTitle());
 
-        if (exitsTitle) throw new CustomException(ExceptionCode.EXISTS_INFORMATION_TITLE);
+        // 이미지 체크
+        String imageUrl = uploadImageIfPresent(image);
 
-        String imageUrl = null;
-
-        if (image != null && !image.isEmpty()) {
-            imageUrl = s3Service.uploadImage(image);
-        }
+        try {
 
         Information information = new Information(admin, request.getTitle(), request.getDescription(), imageUrl);
 
         informationRepository.save(information);
 
         return InformationCreateResponse.from(information);
+
+        } catch (Exception e) {
+
+            if (imageUrl != null) {
+                s3Service.deleteImage(imageUrl);
+            }
+            throw new CustomException(ExceptionCode.INFORMATION_CREATE_FAILED);
+        }
     }
 
     /**
@@ -108,22 +113,15 @@ public class InformationService {
         // 공지사항 체크
         Information information = findInformationOrException(informationId);
 
-        // 제목 변경
+        // 제목 중복 체크
         if (request.getTitle() != null && !request.getTitle().equals(information.getTitle())) {
 
-            if (informationRepository.existsByTitle(request.getTitle())) {
-                throw new CustomException(ExceptionCode.EXISTS_INFORMATION_TITLE);
-            }
-            information.updateTitle(request.getTitle());
+            validateExistTitle(request.getTitle());
         }
 
-        // 내용 변경
-        if (request.getDescription() != null) {
-            information.updateDescription(request.getDescription());
-        }
+        information.update(request.getTitle(), request.getDescription());
 
-        // 사진 변경
-        handleImageUpdate(information, image, request.isDeleteImage());
+        handleImageUpdate(information, image, Boolean.TRUE.equals(request.getDeleteImage()));
 
         return InformationUpdateResponse.from(information);
     }
@@ -145,12 +143,28 @@ public class InformationService {
         information.delete();
     }
 
+    // 공지사항 제목 중보 체크
+    private void validateExistTitle(String title) {
+
+        if (informationRepository.existsByTitle(title)) {
+            throw new CustomException(ExceptionCode.EXISTS_INFORMATION_TITLE);
+        }
+    }
+
+    // 이미지 체크
+    private String uploadImageIfPresent(MultipartFile image) {
+
+        return (image != null && !image.isEmpty()) ? s3Service.uploadImage(image) : null;
+    }
+
+    // 공지사항 체크
     private Information findInformationOrException(Long informationId) {
 
         return informationRepository.findById(informationId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_INFORMATION));
     }
 
+    // 관리자 체크
     private User findAdminOrException(AuthUser authUser) {
 
         return userRepository.findById(authUser.getId())
