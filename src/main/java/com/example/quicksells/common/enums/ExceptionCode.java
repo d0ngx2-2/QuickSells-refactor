@@ -15,6 +15,7 @@ public enum ExceptionCode {
     NOT_DELETE_SELECTED_APPRAISE(HttpStatus.CONFLICT, "이미 선택된 감정은 삭제가 불가합니다."),
     EXISTS_ALREADY_SELECT_APPRAISE(HttpStatus.CONFLICT, "이미 선택된 다른 감정이 존재합니다."),
     ALREADY_SELECT_APPRAISE(HttpStatus.CONFLICT, "이미 선택된 감정입니다."),
+    ALREADY_EXISTS_APPRAISE(HttpStatus.CONFLICT, "해당 상품에 이미 감정을 등록하셨습니다."),
 
     //auction
     NOT_FOUND_AUCTION(HttpStatus.NOT_FOUND, "경매 정보를 찾을 수 없습니다."),

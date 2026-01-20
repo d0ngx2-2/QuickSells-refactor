@@ -8,7 +8,10 @@ import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.appraise.model.request.AppraiseCreateRequest;
 import com.example.quicksells.domain.appraise.model.request.AppraiseUpdateRequest;
-import com.example.quicksells.domain.appraise.model.response.AppraiseResponse;
+import com.example.quicksells.domain.appraise.model.response.AppraiseCreateResponse;
+import com.example.quicksells.domain.appraise.model.response.AppraiseGetAllResponse;
+import com.example.quicksells.domain.appraise.model.response.AppraiseGetResponse;
+import com.example.quicksells.domain.appraise.model.response.AppraiseUpdateResponse;
 import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.entity.Deal;
@@ -27,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AppraiseSevice {
+public class AppraiseService {
 
     private final AppraiseRepository appraiseRepository;
     private final DealRepository dealRepository;
@@ -39,7 +42,8 @@ public class AppraiseSevice {
      * - Deal은 나중에 판매자가 감정을 선택할 때 생성
      */
     @Transactional
-    public AppraiseResponse createAppraise(Long itemId, AppraiseCreateRequest request, Long adminId) {
+    public AppraiseCreateResponse createAppraise(Long itemId, AppraiseCreateRequest request, Long adminId) {
+
         // 1. 상품 존재 여부 확인
         Item item = getItem(itemId);
 
@@ -50,7 +54,12 @@ public class AppraiseSevice {
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISER));
 
-        // 4. 감정 엔티티 생성 (Deal 연결)
+        // 4. 관리자가 해당 상품으로 이미 감정 생성 했는지 검증
+        if (appraiseRepository.existsByItemIdAndUserId(itemId, adminId)) {
+            throw new CustomException(ExceptionCode.ALREADY_EXISTS_APPRAISE);
+        }
+
+        // 5. 감정 엔티티 생성 (Deal 연결)
         Appraise appraise = new Appraise(
                 admin,                      // user (감정사)
                 item,                       // item
@@ -59,10 +68,10 @@ public class AppraiseSevice {
                 false                       // isSelected (기본값)
         );
 
-        // 5. 저장
+        // 6. 저장
         Appraise savedAppraise = appraiseRepository.save(appraise);
 
-        return AppraiseResponse.from(savedAppraise);
+        return AppraiseCreateResponse.from(savedAppraise);
     }
 
 
@@ -70,6 +79,7 @@ public class AppraiseSevice {
      * 상품 상태 검증
      */
     private void validateItemStatus(Item item) {
+
         // 상품이 삭제된 경우
         if (item.isDeleted()) {
             throw new CustomException(ExceptionCode.NOT_APPRAISE_ITEM_DELETE);
@@ -87,7 +97,7 @@ public class AppraiseSevice {
      * ADMIN: 모든 상품 조회 가능
      */
     @Transactional(readOnly = true)
-    public Page<AppraiseResponse> getAppraisesByItemId(Long itemId, Pageable pageable, AuthUser authUser) {
+    public Page<AppraiseGetAllResponse> getAppraisesByItemId(Long itemId, Pageable pageable, AuthUser authUser) {
         // 1. 상품 존재 여부 확인
         Item item = getItem(itemId);
 
@@ -100,7 +110,7 @@ public class AppraiseSevice {
         Page<Appraise> appraisePage = appraiseRepository.findByItemIdWithPaging(itemId, pageable);
 
         // 4. DTO 변환
-        return appraisePage.map(AppraiseResponse::from);
+        return appraisePage.map(AppraiseGetAllResponse::from);
     }
 
     /**
@@ -109,7 +119,8 @@ public class AppraiseSevice {
      * ADMIN : 모든 상품 조회 가능
      */
     @Transactional(readOnly = true)
-    public AppraiseResponse getAppraise(Long id, Long itemId, AuthUser authUser) {
+    public AppraiseGetResponse getAppraise(Long id, Long itemId, AuthUser authUser) {
+
         // 1. 상품 존재 여부 확인
         Item item = getItem(itemId);
 
@@ -123,7 +134,7 @@ public class AppraiseSevice {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
 
         // 4. DTO 변환
-        return AppraiseResponse.from(appraise);
+        return AppraiseGetResponse.from(appraise);
     }
 
     /**
@@ -156,7 +167,7 @@ public class AppraiseSevice {
      * - isSelected = false: 판매자가 여러 감정가를 보고도 마음에 들지 않은 경우 경매 전환 > 경매 API 진행
      */
     @Transactional
-    public AppraiseResponse updateAppraise(Long id, AppraiseUpdateRequest request, AuthUser authUser) {
+    public AppraiseUpdateResponse updateAppraise(Long id, AppraiseUpdateRequest request, AuthUser authUser) {
         // 1. 감정 조회
         Appraise appraise = appraiseRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
@@ -176,17 +187,17 @@ public class AppraiseSevice {
 
         appraiseRepository.flush();
 
-        return AppraiseResponse.from(appraise);
+        return AppraiseUpdateResponse.from(appraise);
     }
 
     /**
      * 즉시 판매 처리
-     * - Item과 Deal은 1:1 관계
+     * - Item과 Deal은 1:N
      * - 기존 Deal이 있으면 업데이트, 없으면 생성
      */
     private void handleImmediateSell(Appraise appraise, Item item, AppraiseUpdateRequest request) {
 
-        // 1. 해당 Item에 대한 기존 Deal 확인 (Item-Deal 1:1 관계)
+        // 1. 해당 Item에 대한 기존 Deal 확인 (Item-Deal 1:N 관계)
         Deal deal = dealRepository.findByItem(item)
                 // 기존 Deal이 존재하는 경우
                 .map(existingDeal -> {
@@ -227,6 +238,7 @@ public class AppraiseSevice {
      * 감정 선택 가능한지 검증하는 메소드
      */
     private void validateAppraise(Appraise appraise, Item item) {
+
         // 이미 선택된 감정인지 확인 - (선택한 감정을 다시 선택시)
         if (appraise.isSeleted()) {
             throw new CustomException(ExceptionCode.ALREADY_SELECT_APPRAISE);
@@ -246,6 +258,7 @@ public class AppraiseSevice {
      */
     @Transactional
     public void deleteAppraise(Long itemId, AuthUser authUser) {
+
         // 1. 상품 존재 여부 확인
         Item item = getItem(itemId);
 
