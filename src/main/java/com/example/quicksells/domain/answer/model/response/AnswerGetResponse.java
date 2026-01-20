@@ -3,7 +3,6 @@ package com.example.quicksells.domain.answer.model.response;
 import com.example.quicksells.domain.answer.entity.Answer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Getter
