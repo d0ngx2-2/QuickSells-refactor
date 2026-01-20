@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class OneWishListDeleteRequest {
 
+    @NotNull(message = "구매자는 필수입니다.")
     private Long buyerId;
 
     @NotNull(message = "삭제할 관심 목록 번호를 지정해주세요.")

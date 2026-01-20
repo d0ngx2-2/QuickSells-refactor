@@ -34,19 +34,21 @@ public class WishListController {
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("관심 목록 등록에 성공했습니다.", result));
     }
 
+    @Operation(summary = "내 관심 목록 조회")
     @GetMapping("/wishList")
     public ResponseEntity<CommonResponse> getAllMyWishList(@AuthenticationPrincipal AuthUser authUser, @RequestParam Long buyerId) {
 
         List<MyWishListGetAllResponse> result = wishListService.getAllMyWishList(authUser, buyerId);
 
-        return ResponseEntity.ok(CommonResponse.success("내 관심 목록 조회에 성공했습니다.", result));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("내 관심 목록 조회에 성공했습니다.", result));
     }
 
+    @Operation(summary = "내 관심 목록 삭제")
     @DeleteMapping("/wishList")
     public ResponseEntity<CommonResponse> deleteMyWishList(@AuthenticationPrincipal AuthUser authUser, @Valid OneWishListDeleteRequest request) {
 
         wishListService.deleteMyWishList(authUser, request);
 
-        return ResponseEntity.ok(CommonResponse.success(request.getIndex() + "번째 관심 목록 삭제에 성공했습니다"));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success(request.getIndex() + "번째 관심 목록 삭제에 성공했습니다"));
     }
 }
