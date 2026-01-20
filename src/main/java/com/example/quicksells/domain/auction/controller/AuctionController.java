@@ -59,7 +59,7 @@ public class AuctionController {
     }
 
     @Operation(summary = "경매 입찰(구매자)")
-    @PutMapping("/auctions/{id}")
+    @PostMapping("/auctions/{id}")
     public ResponseEntity<CommonResponse> updateBidPrice(@PathVariable Long id, @Valid @RequestBody AuctionUpdateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
         AuctionUpdateResponse result = auctionService.updateBidPrice(id, request, authUser);
