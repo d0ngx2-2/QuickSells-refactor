@@ -5,7 +5,9 @@ import com.example.quicksells.common.enums.UserRole;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.answer.entity.Answer;
 import com.example.quicksells.domain.answer.model.request.AnswerCreateRequest;
+import com.example.quicksells.domain.answer.model.request.AnswerUpdateRequest;
 import com.example.quicksells.domain.answer.model.response.AnswerCreateResponse;
+import com.example.quicksells.domain.answer.model.response.AnswerGetAllResponse;
 import com.example.quicksells.domain.answer.model.response.AnswerGetResponse;
 import com.example.quicksells.domain.answer.repository.AnswerRepository;
 import com.example.quicksells.domain.ask.entity.Ask;
@@ -16,6 +18,8 @@ import com.example.quicksells.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +71,30 @@ public class AnswerService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ANSWER));
 
         return AnswerGetResponse.from(answer);
+    }
+
+    /**
+     * 답변 전체 조회
+     */
+    @Transactional(readOnly = true)
+    public List<AnswerGetAllResponse> getAnswers() {
+
+        return answerRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(AnswerGetAllResponse::from)
+                .toList();
+    }
+
+    /**
+     * 답변 수정
+     */
+    @Transactional
+    public void updateAnswer(Long answerId, AnswerUpdateRequest request) {
+
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ANSWER));
+
+        answer.update(request.getTitle(), request.getContent());
     }
 
 }
