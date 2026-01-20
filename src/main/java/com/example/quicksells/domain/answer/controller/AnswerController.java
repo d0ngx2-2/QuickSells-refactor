@@ -2,6 +2,7 @@ package com.example.quicksells.domain.answer.controller;
 
 import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.domain.answer.model.request.AnswerCreateRequest;
+import com.example.quicksells.domain.answer.model.request.AnswerUpdateRequest;
 import com.example.quicksells.domain.answer.model.response.AnswerCreateResponse;
 import com.example.quicksells.domain.answer.model.response.AnswerGetAllResponse;
 import com.example.quicksells.domain.answer.model.response.AnswerGetResponse;
@@ -56,5 +57,13 @@ public class AnswerController {
         List<AnswerGetAllResponse> response = answerService.getAnswers();
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("답변 전체조회를 성공하였습니다.", response));
+    }
+
+    @PutMapping("/answers/{id}")
+    public ResponseEntity<CommonResponse> updateAnswer(@PathVariable Long id, @Valid @RequestBody AnswerUpdateRequest request) {
+
+        answerService.updateAnswer(id, request);
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("답변 수정이 완료되었습니다."));
     }
 }
