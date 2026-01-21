@@ -27,8 +27,8 @@ public class AppraiseCreateResponse {
                 appraise.getId(),
                 appraise.getItem().getId(),
                 appraise.getItem().getName(),
-                appraise.getUser().getId(),
-                appraise.getUser().getName(),
+                appraise.getAdmin().getId(),
+                appraise.getAdmin().getName(),
                 appraise.getBidPrice(),
                 appraise.isSelected(),
                 appraise.getCreatedAt());

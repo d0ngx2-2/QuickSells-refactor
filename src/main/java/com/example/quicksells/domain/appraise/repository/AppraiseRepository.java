@@ -21,7 +21,7 @@ public interface AppraiseRepository extends JpaRepository<Appraise, Long> {
     boolean existsByItemIdAndIsSelectedTrue(@Param("itemId") Long itemId);
 
     // 특정 상품에 대해 특정 감정사가 이미 감정을 등록했는지 확인
-    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appraise a WHERE a.item.id = :itemId AND a.user.id = :adminId")
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appraise a WHERE a.item.id = :itemId AND a.admin.id = :adminId")
     boolean existsByItemIdAndUserId(@Param("itemId") Long itemId, @Param("adminId") Long adminId);
 
     // 특정 상품에 대한 특정 감정 조회 (삭제되지 않은 것만)
@@ -29,11 +29,11 @@ public interface AppraiseRepository extends JpaRepository<Appraise, Long> {
     Optional<Appraise> findByIdAndItemId(@Param("appraiseId") Long appraiseId, @Param("itemId") Long itemId);
 
     // 감정사가 작성한 감정 목록 (삭제되지 않은 것만)
-    @Query("SELECT a FROM Appraise a WHERE a.user.id = :adminId")
+    @Query("SELECT a FROM Appraise a WHERE a.admin.id = :adminId")
     List<Appraise> findByAdminId(@Param("adminId") Long adminId);
 
     // 특정 상품에 대한 특정 감정사의 감정 조회
     // @SQLRestriction으로 isDeleted = false 자동 필터링
-    @Query("SELECT a FROM Appraise a WHERE a.item = :item AND a.user.id = :userId")
+    @Query("SELECT a FROM Appraise a WHERE a.item = :item AND a.admin.id = :userId")
     Optional<Appraise> findByItemAndUserId(@Param("item") Item item, @Param("userId") Long userId);
 }
