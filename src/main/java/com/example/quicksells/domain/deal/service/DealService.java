@@ -11,7 +11,6 @@ import com.example.quicksells.domain.deal.model.request.DealCreateRequest;
 import com.example.quicksells.domain.deal.model.response.DealCreateResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetAllQueryResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetResponse;
-import com.example.quicksells.domain.deal.model.response.DealGetAllResponse;
 import com.example.quicksells.domain.deal.repository.DealRepository;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.item.repository.ItemRepository;
@@ -22,7 +21,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -66,10 +64,6 @@ public class DealService {
 
     /**
      * 경매 서비스 로직에 경매 생성 비지니스 로직
-     * ADMIN, 판매자, 구매자 조회 가능
-     * 제 3자 - 403
-     * buyer 없는 Deal은 seller만 조회
-     * deal없으면 404
      */
     @Transactional
     public Deal createAuctionDeal(Item item, Integer startPrice) {
@@ -92,9 +86,10 @@ public class DealService {
 
     /**
      * 거래 내역 상세 조회 API 비지니스 로직
-     * ADMIN	 모든 거래
-     * SELLER	 본인 판매 거래
-     * BUYER	 본인 구매 거래
+     * ADMIN, 판매자, 구매자 조회 가능
+     * 제 3자 - 403
+     * buyer 없는 Deal은 seller만 조회
+     * deal없으면 404
      */
     @Transactional(readOnly = true)
     public DealGetResponse getDealDetail(Long dealId, AuthUser authUser) {
@@ -109,41 +104,10 @@ public class DealService {
     }
 
     /**
-     * 거래 조회 (구매 / 판매)
-     */
-    @Transactional(readOnly = true)
-    public List<DealGetAllResponse> getDeals(DealType type, AuthUser authUser) {
-
-        // ADMIN이면 전부 조회
-        if (isAdmin(authUser)) {
-            return getAllDeals(type);
-        }
-
-        // 일반 유저
-        if (type == DealType.PURCHASE) {
-            return getPurchaseDeals(authUser.getId());
-        }
-        return getSaleDeals(authUser.getId());
-    }
-
-    /**
-     * ADMIN 전체 조회
-     */
-    protected List<DealGetAllResponse> getAllDeals(DealType type) {
-
-        return dealRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(deal -> {
-                    if (type == DealType.PURCHASE && deal.getBuyer() != null) {
-                        return DealGetAllResponse.forPurchase(deal);
-                    }
-                    return DealGetAllResponse.forSale(deal);
-                })
-                .toList();
-    }
-
-    /**
      * 쿼리 메서드 적용 전체 조회
+     * ADMIN	 모든 거래
+     * SELLER	 본인 판매 거래
+     * BUYER	 본인 구매 거래
      */
     @Transactional(readOnly = true)
     public Page<DealGetAllQueryResponse> getDeals(
@@ -160,28 +124,6 @@ public class DealService {
         }
 
         return dealRepository.findSaleDeals(authUser.getId(), pageable);
-    }
-
-    /**
-     * 구매 내역 조회
-     */
-    protected List<DealGetAllResponse> getPurchaseDeals(Long buyerId) {
-
-        return dealRepository.findByBuyerIdOrderByCreatedAtDesc(buyerId)
-                .stream()
-                .map(DealGetAllResponse::forPurchase)
-                .toList();
-    }
-
-    /**
-     * 판매 내역 조회
-     */
-    protected List<DealGetAllResponse> getSaleDeals(Long sellerId) {
-
-        return dealRepository.findBySellerIdOrderByCreatedAtDesc(sellerId)
-                .stream()
-                .map(DealGetAllResponse::forSale)
-                .toList();
     }
 
     /**

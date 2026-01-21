@@ -8,7 +8,6 @@ import com.example.quicksells.domain.deal.model.request.DealCreateRequest;
 import com.example.quicksells.domain.deal.model.response.DealCreateResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetAllQueryResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetResponse;
-import com.example.quicksells.domain.deal.model.response.DealGetAllResponse;
 import com.example.quicksells.domain.deal.service.DealService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,8 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "거래(deal) 관리")
 @RestController
@@ -60,14 +57,6 @@ public class DealController {
      */
     @Operation(summary = "거래 내역 (구매/판매) 조회")
     @GetMapping("/deals")
-    public ResponseEntity<CommonResponse> getDeals(@RequestParam DealType type, @AuthenticationPrincipal AuthUser user) {
-
-        List<DealGetAllResponse> response = dealService.getDeals(type, user);
-
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("거래 조회를 성공했습니다.", response));
-    }
-
-    @GetMapping("/deals2")
     public ResponseEntity<PageResponse> getDeals(
             @RequestParam DealType type,
             @AuthenticationPrincipal AuthUser user,

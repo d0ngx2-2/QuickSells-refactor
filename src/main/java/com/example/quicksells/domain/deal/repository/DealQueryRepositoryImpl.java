@@ -10,14 +10,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
-
 import static com.example.quicksells.domain.deal.entity.QDeal.deal;
 import static com.example.quicksells.domain.item.entity.QItem.item;
 
 @RequiredArgsConstructor
 public class DealQueryRepositoryImpl implements DealQueryRepository{
 
-    private JPAQueryFactory queryFactory;
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public Page<DealGetAllQueryResponse> findPurchaseDeals(Long buyerId, Pageable pageable) {
@@ -34,12 +33,9 @@ public class DealQueryRepositoryImpl implements DealQueryRepository{
         return fetchDeals(null, pageable);
     }
 
-    private Page<DealGetAllQueryResponse> fetchDeals(
-            BooleanExpression condition,
-            Pageable pageable
-    ) {
+    private Page<DealGetAllQueryResponse> fetchDeals(BooleanExpression condition, Pageable pageable) {
 
-        // 🔽 static import 기반 별칭
+        // static import 기반 별칭
         QUser seller = new QUser("seller");
         QUser buyer = new QUser("buyer");
 
