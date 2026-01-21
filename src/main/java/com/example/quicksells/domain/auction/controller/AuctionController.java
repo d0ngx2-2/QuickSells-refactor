@@ -3,6 +3,7 @@ package com.example.quicksells.domain.auction.controller;
 import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auction.model.request.AuctionCreateRequest;
+import com.example.quicksells.domain.auction.model.request.AuctionSearchFilterRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionUpdateRequest;
 import com.example.quicksells.domain.auction.model.response.AuctionCreateResponse;
 import com.example.quicksells.domain.auction.model.response.AuctionGetAllResponse;
@@ -42,9 +43,9 @@ public class AuctionController {
 
     @Operation(summary = "경매 내역 전체 조회")
     @GetMapping("/auctions")
-    public ResponseEntity<PageResponse> getAllAuction(@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<PageResponse> getAllAuction(@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable, AuctionSearchFilterRequest request) {
 
-        Page<AuctionGetAllResponse> page = auctionService.getAllAuction(pageable);
+        Page<AuctionGetAllResponse> page = auctionService.getAllAuction(pageable, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("경매 목록 조회에 성공했습니다.", page));
     }
