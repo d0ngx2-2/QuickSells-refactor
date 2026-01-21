@@ -1,6 +1,7 @@
 package com.example.quicksells.domain.user.controller;
 
 import com.example.quicksells.common.model.CommonResponse;
+import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.user.model.request.UserRoleUpdateRequest;
 import com.example.quicksells.domain.user.model.request.UserUpdateRequest;
@@ -79,11 +80,11 @@ public class UserController {
      */
     @Operation(summary = "전체 사용자 정보 조회(관리자)")
     @GetMapping("/admin/users")
-    public ResponseEntity<CommonResponse> getAllUsers(@AuthenticationPrincipal AuthUser authUser, @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<PageResponse> getAllUsers(@AuthenticationPrincipal AuthUser authUser, @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<UserGetAllResponse> response = userService.getAllUsers(authUser, pageable);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("전체 회원 조회 성공하셨습니다.", response));
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("전체 회원 조회 성공하셨습니다.", response));
     }
 
     /**
