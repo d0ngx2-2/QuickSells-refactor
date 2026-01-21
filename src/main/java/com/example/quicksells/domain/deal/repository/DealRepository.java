@@ -6,7 +6,7 @@ import com.example.quicksells.domain.item.entity.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
-public interface DealRepository extends JpaRepository<Deal, Long>, DealQueryRepository {
+public interface DealRepository extends JpaRepository<Deal, Long>, DealCustomRepository {
     // 특정 Item에 대한 Deal 조회 (Item-Deal 1:1 관계)
     Optional<Deal> findByItem(Item item);
 

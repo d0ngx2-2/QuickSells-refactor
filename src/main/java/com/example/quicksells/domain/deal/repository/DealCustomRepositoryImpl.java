@@ -14,7 +14,7 @@ import static com.example.quicksells.domain.deal.entity.QDeal.deal;
 import static com.example.quicksells.domain.item.entity.QItem.item;
 
 @RequiredArgsConstructor
-public class DealQueryRepositoryImpl implements DealQueryRepository{
+public class DealCustomRepositoryImpl implements DealCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 

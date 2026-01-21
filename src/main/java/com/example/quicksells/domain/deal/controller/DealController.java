@@ -57,11 +57,8 @@ public class DealController {
      */
     @Operation(summary = "거래 내역 (구매/판매) 조회")
     @GetMapping("/deals")
-    public ResponseEntity<PageResponse> getDeals(
-            @RequestParam DealType type,
-            @AuthenticationPrincipal AuthUser user,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
+    public ResponseEntity<PageResponse> getDeals(@RequestParam DealType type, @AuthenticationPrincipal AuthUser user, @PageableDefault(size = 10) Pageable pageable) {
+
         Page<DealGetAllQueryResponse> response = dealService.getDeals(type, user, pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("거래 조회 성공", response));

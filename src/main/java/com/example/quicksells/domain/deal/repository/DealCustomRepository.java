@@ -4,7 +4,7 @@ import com.example.quicksells.domain.deal.model.response.DealGetAllQueryResponse
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface DealQueryRepository {
+public interface DealCustomRepository {
 
     Page<DealGetAllQueryResponse> findPurchaseDeals(Long buyerId, Pageable pageable);
 
