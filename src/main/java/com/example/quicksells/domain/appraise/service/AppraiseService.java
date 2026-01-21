@@ -50,14 +50,15 @@ public class AppraiseService {
         // 2. 상품이 감정 가능한 상태인지 확인
         validateItemStatus(item);
 
-        // 3. 감정사 정보 조회
-        User admin = userRepository.findById(authUser.getId())
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISER));
-
-        // 4. 관리자가 해당 상품으로 이미 감정 생성 했는지 검증
+        // 3. 관리자가 해당 상품으로 이미 감정 생성 했는지 검증
         if (appraiseRepository.existsByItemIdAndUserId(itemId, authUser.getId())) {
             throw new CustomException(ExceptionCode.ALREADY_EXISTS_APPRAISE);
         }
+
+        // 4. 감정사 정보 조회
+        User admin = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISER));
+
 
         // 5. 감정 엔티티 생성 (Deal 연결)
         Appraise appraise = new Appraise(
@@ -213,9 +214,9 @@ public class AppraiseService {
                 .orElseGet(() -> {
                     // 없으면 새로운 Deal 생성
                     Deal newDeal = new Deal(
-                            null,                  // buyer: 아직 미정
+                            null,                  // buyer: 즉시 판매인 경우 정보 없음
                             item.getUser(),              // seller: 상품 판매자
-                            item,                        // item: 상품 (1:1 관계)
+                            item,                        // item: 상품 (1:N 관계)
                             DealType.IMMEDIATE_SELL,     // type: 즉시 판매
                             StatusType.ON_SALE,          // status: 거래 중
                             appraise.getBidPrice()       // dealPrice: 감정가
