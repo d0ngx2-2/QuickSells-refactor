@@ -58,21 +58,18 @@ public class UserService {
 
         // 비빌번호 변경 로직
         if (request.getPassword() != null) {
-
             // 이전과 동일한 비밀번호인지 체크
-            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                throw new CustomException(ExceptionCode.SAME_AS_OLD_PASSWORD);
-            }
-
+            validateNewPassword(request.getPassword(), user.getPassword());
+            // 요청 비밀번호 인코딩으로 저장
             String encodedPassword = passwordEncoder.encode(request.getPassword());
             user.updatePassword(encodedPassword);
         }
 
         // 핸드폰 변경 로직
         if (request.getPhone() != null && !request.getPhone().equals(user.getPhone())) {
-            if (userRepository.existsByPhone(request.getPhone())) {
-                throw new CustomException(ExceptionCode.EXISTS_PHONE);
-            }
+            // 핸드폰 존재 여부 체크
+            validateNewPhone(request.getPhone());
+            // 요청 번호로 수정
             user.updatePhone(request.getPhone());
         }
 
@@ -132,6 +129,21 @@ public class UserService {
         user.updateRole(request.getRole());
 
         return UserUpdateResponse.from(user);
+    }
+
+    // 비밀빈호 검증
+    private void validateNewPassword(String newPassword, String oldPassword) {
+
+        if (passwordEncoder.matches(newPassword, oldPassword)) {
+            throw new CustomException(ExceptionCode.SAME_AS_OLD_PASSWORD);
+        }
+    }
+
+    // 전화번호 검증
+    private void validateNewPhone(String phone) {
+        if (userRepository.existsByPhone(phone)) {
+            throw new CustomException(ExceptionCode.EXISTS_PHONE);
+        }
     }
 
     // 관리자 체크
