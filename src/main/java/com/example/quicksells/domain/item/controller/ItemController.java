@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "상품(item) 관리")
 @RestController
@@ -38,10 +39,10 @@ public class ItemController {
      */
     @Operation(summary = "상품 등록")
     @PostMapping("/items")
-    public ResponseEntity<CommonResponse> itemCreatedApi(@AuthenticationPrincipal AuthUser authUser,@Valid @RequestBody ItemCreatedRequest request) {
+    public ResponseEntity<CommonResponse> itemCreatedApi(@AuthenticationPrincipal AuthUser authUser,@Valid @RequestPart(value = "image", required = false) ItemCreatedRequest request,MultipartFile image) { //(value = "image", required = false) -> 이미지가 없으면 400에러 발생하는데 글이 없이도 사용 가능하게 하는 로직
 
         //생성 비지니스 핵심 로직
-        ItemCreatedResponse responseDto = itemService.itemCreated(authUser, request);
+        ItemCreatedResponse responseDto = itemService.itemCreated(authUser, request, image);
 
         //공통 응답 포맷 적용 후 DTO 반환
         CommonResponse response = CommonResponse.success("상품 등록 됐습니다.", responseDto);
@@ -97,10 +98,10 @@ public class ItemController {
      */
     @Operation(summary = "상품 수정")
     @PutMapping("/items/{id}")
-    public ResponseEntity<CommonResponse> itemUpdatedApi(@AuthenticationPrincipal AuthUser authUser,@PathVariable Long id, @Valid @RequestBody ItemUpdateRequest request){
+    public ResponseEntity<CommonResponse> itemUpdatedApi(@AuthenticationPrincipal AuthUser authUser,@PathVariable Long id, @Valid @RequestPart("request") ItemUpdateRequest request,@RequestPart(value = "image", required = false) MultipartFile image){
 
         //비지니스 로직
-        ItemUpdateResponse responseDto = itemService.itemUpdated(authUser,id, request);
+        ItemUpdateResponse responseDto = itemService.itemUpdated(authUser,id, request,image);
 
         //공통 응답 포맷 적용 후 DTO 반환
         CommonResponse response = CommonResponse.success("상품 수정 완료됐습니다.", responseDto);

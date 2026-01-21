@@ -1,8 +1,10 @@
 package com.example.quicksells.domain.item.service;
 
+import com.example.quicksells.common.aws.service.S3Service;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
+import com.example.quicksells.domain.information.service.InformationService;
 import com.example.quicksells.domain.item.model.request.ItemCreatedRequest;
 import com.example.quicksells.domain.item.model.request.ItemUpdateRequest;
 import com.example.quicksells.domain.item.model.response.ItemCreatedResponse;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @AllArgsConstructor
@@ -25,6 +28,7 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     /**
      * 상품 생성 로직
@@ -34,7 +38,7 @@ public class ItemService {
      * @return
      */
     @Transactional
-    public ItemCreatedResponse itemCreated(AuthUser authUser, ItemCreatedRequest request) {
+    public ItemCreatedResponse itemCreated(AuthUser authUser, ItemCreatedRequest request, MultipartFile itemImage) {
 
         //유저(판매자) 조회
         User seller = userRepository.findById(authUser.getId())
@@ -43,7 +47,10 @@ public class ItemService {
         //중복 상품 검증
         boolean exists = itemRepository.existsByUserIdAndName(authUser.getId(), request.getName());
 
-        //중복 시 409에러 발생
+        //이미지 체크
+        String imageUrl = uploadImageIfPresent(itemImage);
+
+        //상품 중복 등록 시 409에러 발생
         if (exists) {
             throw new CustomException(ExceptionCode.CONFLICT_ITEM);
         }
@@ -69,7 +76,6 @@ public class ItemService {
     public ItemGetDetailResponse itemGetDetail(Long id) {
 
         //상품 조회 및 검증 404에러
-
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
@@ -103,8 +109,7 @@ public class ItemService {
      * @return 수정된 상품 정보를 담은 응답 DTO
      */
     @Transactional
-
-    public ItemUpdateResponse itemUpdated(AuthUser authUser, Long id, ItemUpdateRequest request) {
+    public ItemUpdateResponse itemUpdated(AuthUser authUser, Long id, ItemUpdateRequest request, MultipartFile itemImage) {
 
         //상품 조회 - 존재 안할 시 404에러
         Item item = itemRepository.findById(id)
@@ -115,15 +120,30 @@ public class ItemService {
             throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_UPDATED_ITEM);
         }
 
-//        //이름 중복 시 에러 409에러 발생
+        //이름 중복 시 에러 409에러 발생
         if (request.getName() != null && !request.getName().equals(item.getName())) {
+
             if (itemRepository.existsByNameAndIdNot(request.getName(), id)) {
                 throw new CustomException(ExceptionCode.CONFLICT_ITEM);
             }
         }
 
+        //이미지 수정
+        String imageUrl = item.getImage(); // 원본 이미지
+
+        // 수정할 이미지 들어온 경우 S3 업데이트 후 URL 변경
+        if (itemImage != null && !itemImage.isEmpty()) {
+
+            //기존 이미지가 S3에만 있는 경우 삭제
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                s3Service.deleteImage(imageUrl);
+            }
+            //새 이미지 업로드 후 새로운 URL 획득
+            imageUrl = uploadImageIfPresent(itemImage);
+        }
+
         //수정메소드 불러오기
-        item.update(request.getName(), request.getHopePrice(), request.getDescription(), request.getImage());
+        item.update(request.getName(), request.getHopePrice(), request.getDescription(), request.getImage(), itemImage);
 
         //수정 결과 DTO로 변환하여 반환
         return ItemUpdateResponse.from(item);
@@ -150,5 +170,16 @@ public class ItemService {
 
         //소프트 삭제
         item.softDelete();
+    }
+
+    // 이미지 체크 기능
+    private String uploadImageIfPresent(MultipartFile itemImeage) {
+        //1. 이미지가 없는 경우 null 반환
+        if (itemImeage == null || itemImeage.isEmpty()) {
+            return null;
+        }
+
+        //2. 이미지 있는 경우 s3 업로드 메서드에 전달
+        return s3Service.uploadImage(itemImeage);
     }
 }

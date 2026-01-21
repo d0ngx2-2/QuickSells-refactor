@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +33,6 @@ public class SearchController {
         Page<SearchGetResponse> responsesDto = searchService.search(keyword, pageable);
 
         //응답 값
-        PageResponse responses = PageResponse.success("상품 검색 결과입니다.", responsesDto);
-
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("검색 결과입니다.",responsesDto));
     }
 }
