@@ -12,7 +12,7 @@ public class AuctionGetAllResponse {
 
     private final Long id;
     private final Long appraiseId;
-    private final Long dealId;
+    private final String itemName;
     private final Long buyerId;
     private final Integer bidPrice;
     private final AuctionStatusType status;
@@ -20,10 +20,10 @@ public class AuctionGetAllResponse {
     private final LocalDateTime updatedAt;
 
     public static AuctionGetAllResponse from(Auction auction) {
-        return new AuctionGetAllResponse(
+        return new AuctionGetAllResponse(// 감정된 아이템 이름
                 auction.getId(),
                 auction.getAppraise().getId(),
-                auction.getDeal().getId(),
+                auction.getAppraise().getItem().getName(),
                 auction.getBuyer() != null ? auction.getBuyer().getId() : null,// 입찰자가 존재하지 않으면 널을 반환
                 auction.getBidPrice(),
                 auction.getStatus(),
