@@ -16,7 +16,6 @@ import static com.example.quicksells.domain.appraise.entity.QAppraise.appraise;
 import static com.example.quicksells.domain.auction.entity.QAuction.auction;
 import static com.example.quicksells.domain.item.entity.QItem.item;
 
-@Slf4j
 @RequiredArgsConstructor
 public class AuctionRepositoryImpl implements AuctionRepositoryCustom {
 
