@@ -4,7 +4,6 @@ import com.example.quicksells.common.enums.DealType;
 import com.example.quicksells.common.enums.StatusType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @Getter
