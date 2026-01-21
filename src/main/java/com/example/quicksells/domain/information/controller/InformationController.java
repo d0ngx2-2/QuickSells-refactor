@@ -67,7 +67,7 @@ public class InformationController {
      */
     @Operation(summary = "공지사항 전체 조회")
     @GetMapping("/informations")
-    public ResponseEntity<PageResponse> getAll(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable){
+    public ResponseEntity<PageResponse> getAll(@PageableDefault(page = 0, size = 20) Pageable pageable){
 
         Page<InformationGetAllResponse> responses = informationService.getAll(pageable);
 
