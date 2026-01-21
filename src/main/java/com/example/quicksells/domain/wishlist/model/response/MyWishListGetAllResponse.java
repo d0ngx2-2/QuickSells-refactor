@@ -19,7 +19,7 @@ public class MyWishListGetAllResponse {
         return wishList.stream()
                 .map(w -> new MyWishListGetAllResponse(
                         w.getId(),
-                        w.getUser().getId(),
+                        w.getBuyer().getId(),
                         w.getItem().getId(),
                         w.getCreatedAt()
                 ))

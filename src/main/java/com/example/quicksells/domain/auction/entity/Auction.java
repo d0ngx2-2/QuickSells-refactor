@@ -23,17 +23,17 @@ public class Auction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 경매 ID
 
-    @OneToOne(optional = false) // 감정x -> 경매 등록x
+    @OneToOne(fetch = FetchType.LAZY, optional = false) // 감정x -> 경매 등록x
     @JoinColumn(name = "appraise_id", nullable = false)
     private Appraise appraise; // 감정 ID
 
-    @OneToOne(optional = false) // 거래x -> 경매 등록x
+    @OneToOne(fetch = FetchType.LAZY, optional = false) // 거래x -> 경매 등록x
     @JoinColumn(name = "deal_id")
     private Deal deal; // 거래 ID
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id")
-    private User user; // 유저 ID
+    private User buyer; // 구매자 ID
 
     @Column(name = "bid_price", nullable = false)
     private Integer bidPrice; // 입찰 확정 가격
@@ -57,7 +57,7 @@ public class Auction {
     public Auction(Appraise appraise, Deal deal, Integer bidPrice) {
         this.appraise = appraise;
         this.deal = deal;
-        this.user = null;
+        this.buyer = null;
         this.bidPrice = bidPrice;
         this.status = AuctionStatusType.AUCTIONING;
         this.isDeleted = false;
@@ -75,8 +75,8 @@ public class Auction {
         this.updatedAt = LocalDateTime.now(clock); // 수정일 적용 후 DB저장
     }
 
-    public void update (User user, Integer bidPrice) {
-        this.user = user;
+    public void update (User buyer, Integer bidPrice) {
+        this.buyer = buyer;
         this.bidPrice = bidPrice;
     }
 
@@ -90,11 +90,11 @@ public class Auction {
 
         this.isDeleted = true; // 종료 시간에 경매 삭제
 
-        if (this.user == null) {
+        if (this.buyer == null) {
             this.status = AuctionStatusType.UNSUCCESSFUL_BID; // 유찰완료 상태 변경
         } else {
             this.status = AuctionStatusType.SUCCESSFUL_BID;// 낙찰완료 상태 변경
-            this.deal.completeAuction(this.user, this.bidPrice); // 거래 완료 상태 변경
+            this.deal.completeAuction(this.buyer, this.bidPrice); // 거래 완료 상태 변경
         }
     }
 
