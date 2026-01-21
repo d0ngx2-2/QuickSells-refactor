@@ -15,6 +15,7 @@ public enum ExceptionCode {
     NOT_DELETE_SELECTED_APPRAISE(HttpStatus.CONFLICT, "이미 선택된 감정은 삭제가 불가합니다."),
     EXISTS_ALREADY_SELECT_APPRAISE(HttpStatus.CONFLICT, "이미 선택된 다른 감정이 존재합니다."),
     ALREADY_SELECT_APPRAISE(HttpStatus.CONFLICT, "이미 선택된 감정입니다."),
+    ALREADY_EXISTS_APPRAISE(HttpStatus.CONFLICT, "해당 상품에 이미 감정을 등록하셨습니다."),
 
     //auction
     NOT_FOUND_AUCTION(HttpStatus.NOT_FOUND, "경매 정보를 찾을 수 없습니다."),
@@ -65,6 +66,9 @@ public enum ExceptionCode {
     //ASK
     NOT_FOUND_ASK(HttpStatus.NOT_FOUND, "문의 내역을 찾을 수 없습니다."),
     ONLY_OWNER_ASK(HttpStatus.NOT_FOUND, "본인의 문의 내역만 접근할 수 있습니다."),
+
+    //SEARCH
+    INVALID_SEARCH_KEYWORD(HttpStatus.NOT_FOUND, "검색어를 입력해주세요."),
 
     //미사용
     AUCTION_EXPIRED_SOLD_OUT(HttpStatus.BAD_REQUEST, "경매 시간이 종료되어 낙찰이 완료 되었습니다."),

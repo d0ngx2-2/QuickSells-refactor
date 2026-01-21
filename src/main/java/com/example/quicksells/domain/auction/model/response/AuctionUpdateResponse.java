@@ -23,7 +23,7 @@ public class AuctionUpdateResponse {
                 auction.getId(),
                 auction.getAppraise().getId(),
                 auction.getDeal().getId(),
-                auction.getUser().getId(),
+                auction.getBuyer().getId(),
                 auction.getBidPrice(),
                 auction.getStatus(),
                 auction.getUpdatedAt()
