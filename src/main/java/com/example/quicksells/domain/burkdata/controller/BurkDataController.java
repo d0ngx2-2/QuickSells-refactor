@@ -26,13 +26,8 @@ public class BurkDataController {
      * V1 MVP 기준 5개 테이블 조회 성능 테스트 용도로 대용량 데이터 생성
      */
     @PostMapping("/burk-data/generate-all")
-    public ResponseEntity<Map<String, String>> generateAllTestData(
-            @RequestParam(defaultValue = "10000") int userCount,
-            @RequestParam(defaultValue = "50000") int itemCount,
-            @RequestParam(defaultValue = "100000") int appraiseCount,
-            @RequestParam(defaultValue = "50000") int dealCount,
-            @RequestParam(defaultValue = "50000") int auctionCount
-    ) {
+    public ResponseEntity<Map<String, String>> generateAllTestData(@RequestParam(defaultValue = "10000") int userCount, @RequestParam(defaultValue = "50000") int itemCount, @RequestParam(defaultValue = "100000") int appraiseCount, @RequestParam(defaultValue = "50000") int dealCount, @RequestParam(defaultValue = "50000") int auctionCount) {
+
         long startTime = System.currentTimeMillis();
 
         try {
