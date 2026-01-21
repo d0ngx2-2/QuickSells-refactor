@@ -39,9 +39,7 @@ public class AppraiseController {
     @PostMapping("/admin/appraises/items/{itemId}")
     public ResponseEntity<CommonResponse> createAppraise(@PathVariable Long itemId, @Valid @RequestBody AppraiseCreateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
-        Long adminId = authUser.getId();
-
-        AppraiseCreateResponse response = appraiseService.createAppraise(itemId, request, adminId);
+        AppraiseCreateResponse response = appraiseService.createAppraise(itemId, request, authUser);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("감정 생성에 성공했습니다.", response));
     }

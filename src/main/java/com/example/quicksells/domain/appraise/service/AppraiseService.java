@@ -42,7 +42,7 @@ public class AppraiseService {
      * - Deal은 나중에 판매자가 감정을 선택할 때 생성
      */
     @Transactional
-    public AppraiseCreateResponse createAppraise(Long itemId, AppraiseCreateRequest request, Long adminId) {
+    public AppraiseCreateResponse createAppraise(Long itemId, AppraiseCreateRequest request, AuthUser authUser) {
 
         // 1. 상품 존재 여부 확인
         Item item = getItem(itemId);
@@ -51,11 +51,11 @@ public class AppraiseService {
         validateItemStatus(item);
 
         // 3. 감정사 정보 조회
-        User admin = userRepository.findById(adminId)
+        User admin = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISER));
 
         // 4. 관리자가 해당 상품으로 이미 감정 생성 했는지 검증
-        if (appraiseRepository.existsByItemIdAndUserId(itemId, adminId)) {
+        if (appraiseRepository.existsByItemIdAndUserId(itemId, authUser.getId())) {
             throw new CustomException(ExceptionCode.ALREADY_EXISTS_APPRAISE);
         }
 
