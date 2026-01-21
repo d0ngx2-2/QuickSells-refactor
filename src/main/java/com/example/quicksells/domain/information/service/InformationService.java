@@ -88,7 +88,7 @@ public class InformationService {
     @Transactional(readOnly = true)
     public Page<InformationGetAllResponse> getAll(Pageable pageable) {
 
-        return informationRepository.findAll(pageable)
+        return informationRepository.findInformationPageSummary(pageable)
                 .map(InformationGetAllResponse::from);
     }
 
