@@ -17,7 +17,7 @@ public interface AppraiseRepository extends JpaRepository<Appraise, Long> {
     Page<Appraise> findByItemIdWithPaging(@Param("itemId") Long itemId, Pageable pageable);
 
     // 특정 상품에 이미 선택된 감정이 있는지 확인
-    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appraise a WHERE a.item.id = :itemId AND a.isSeleted = true")
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appraise a WHERE a.item.id = :itemId AND a.isSelected = true")
     boolean existsByItemIdAndIsSelectedTrue(@Param("itemId") Long itemId);
 
     // 특정 상품에 대해 특정 감정사가 이미 감정을 등록했는지 확인
