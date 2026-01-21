@@ -240,7 +240,7 @@ public class AppraiseService {
     private void validateAppraise(Appraise appraise, Item item) {
 
         // 이미 선택된 감정인지 확인 - (선택한 감정을 다시 선택시)
-        if (appraise.isSeleted()) {
+        if (appraise.isSelected()) {
             throw new CustomException(ExceptionCode.ALREADY_SELECT_APPRAISE);
         }
 
@@ -267,7 +267,7 @@ public class AppraiseService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
 
         // 3. 이미 선택된 감정인지 확인 (선택된 감정은 삭제 불가)
-        if (appraise.isSeleted()) {
+        if (appraise.isSelected()) {
             throw new CustomException(ExceptionCode.NOT_DELETE_SELECTED_APPRAISE);
         }
 

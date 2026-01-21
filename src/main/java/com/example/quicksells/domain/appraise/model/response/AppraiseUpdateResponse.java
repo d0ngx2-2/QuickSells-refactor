@@ -30,7 +30,7 @@ public class AppraiseUpdateResponse {
                 appraise.getUser().getId(),
                 appraise.getUser().getName(),
                 appraise.getBidPrice(),
-                appraise.isSeleted(),
+                appraise.isSelected(),
                 appraise.getCreatedAt());
     }
 }
