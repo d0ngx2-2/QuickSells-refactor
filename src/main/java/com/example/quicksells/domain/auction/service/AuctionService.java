@@ -5,6 +5,7 @@ import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
 import com.example.quicksells.domain.auction.model.request.AuctionCreateRequest;
+import com.example.quicksells.domain.auction.model.request.AuctionSearchFilterRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionUpdateRequest;
 import com.example.quicksells.domain.auction.model.response.AuctionCreateResponse;
 import com.example.quicksells.domain.auction.model.response.AuctionGetAllResponse;
@@ -63,10 +64,10 @@ public class AuctionService {
 
 
     @Transactional(readOnly = true)
-    public Page<AuctionGetAllResponse> getAllAuction(Pageable pageable) {
+    public Page<AuctionGetAllResponse> getAllAuction(Pageable pageable, AuctionSearchFilterRequest request) {
 
-        // 경매 페이지 조회
-        Page<Auction> foundAuctionPage = auctionRepository.findAll(pageable);
+        // 경매 페이지 쿼리 dsl 조회
+        Page<Auction> foundAuctionPage = auctionRepository.auctionSearch(pageable, request);
 
         return foundAuctionPage.map(AuctionGetAllResponse::from);
     }
