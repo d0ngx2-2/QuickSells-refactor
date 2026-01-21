@@ -17,7 +17,7 @@ public class WishListCreateResponse {
     public static WishListCreateResponse from(WishList wishList) {
         return new WishListCreateResponse(
                 wishList.getId(),
-                wishList.getUser().getId(),
+                wishList.getBuyer().getId(),
                 wishList.getItem().getId(),
                 wishList.getCreatedAt()
         );
