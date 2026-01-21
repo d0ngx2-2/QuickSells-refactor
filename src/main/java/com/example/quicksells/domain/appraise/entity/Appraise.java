@@ -39,7 +39,7 @@ public class Appraise {
     private Integer bidPrice; // 감정 가격
 
     @Column(nullable = false, length = 10)
-    private boolean isSelected; // 구매자 선택여부 (false > 경매 돌임, true > 즉시 매임)
+    private boolean isSeleted; // 구매자 선택여부 (false > 경매 돌임, true > 즉시 매임)
 
     @Column(nullable = false, length = 10)
     private boolean isDeleted; // 삭제 여부
@@ -54,21 +54,21 @@ public class Appraise {
         }
     }
 
-    public Appraise(User admin, Item item, Deal deal, Integer bidPrice, boolean isSelected) {
+    public Appraise(User admin, Item item, Deal deal, Integer bidPrice, boolean isSeleted) {
         this.admin = admin;
         this.item = item;
         this.deal = deal;
         this.bidPrice = bidPrice;
-        this.isSelected = isSelected;
+        this.isSeleted = isSeleted;
         this.isDeleted = false;
     }
 
     // 여러 감정중 판매자가 선택할때,
     public void updateSelected(boolean isSelected) {
-        if (this.isSelected) {
+        if (this.isSeleted) {
             throw new CustomException(ExceptionCode.ALREADY_SELECT_APPRAISE);
         }
-        this.isSelected = isSelected;
+        this.isSeleted = isSelected;
     }
 
     public void connectDeal(Deal deal) {
