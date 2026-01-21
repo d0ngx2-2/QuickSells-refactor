@@ -8,7 +8,7 @@ import java.util.List;
 
 import java.util.Optional;
 
-public interface DealRepository extends JpaRepository<Deal, Long> {
+public interface DealRepository extends JpaRepository<Deal, Long>, DealQueryRepository {
 
     List<Deal> findByBuyerIdOrderByCreatedAtDesc(Long buyerId);
 

@@ -26,6 +26,8 @@ public enum ExceptionCode {
 
     //deal
     NOT_DEAL_ON_SALE(HttpStatus.NOT_FOUND, "거래 중 상태가 아닙니다."),//deal entity
+    EXISTS_ACTIVE_DEAL(HttpStatus.CONFLICT, "이미 진행 중인 거래가 존재합니다."),
+    ACCESS_DENIED_DEAL(HttpStatus.FORBIDDEN, "해당 거래에 대한 접근 권한이 없습니다."),
 
     //information
     NOT_FOUND_INFORMATION(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."),
@@ -66,6 +68,9 @@ public enum ExceptionCode {
     //ASK
     NOT_FOUND_ASK(HttpStatus.NOT_FOUND, "문의 내역을 찾을 수 없습니다."),
     ONLY_OWNER_ASK(HttpStatus.NOT_FOUND, "본인의 문의 내역만 접근할 수 있습니다."),
+
+    // SEARCH
+    INVALID_SEARCH_KEYWORD(HttpStatus.NOT_FOUND,"검색 키워드를 찾을 수 없습니다."),
 
     //미사용
     AUCTION_EXPIRED_SOLD_OUT(HttpStatus.BAD_REQUEST, "경매 시간이 종료되어 낙찰이 완료 되었습니다."),

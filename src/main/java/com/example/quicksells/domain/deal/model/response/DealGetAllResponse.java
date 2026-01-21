@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class DealListResponse {
+public class DealGetAllResponse {
 
     private final Long dealId;
     private final DealType type;
@@ -20,8 +20,8 @@ public class DealListResponse {
     private final Long userId;     // 구매 or 판매 주체
     private final String userName; // 구매자 or 판매자 이름
 
-    public static DealListResponse forPurchase(Deal deal) {
-        return new DealListResponse(
+    public static DealGetAllResponse forPurchase(Deal deal) {
+        return new DealGetAllResponse(
                 deal.getId(),
                 deal.getType(),
                 deal.getStatus(),
@@ -32,8 +32,8 @@ public class DealListResponse {
         );
     }
 
-    public static DealListResponse forSale(Deal deal) {
-        return new DealListResponse(
+    public static DealGetAllResponse forSale(Deal deal) {
+        return new DealGetAllResponse(
                 deal.getId(),
                 deal.getType(),
                 deal.getStatus(),

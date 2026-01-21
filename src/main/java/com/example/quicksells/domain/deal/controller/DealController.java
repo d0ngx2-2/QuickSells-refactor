@@ -2,15 +2,20 @@ package com.example.quicksells.domain.deal.controller;
 
 import com.example.quicksells.common.enums.DealType;
 import com.example.quicksells.common.model.CommonResponse;
+import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.model.request.DealCreateRequest;
 import com.example.quicksells.domain.deal.model.response.DealCreateResponse;
+import com.example.quicksells.domain.deal.model.response.DealGetAllQueryResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetResponse;
-import com.example.quicksells.domain.deal.model.response.DealListResponse;
+import com.example.quicksells.domain.deal.model.response.DealGetAllResponse;
 import com.example.quicksells.domain.deal.service.DealService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,9 +48,9 @@ public class DealController {
      */
     @Operation(summary = "거래 내역 상세 조회")
     @GetMapping("/deals/{id}")
-    public ResponseEntity<CommonResponse> getDealDetail(@PathVariable Long id) {
+    public ResponseEntity<CommonResponse> getDealDetail(@PathVariable Long id, @AuthenticationPrincipal AuthUser authUser) {
 
-        DealGetResponse response = dealService.getDealDetail(id);
+        DealGetResponse response = dealService.getDealDetail(id, authUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("거래 상세 조회를 성공했습니다", response));
     }
@@ -57,8 +62,19 @@ public class DealController {
     @GetMapping("/deals")
     public ResponseEntity<CommonResponse> getDeals(@RequestParam DealType type, @AuthenticationPrincipal AuthUser user) {
 
-        List<DealListResponse> response = dealService.getDeals(type, user);
+        List<DealGetAllResponse> response = dealService.getDeals(type, user);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("거래 조회를 성공했습니다.", response));
+    }
+
+    @GetMapping("/deals2")
+    public ResponseEntity<PageResponse> getDeals(
+            @RequestParam DealType type,
+            @AuthenticationPrincipal AuthUser user,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Page<DealGetAllQueryResponse> response = dealService.getDeals(type, user, pageable);
+
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("거래 조회 성공", response));
     }
 }
