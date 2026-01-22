@@ -40,7 +40,7 @@ public class ItemController {
      */
     @Operation(summary = "상품 등록")
     @PostMapping("/items")
-    public ResponseEntity<CommonResponse> itemCreatedApi(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestPart(value = "request", required = true) ItemCreatedRequest request, MultipartFile image) { //(value = "image", required = false) -> 이미지가 없으면 400에러 발생하는데 글이 없이도 사용 가능하게 하는 로직
+    public ResponseEntity<CommonResponse> itemCreatedApi(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestPart(value = "request") ItemCreatedRequest request, MultipartFile image) { //(value = "image", required = false) -> 이미지가 없으면 400에러 발생하는데 글이 없이도 사용 가능하게 하는 로직
 
         //생성 비지니스 핵심 로직
         ItemCreatedResponse response = itemService.itemCreated(authUser, request, image);

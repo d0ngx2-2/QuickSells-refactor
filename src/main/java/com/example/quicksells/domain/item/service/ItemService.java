@@ -81,13 +81,12 @@ public class ItemService {
      * @return 상품 상세 정보 응답 DTO
      */
     @Transactional(readOnly = true)
-
     public ItemGetDetailResponse itemGetDetail(Long id) {
 
         //상품 조회 및 검증 404에러
         Item item = itemRepository.findItemDetail(id)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
-
+//        JPA 정적쿼리 item 상세 조회
 //        Item item = itemRepository.findById(id)
 //                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
@@ -102,7 +101,6 @@ public class ItemService {
      * @return 페이징된 상품 목록 응답 DTO
      */
     @Transactional(readOnly = true)
-
     public Page<ItemGetListResponse> itemGetAll(Pageable pageable) {
 
         //상품 목록 조회 -> 기존 JPA
@@ -208,10 +206,6 @@ public class ItemService {
         try {
             //업로드 성공 후 기존 이미지 삭제
             if (newImage != null && oldImage != null && !oldImage.isBlank()) {
-                s3Service.deleteImage(oldImage);
-            }
-
-            if (oldImage != null && !oldImage.isBlank()) {
                 s3Service.deleteImage(oldImage);
             }
         } catch (Exception e) {
