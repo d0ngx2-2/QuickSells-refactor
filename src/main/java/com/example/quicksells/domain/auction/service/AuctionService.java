@@ -98,7 +98,7 @@ public class AuctionService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
 
         // 구매자 검증
-        validateUser(authUser, foundBuyer);
+        validateUser(authUser, foundAuction, foundBuyer);
 
         // 입찰 가격 검증
         validateBidPrice(request.getBidPrice(), foundAuction.getBidPrice());
@@ -140,13 +140,14 @@ public class AuctionService {
         }
     }
 
-    private void validateUser(AuthUser authUser, User foundUser) {
+    private void validateUser(AuthUser authUser, Auction foundAuction, User foundBuyer) {
 
         Long authUserId = authUser.getId(); // 인증유저 아이디
-        Long userId = foundUser.getId(); // 조회된 유저 아이디
+        Long sellerId = foundAuction.getAppraise().getItem().getUser().getId(); // 경매에 등록된 감정의 아이템을 등록한 판매자의 아이디
+        Long buyerId = foundBuyer.getId(); // 조회된 유저 아이디
 
-        // 인증유저와 조회된 유저가 일치하지 않을때 예외
-        if (!authUserId.equals(userId)) {
+        // 인증유저와 구매자가 다르거나 구매자가 해당경매의 판매자일때 예외
+        if (!authUserId.equals(buyerId) || authUser.getId().equals(sellerId)) {
             throw new CustomException(ExceptionCode.ACCESS_DENIED_ONLY_OWNER);
         }
     }
