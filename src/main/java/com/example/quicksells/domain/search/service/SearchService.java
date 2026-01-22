@@ -20,7 +20,8 @@ public class SearchService {
 
     /**
      * 상품 검색을 처리하는 메인 서비스
-     * @param keyword 사용자가 입력한 검색어
+     *
+     * @param keyword  사용자가 입력한 검색어
      * @param pageable 페이징 정보
      * @return 상품 목록 검색 결과
      */
@@ -47,6 +48,7 @@ public class SearchService {
 
     /**
      * 검색어 공백 제거
+     *
      * @param keyword 사용자가 입력한 키워드
      * @return 공백 제거된 검색어
      */

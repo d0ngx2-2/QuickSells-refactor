@@ -4,6 +4,8 @@ import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.search.model.response.SearchGetResponse;
 import com.example.quicksells.domain.search.service.SearchService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-
+@Tag(name = "검색(search) 관리")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class SearchController {
      * @param pageable 페이징
      * @return 페이징된 상품 결과 검색
      */
+    @Operation(summary = "상품 검색 조회")
     @GetMapping("/item/searchs")
     public ResponseEntity<PageResponse> keywordGet(@AuthenticationPrincipal AuthUser authUser, @RequestParam String keyword, @PageableDefault(page = 0, size = 10) Pageable pageable) {
 

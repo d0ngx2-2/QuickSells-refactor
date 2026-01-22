@@ -26,9 +26,6 @@ public class SearchCacheService {
     @Transactional(readOnly = true) //검색어, 페이지 번호, 페이지 사이즈
     public Page<Item> cachedSearch(String keyword, Pageable pageable) {
 
-        //캐시 저장 안될 때, 없을 때 실행
-//        return itemRepository.findByNameContaining(keyword, pageable);
-
         return itemRepository.searchItems(keyword, pageable);
     }
 }

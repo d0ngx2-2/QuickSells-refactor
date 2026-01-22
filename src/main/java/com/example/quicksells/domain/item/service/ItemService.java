@@ -46,22 +46,32 @@ public class ItemService {
         //중복 상품 검증
         boolean exists = itemRepository.existsByUserIdAndName(authUser.getId(), request.getName());
 
-        //이미지 체크
-        String imageUrl = uploadImageIfPresent(itemImage);
-
         //상품 중복 등록 시 409에러 발생
         if (exists) {
             throw new CustomException(ExceptionCode.CONFLICT_ITEM);
         }
 
-        // 엔티티 생성
-        Item item = new Item(seller, request.getName(), request.getHopePrice(), request.getDescription(), imageUrl);
+        //이미지 체크 -> DB 검증 후 업로드 수행
+        String imageUrl = uploadImageIfPresent(itemImage);
 
-        // Item 엔티티 DB에 저장
-        Item saved = itemRepository.save(item);
+        try {
+            // 엔티티 생성
+            Item item = new Item(seller, request.getName(), request.getHopePrice(), request.getDescription(), imageUrl);
 
-        //응답 전용 객체
-        return ItemCreatedResponse.from(saved);
+            // Item 엔티티 DB에 저장
+            Item saved = itemRepository.save(item);
+
+            //응답 전용 객체
+            return ItemCreatedResponse.from(saved);
+
+        } catch (Exception e) {
+
+            // DB 저장 실패 시 업호드된 이미지 삭제
+            if (imageUrl != null) {
+                s3Service.deleteImage(imageUrl);
+            }
+            throw new CustomException(ExceptionCode.ITEM_CREATE_FAILED);
+        }
     }
 
     /**
@@ -195,13 +205,12 @@ public class ItemService {
         //새 이미지 업로드(수정 먼저)
         String newImage = uploadImageIfPresent(itemImage);
 
-        //업로드 성공 후 기존 이미지 삭제
-        if (newImage != null && oldImage != null && !oldImage.isBlank()) {
-            s3Service.deleteImage(oldImage);
-        }
-
-        //가존 이미지 삭제
         try {
+            //업로드 성공 후 기존 이미지 삭제
+            if (newImage != null && oldImage != null && !oldImage.isBlank()) {
+                s3Service.deleteImage(oldImage);
+            }
+
             if (oldImage != null && !oldImage.isBlank()) {
                 s3Service.deleteImage(oldImage);
             }
