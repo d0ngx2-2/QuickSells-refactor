@@ -29,9 +29,9 @@ public class AppraiseRepositoryImpl implements AppraiseCustomRepository{
         // 데이터 조회
         List<Appraise> content = queryFactory
                 .selectFrom(appraise)
-                .join(appraise.admin, admin)    // admin 조인
-                .join(appraise.item, item)      // item 조인
-                .leftJoin(appraise.deal, deal)  // deal은 left join (nullable)
+                .join(appraise.admin, admin).fetchJoin()    // admin 조인
+                .join(appraise.item, item).fetchJoin()      // item 조인
+                .leftJoin(appraise.deal, deal).fetchJoin()  // deal은 left join (nullable)
                 .where(appraise.item.id.eq(itemId))
                 .orderBy(appraise.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -55,9 +55,9 @@ public class AppraiseRepositoryImpl implements AppraiseCustomRepository{
 
         Appraise result = queryFactory
                 .selectFrom(appraise)
-                .join(appraise.admin, admin)
-                .join(appraise.item, item)
-                .leftJoin(appraise.deal, deal)
+                .join(appraise.admin, admin).fetchJoin()
+                .join(appraise.item, item).fetchJoin()
+                .leftJoin(appraise.deal, deal).fetchJoin()
                 .where(
                         appraise.id.eq(appraiseId),
                         appraise.item.id.eq(itemId)
