@@ -26,6 +26,8 @@ public enum ExceptionCode {
 
     //deal
     NOT_DEAL_ON_SALE(HttpStatus.NOT_FOUND, "거래 중 상태가 아닙니다."),//deal entity
+    EXISTS_ACTIVE_DEAL(HttpStatus.CONFLICT, "이미 진행 중인 거래가 존재합니다."),
+    ACCESS_DENIED_DEAL(HttpStatus.FORBIDDEN, "해당 거래에 대한 접근 권한이 없습니다."),
 
     //information
     NOT_FOUND_INFORMATION(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."),
