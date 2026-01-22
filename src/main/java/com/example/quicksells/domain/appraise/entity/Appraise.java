@@ -25,7 +25,7 @@ public class Appraise {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "admin_id")
-    private User user; // 감정사 ID
+    private User admin; // 감정사 ID
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "item_id")
@@ -54,8 +54,8 @@ public class Appraise {
         }
     }
 
-    public Appraise(User user, Item item, Deal deal, Integer bidPrice, boolean isSeleted) {
-        this.user = user;
+    public Appraise(User admin, Item item, Deal deal, Integer bidPrice, boolean isSeleted) {
+        this.admin = admin;
         this.item = item;
         this.deal = deal;
         this.bidPrice = bidPrice;
