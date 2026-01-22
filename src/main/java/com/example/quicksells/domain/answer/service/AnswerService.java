@@ -53,10 +53,10 @@ public class AnswerService {
         User admin = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
 
-        Answer asnwer = new Answer(ask, admin, request.getTitle(), request.getContent());
+        Answer answer = new Answer(ask, admin, request.getTitle(), request.getContent());
 
         // 답변 저장
-        Answer savedAnswer = answerRepository.save(asnwer);
+        Answer savedAnswer = answerRepository.save(answer);
 
         return AnswerCreateResponse.from(savedAnswer);
     }
@@ -65,24 +65,38 @@ public class AnswerService {
      * 답변 조회(유저/관리자)
      */
     @Transactional(readOnly = true)
-    public AnswerGetResponse getAnswer(Long askId) {
+    public AnswerGetResponse getAnswer(Long askId, AuthUser authUser) {
 
-        Answer answer = answerRepository.findByAskId(askId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ANSWER));
+        AnswerGetResponse response = answerRepository.findByAskId(askId)
+                        .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ANSWER));
 
-        return AnswerGetResponse.from(answer);
+        // ADMIN은 통과
+        if (authUser.getRole() == UserRole.ADMIN) {
+            return response;
+        }
+
+        // USER는 본인 Ask만
+        Ask ask = askRepository.findById(askId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ASK));
+
+        if (!ask.getUser().getId().equals(authUser.getId())) {
+            throw new CustomException(ExceptionCode.ACCESS_DENIED_ANSWER);
+        }
+
+        return response;
     }
 
     /**
      * 답변 전체 조회
      */
     @Transactional(readOnly = true)
-    public List<AnswerGetAllResponse> getAnswers() {
+    public List<AnswerGetAllResponse> getAnswers(AuthUser authUser) {
 
-        return answerRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(AnswerGetAllResponse::from)
-                .toList();
+        if (authUser.getRole() == UserRole.ADMIN) {
+            return answerRepository.findAllByAdmin();
+        }
+
+        return answerRepository.findAllByUser(authUser.getId());
     }
 
     /**
