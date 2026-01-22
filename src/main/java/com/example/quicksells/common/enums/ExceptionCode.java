@@ -23,6 +23,7 @@ public enum ExceptionCode {
     BID_PRICE_TOO_LOW(HttpStatus.BAD_REQUEST, "현재 입찰가보다 더 높은 금액을 입력해야 합니다."),
     ACCESS_DENIED_ONLY_OWNER(HttpStatus.FORBIDDEN, "경매에 대한 권한이 없습니다."),
     AUCTION_ALREADY_EXPIRED(HttpStatus.BAD_REQUEST, "해당 경매가 종료되어 삭제되었습니다."),
+    SELLER_CANNOT_PURCHASE_OWN_AUCTION(HttpStatus.FORBIDDEN, "판매자는 본인이 등록한 상품의 구매자가 될 수 없습니다."),
 
     //deal
     NOT_DEAL_ON_SALE(HttpStatus.NOT_FOUND, "거래 중 상태가 아닙니다."),//deal entity

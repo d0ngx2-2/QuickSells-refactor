@@ -146,9 +146,14 @@ public class AuctionService {
         Long sellerId = foundAuction.getAppraise().getItem().getUser().getId(); // 경매에 등록된 감정의 아이템을 등록한 판매자의 아이디
         Long buyerId = foundBuyer.getId(); // 조회된 유저 아이디
 
-        // 인증유저와 구매자가 다르거나 구매자가 해당경매의 판매자일때 예외
-        if (!authUserId.equals(buyerId) || authUser.getId().equals(sellerId)) {
+        // 인증유저와 구매자가 다를때 예외
+        if (!authUserId.equals(buyerId)) {
             throw new CustomException(ExceptionCode.ACCESS_DENIED_ONLY_OWNER);
+        }
+
+        // 구매자가 해당경매의 판매자일때 예외
+        if (authUser.getId().equals(sellerId)) {
+            throw new CustomException(ExceptionCode.SELLER_CANNOT_PURCHASE_OWN_AUCTION);
         }
     }
 
