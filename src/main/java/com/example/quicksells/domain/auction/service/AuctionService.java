@@ -151,7 +151,7 @@ public class AuctionService {
             throw new CustomException(ExceptionCode.ACCESS_DENIED_ONLY_OWNER);
         }
 
-        // 구매자가 해당경매의 판매자일때 예외
+        // 인증유저와 구매자가 같지만 해당경매의 판매자일때 예외
         if (authUser.getId().equals(sellerId)) {
             throw new CustomException(ExceptionCode.SELLER_CANNOT_PURCHASE_OWN_AUCTION);
         }
