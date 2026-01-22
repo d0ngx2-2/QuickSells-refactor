@@ -12,7 +12,7 @@ public class AuctionGetResponse {
 
     private final Long id;
     private final Long appraiseId;
-    private final Long dealId;
+    private final String itemName;
     private final Long buyerId;
     private final Integer bidPrice;
     private final AuctionStatusType status;
@@ -23,7 +23,7 @@ public class AuctionGetResponse {
         return new AuctionGetResponse(
                 auction.getId(),
                 auction.getAppraise().getId(),
-                auction.getDeal().getId(),
+                auction.getAppraise().getItem().getName(),
                 auction.getBuyer() != null ? auction.getBuyer().getId() : null,// 입찰자가 존재하지 않으면 널을 반환
                 auction.getBidPrice(),
                 auction.getStatus(),

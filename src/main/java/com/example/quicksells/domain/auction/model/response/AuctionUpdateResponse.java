@@ -12,7 +12,7 @@ public class AuctionUpdateResponse {
 
     private final Long id;
     private final Long appraiseId;
-    private final Long dealId;
+    private final String itemName;
     private final Long buyerId;
     private final Integer bidPrice;
     private final AuctionStatusType status;
@@ -22,7 +22,7 @@ public class AuctionUpdateResponse {
         return new AuctionUpdateResponse(
                 auction.getId(),
                 auction.getAppraise().getId(),
-                auction.getDeal().getId(),
+                auction.getAppraise().getItem().getName(),
                 auction.getBuyer().getId(),
                 auction.getBidPrice(),
                 auction.getStatus(),
