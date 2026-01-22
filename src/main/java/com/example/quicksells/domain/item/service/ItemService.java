@@ -4,7 +4,6 @@ import com.example.quicksells.common.aws.service.S3Service;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
-import com.example.quicksells.domain.information.service.InformationService;
 import com.example.quicksells.domain.item.model.request.ItemCreatedRequest;
 import com.example.quicksells.domain.item.model.request.ItemUpdateRequest;
 import com.example.quicksells.domain.item.model.response.ItemCreatedResponse;
@@ -56,7 +55,7 @@ public class ItemService {
         }
 
         // 엔티티 생성
-        Item item = new Item(seller, request.getName(), request.getHopePrice(), request.getDescription(), request.getImage());
+        Item item = new Item(seller, request.getName(), request.getHopePrice(), request.getDescription(), imageUrl);
 
         // Item 엔티티 DB에 저장
         Item saved = itemRepository.save(item);
@@ -76,8 +75,11 @@ public class ItemService {
     public ItemGetDetailResponse itemGetDetail(Long id) {
 
         //상품 조회 및 검증 404에러
-        Item item = itemRepository.findById(id)
+        Item item = itemRepository.findItemDetail(id)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
+
+//        Item item = itemRepository.findById(id)
+//                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
         // 조회된 엔티티 -> DTO로 변환
         return ItemGetDetailResponse.from(item);
@@ -93,8 +95,11 @@ public class ItemService {
 
     public Page<ItemGetListResponse> itemGetAll(Pageable pageable) {
 
-        //상품 목록 조회
-        Page<Item> result = itemRepository.findAll(pageable);
+        //상품 목록 조회 -> 기존 JPA
+//        Page<Item> result = itemRepository.findAllBy(pageable);
+
+        //상품 목록 조회 -> QueryDsl 적용
+        Page<Item> result = itemRepository.findItemList(pageable);
 
         //맵 사용하여 엔티티 목록 -> 응답 DTO 목록으로 조회
         return result.map(itemDto -> ItemGetListResponse.from(itemDto));
@@ -104,7 +109,7 @@ public class ItemService {
      * 상품 수정 기능
      *
      * @param authUser 로그인한 사용자 정보
-     * @param id       수정하려는 상품 ID
+     * @param id       수정하려는 상품 IDr
      * @param request  수정할 상품 정보(이름, 희망가격, 설명, 이미지)
      * @return 수정된 상품 정보를 담은 응답 DTO
      */
@@ -129,21 +134,15 @@ public class ItemService {
         }
 
         //이미지 수정
-        String imageUrl = item.getImage(); // 원본 이미지
+        String imageUrl = ItemImageUpdate(item, itemImage); // 원본 이미지
 
-        // 수정할 이미지 들어온 경우 S3 업데이트 후 URL 변경
-        if (itemImage != null && !itemImage.isEmpty()) {
+        String oldImage = item.getImage();
 
-            //기존 이미지가 S3에만 있는 경우 삭제
-            if (imageUrl != null && !imageUrl.isBlank()) {
-                s3Service.deleteImage(imageUrl);
-            }
-            //새 이미지 업로드 후 새로운 URL 획득
-            imageUrl = uploadImageIfPresent(itemImage);
-        }
+        //새 이미지 업로드
+        String newImage = uploadImageIfPresent(itemImage);
 
         //수정메소드 불러오기
-        item.update(request.getName(), request.getHopePrice(), request.getDescription(), request.getImage(), itemImage);
+        item.update(request.getName(), request.getHopePrice(), request.getDescription(), imageUrl);
 
         //수정 결과 DTO로 변환하여 반환
         return ItemUpdateResponse.from(item);
@@ -173,13 +172,44 @@ public class ItemService {
     }
 
     // 이미지 체크 기능
-    private String uploadImageIfPresent(MultipartFile itemImeage) {
+    private String uploadImageIfPresent(MultipartFile itemImage) {
+
         //1. 이미지가 없는 경우 null 반환
-        if (itemImeage == null || itemImeage.isEmpty()) {
+        if (itemImage == null || itemImage.isEmpty()) {
             return null;
         }
 
         //2. 이미지 있는 경우 s3 업로드 메서드에 전달
-        return s3Service.uploadImage(itemImeage);
+        return s3Service.uploadImage(itemImage);
+    }
+
+    private String ItemImageUpdate(Item item, MultipartFile itemImage) {
+        //데이터 불러오기
+        String oldImage = item.getImage();
+
+        //새 이미지 없는 경우 -> 기존 유지
+        if (itemImage == null || !itemImage.isEmpty()) {
+            return oldImage;
+        }
+
+        //새 이미지 업로드(수정 먼저)
+        String newImage = uploadImageIfPresent(itemImage);
+
+        //업로드 성공 후 기존 이미지 삭제
+        if (newImage != null && oldImage != null && !oldImage.isBlank()) {
+            s3Service.deleteImage(oldImage);
+        }
+
+        //가존 이미지 삭제
+        try {
+            if (oldImage != null && !oldImage.isBlank()) {
+                s3Service.deleteImage(oldImage);
+            }
+        } catch (Exception e) {
+
+        }
+
+        //새 이미지 URL 반환
+        return newImage;
     }
 }

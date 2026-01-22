@@ -39,7 +39,7 @@ public class ItemController {
      */
     @Operation(summary = "상품 등록")
     @PostMapping("/items")
-    public ResponseEntity<CommonResponse> itemCreatedApi(@AuthenticationPrincipal AuthUser authUser,@Valid @RequestPart(value = "image", required = false) ItemCreatedRequest request,MultipartFile image) { //(value = "image", required = false) -> 이미지가 없으면 400에러 발생하는데 글이 없이도 사용 가능하게 하는 로직
+    public ResponseEntity<CommonResponse> itemCreatedApi(@AuthenticationPrincipal AuthUser authUser,@Valid @RequestPart(value = "request", required = false) ItemCreatedRequest request,MultipartFile image) { //(value = "image", required = false) -> 이미지가 없으면 400에러 발생하는데 글이 없이도 사용 가능하게 하는 로직
 
         //생성 비지니스 핵심 로직
         ItemCreatedResponse responseDto = itemService.itemCreated(authUser, request, image);
@@ -106,7 +106,7 @@ public class ItemController {
         //공통 응답 포맷 적용 후 DTO 반환
         CommonResponse response = CommonResponse.success("상품 수정 완료됐습니다.", responseDto);
 
-        //200 상테 코드 반환
+        //200 상태 코드 반환
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
