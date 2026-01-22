@@ -17,18 +17,11 @@ public class ItemCreatedRequest {
     @Size(max = 500, message = "상품 설명은 500자 이내입니다.")
     private String description;
 
-    @NotBlank(message = "이미지 URL은 필수입니다.")
-    @Size(max = 255, message = "이미지 URL은 255자 이내입니다.")
-    @Pattern(
-            regexp = "^(https?:\\/\\/.*\\.(png|jpg|jpeg|gif|webp))(\\?.*)?$",
-            message = "이미지 파일 URL만 허용됩니다."
-    )
-    private String image;
 
-    public ItemCreatedRequest(String name, Long hopePrice, String description, String image) {
+    public ItemCreatedRequest(String name, Long hopePrice, String description) {
         this.name = name;
         this.hopePrice = hopePrice;
         this.description = description;
-        this.image = image;
+
     }
 }

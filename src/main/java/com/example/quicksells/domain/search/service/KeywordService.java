@@ -28,7 +28,7 @@ public class KeywordService {
         }
 
         //DB에 요청한 키워드가 있는지 조회
-        Search search = searchRepository.findByKeyword(keyword)
+        Search search = searchRepository.findByKeyword(readKeyword)
                 .orElseGet(() -> new Search(readKeyword));
 
         //카운트 +1 증가
