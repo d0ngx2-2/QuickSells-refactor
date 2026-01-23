@@ -48,7 +48,6 @@ public class AuctionCustomRepositoryImpl implements AuctionCustomRepository {
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(auction.id.desc())
                 .fetch();
 
         JPAQuery<Long> countQuery = jpaQueryFactory

@@ -16,9 +16,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,11 +43,13 @@ public class AuctionController {
 
     @Operation(summary = "경매 내역 전체 조회")
     @GetMapping("/auctions")
-    public ResponseEntity<PageResponse> getAllAuction(@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable, AuctionSearchFilterRequest request) {
+    public ResponseEntity<PageResponse> getAllAuction(AuctionSearchFilterRequest request, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "0") int size) {
 
-        Page<AuctionGetAllResponse> page = auctionService.getAllAuction(pageable, request);
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
 
-        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("경매 목록 조회에 성공했습니다.", page));
+        Page<AuctionGetAllResponse> result = auctionService.getAllAuction(pageable, request);
+
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("경매 목록 조회에 성공했습니다.", result));
     }
 
     @Operation(summary = "경매 내역 상세 조회")
