@@ -7,13 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface AnswerRepository extends JpaRepository<Answer, Long> {
+public interface AnswerRepository extends JpaRepository<Answer, Long>, AnswerCustomRepository {
 
     boolean existsByAsk(Ask ask);
 
-    Optional<Answer> findByAskId(Long askId);
-
-    Long ask(Ask ask);
+//    Optional<Answer> findByAskId(Long askId);
 
     List<Answer> findAllByOrderByCreatedAtDesc();
 }
