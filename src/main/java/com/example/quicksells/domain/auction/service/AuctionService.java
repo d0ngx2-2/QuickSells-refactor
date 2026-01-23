@@ -14,7 +14,6 @@ import com.example.quicksells.domain.auction.model.response.AuctionUpdateRespons
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
-import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.deal.service.DealService;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.user.entity.User;
@@ -49,10 +48,10 @@ public class AuctionService {
         Item item = foundAppraise.getItem();
 
         // 거래 생성
-        Deal deal = dealService.createAuctionDeal(item, foundAppraise.getBidPrice());
+        dealService.createAuctionDeal(item, foundAppraise.getBidPrice());
 
         // 경매 생성
-        Auction newAuction = new Auction(foundAppraise, deal, foundAppraise.getBidPrice());
+        Auction newAuction = new Auction(foundAppraise, foundAppraise.getBidPrice());
 
         // 경매의 생성일과 경매 종료일 설정
         newAuction.auctionCloseTime(request.getTimeOption());

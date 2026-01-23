@@ -2,13 +2,13 @@ package com.example.quicksells.domain.auction.entity;
 
 import com.example.quicksells.common.enums.AuctionStatusType;
 import com.example.quicksells.domain.appraise.entity.Appraise;
-import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
+
 import java.time.Clock;
 import java.time.LocalDateTime;
 
@@ -26,10 +26,6 @@ public class Auction {
     @OneToOne(fetch = FetchType.LAZY, optional = false) // 감정x -> 경매 등록x
     @JoinColumn(name = "appraise_id", nullable = false)
     private Appraise appraise; // 감정 ID
-
-    @OneToOne(fetch = FetchType.LAZY, optional = false) // 거래x -> 경매 등록x
-    @JoinColumn(name = "deal_id")
-    private Deal deal; // 거래 ID
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id")
@@ -54,9 +50,8 @@ public class Auction {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Auction(Appraise appraise, Deal deal, Integer bidPrice) {
+    public Auction(Appraise appraise, Integer bidPrice) {
         this.appraise = appraise;
-        this.deal = deal;
         this.buyer = null;
         this.bidPrice = bidPrice;
         this.status = AuctionStatusType.AUCTIONING;
@@ -75,7 +70,7 @@ public class Auction {
         this.updatedAt = LocalDateTime.now(clock); // 수정일 적용 후 DB저장
     }
 
-    public void update (User buyer, Integer bidPrice) {
+    public void update(User buyer, Integer bidPrice) {
         this.buyer = buyer;
         this.bidPrice = bidPrice;
     }
@@ -94,7 +89,6 @@ public class Auction {
             this.status = AuctionStatusType.UNSUCCESSFUL_BID; // 유찰완료 상태 변경
         } else {
             this.status = AuctionStatusType.SUCCESSFUL_BID;// 낙찰완료 상태 변경
-            this.deal.completeAuction(this.buyer, this.bidPrice); // 거래 완료 상태 변경
         }
     }
 
