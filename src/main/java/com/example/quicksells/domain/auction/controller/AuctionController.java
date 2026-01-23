@@ -60,7 +60,7 @@ public class AuctionController {
     }
 
     @Operation(summary = "경매 입찰(구매자)")
-    @PostMapping("/auctions/{id}")
+    @PostMapping("/auctions/{id}/bid")
     public ResponseEntity<CommonResponse> updateBidPrice(@PathVariable Long id, @Valid @RequestBody AuctionUpdateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
         AuctionUpdateResponse result = auctionService.updateBidPrice(id, request, authUser);
@@ -76,4 +76,5 @@ public class AuctionController {
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("경매 삭제에 성공했습니다."));
     }
+
 }
