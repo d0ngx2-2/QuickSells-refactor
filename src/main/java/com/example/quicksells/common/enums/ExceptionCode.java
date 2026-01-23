@@ -23,9 +23,12 @@ public enum ExceptionCode {
     BID_PRICE_TOO_LOW(HttpStatus.BAD_REQUEST, "현재 입찰가보다 더 높은 금액을 입력해야 합니다."),
     ACCESS_DENIED_ONLY_OWNER(HttpStatus.FORBIDDEN, "경매에 대한 권한이 없습니다."),
     AUCTION_ALREADY_EXPIRED(HttpStatus.BAD_REQUEST, "해당 경매가 종료되어 삭제되었습니다."),
+    SELLER_CANNOT_PURCHASE_OWN_AUCTION(HttpStatus.FORBIDDEN, "판매자는 본인이 등록한 상품의 구매자가 될 수 없습니다."),
 
     //deal
     NOT_DEAL_ON_SALE(HttpStatus.NOT_FOUND, "거래 중 상태가 아닙니다."),//deal entity
+    EXISTS_ACTIVE_DEAL(HttpStatus.CONFLICT, "이미 진행 중인 거래가 존재합니다."),
+    ACCESS_DENIED_DEAL(HttpStatus.FORBIDDEN, "해당 거래에 대한 접근 권한이 없습니다."),
 
     //information
     NOT_FOUND_INFORMATION(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."),
@@ -53,6 +56,7 @@ public enum ExceptionCode {
     ACCESS_DENIED_EXCEPTION_UPDATED_ITEM(HttpStatus.FORBIDDEN, "상품 수정 권한이 없습니다."),
     ACCESS_DENIED_EXCEPTION_DELETED_ITEM(HttpStatus.FORBIDDEN, "상품 삭제 권한이 없습니다."),
     CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다."),
+    ITEM_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "아이템 등록에 실패했습니다."),
 
     //AWS
     NOT_FOUND_FILE(HttpStatus.NOT_FOUND,"파일 이름이 존재하지 않습니다."),
@@ -70,6 +74,7 @@ public enum ExceptionCode {
 
     //SEARCH
     INVALID_SEARCH_KEYWORD(HttpStatus.NOT_FOUND, "검색어를 입력해주세요."),
+    UNAUTHORIZED_SEARCH(HttpStatus.UNAUTHORIZED, "로그인 후 입력해주세요"),
 
     //미사용
     AUCTION_EXPIRED_SOLD_OUT(HttpStatus.BAD_REQUEST, "경매 시간이 종료되어 낙찰이 완료 되었습니다."),

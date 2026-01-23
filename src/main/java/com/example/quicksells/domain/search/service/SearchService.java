@@ -2,6 +2,7 @@ package com.example.quicksells.domain.search.service;
 
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
+import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.search.model.response.SearchGetResponse;
 import lombok.AllArgsConstructor;
@@ -19,12 +20,18 @@ public class SearchService {
 
     /**
      * 상품 검색을 처리하는 메인 서비스
-     * @param keyword 사용자가 입력한 검색어
+     *
+     * @param keyword  사용자가 입력한 검색어
      * @param pageable 페이징 정보
      * @return 상품 목록 검색 결과
      */
     @Transactional
-    public Page<SearchGetResponse> search(String keyword, Pageable pageable) {
+    public Page<SearchGetResponse> search(AuthUser authUser, String keyword, Pageable pageable) {
+
+        //로그인 예외처리
+        if (authUser == null) {
+            throw new CustomException(ExceptionCode.UNAUTHORIZED_SEARCH);
+        }
 
         //검색어 공백, null 방지
         String searchKeyword = safeKeyword(keyword);
@@ -41,6 +48,7 @@ public class SearchService {
 
     /**
      * 검색어 공백 제거
+     *
      * @param keyword 사용자가 입력한 키워드
      * @return 공백 제거된 검색어
      */

@@ -56,7 +56,7 @@ public class WishListService {
         validateUser(authUser, buyerId);
 
         // 구매자의 관심 목록 조회 (생성일 기준 내림차순)
-        List<WishList> myWishList = wishListRepository.findAllByBuyerOrderByCreatedAtDesc(buyerId);
+        List<WishList> myWishList = wishListRepository.findAllByBuyerIdOrderByCreatedAtDesc(buyerId);
 
         return MyWishListGetAllResponse.from(myWishList);
     }
@@ -68,7 +68,7 @@ public class WishListService {
         validateUser(authUser, request.getBuyerId());
 
         // 구매자의 관심 목록 조회 (생성일 기준 내림차순)
-        List<WishList> myWishList = wishListRepository.findAllByBuyerOrderByCreatedAtDesc(request.getBuyerId());
+        List<WishList> myWishList = wishListRepository.findAllByBuyerIdOrderByCreatedAtDesc(request.getBuyerId());
 
         // 내 관심 목록 인덱스 번호
         int myWishListIndex = request.getIndex() - 1;
@@ -79,8 +79,8 @@ public class WishListService {
         // 삭제할 관심 목록 인덱스로 가져오기
         WishList oneWishList = myWishList.get(myWishListIndex);
 
-        // 가져온 관심목록 삭제
-        oneWishList.isDeleted(true);
+        // 가져온 관심목록 물리 삭제
+        wishListRepository.delete(oneWishList);
     }
 
 

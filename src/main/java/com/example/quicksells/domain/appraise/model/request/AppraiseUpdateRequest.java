@@ -22,7 +22,7 @@ public class AppraiseUpdateRequest {
      * - @AssertTrue는 boolean을 반환하는 is로 시작하는 메서드에 적용
      * - 메서드 이름이 isxxx 형태여야 함
      */
-    @AssertTrue(message = "즉시 판매시에 true만 변경 가능합니다.")
+    @AssertTrue(message = "즉시 판매시에 true 선택만 됩니다.")
     private boolean isValidSelection() {
         // isSelected가 null이 아니고 true인 경우만 통과
         return Boolean.TRUE.equals(isSelected);
