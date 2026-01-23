@@ -38,7 +38,7 @@ public class DealService {
         Item item = itemRepository.findById(request.getItemId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
-        User seller = item.getUser();
+        User seller = item.getSeller();
 
         User buyer = null;
 
@@ -62,7 +62,7 @@ public class DealService {
     public Deal createAuctionDeal(Item item, Integer startPrice) {
 
         // 판매자 = 현재 아이템 소유자
-        User seller = item.getUser();
+        User seller = item.getSeller();
 
         Deal deal = new Deal(
                 null,                 // buyer 없음

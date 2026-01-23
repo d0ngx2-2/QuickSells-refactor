@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface ItemRepository extends JpaRepository<Item, Long>,ItemCustomRepository, SearchCustomRepository {
 
     //생성 시 중복 검증에서 사용
-    boolean existsByUserIdAndName(Long id, String name);
+    boolean existsBySellerIdAndName(Long id, String name);
 
     // 상세조회 검증 시 상용
     Optional<Item> findById(Long itemId);

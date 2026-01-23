@@ -44,7 +44,7 @@ public class ItemService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
 
         //중복 상품 검증
-        boolean exists = itemRepository.existsByUserIdAndName(authUser.getId(), request.getName());
+        boolean exists = itemRepository.existsBySellerIdAndName(authUser.getId(), request.getName());
 
         //상품 중복 등록 시 409에러 발생
         if (exists) {
@@ -129,7 +129,7 @@ public class ItemService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
         //상품 작성자와 로그인한 회원이 다르면 수정 불가
-        if (!item.getUser().getId().equals(authUser.getId())) {
+        if (!item.getSeller().getId().equals(authUser.getId())) {
             throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_UPDATED_ITEM);
         }
 
@@ -170,7 +170,7 @@ public class ItemService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
         // 상품 작성자와 로그인한 회원 정보 다르면 삭제 불가
-        if (!item.getUser().getId().equals(authUser.getId())) {
+        if (!item.getSeller().getId().equals(authUser.getId())) {
 
             throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_DELETED_ITEM);
         }
