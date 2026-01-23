@@ -91,7 +91,7 @@ public class BurkDataController {
     }
 
     @PostMapping("/burk-data/appraises")
-    public ResponseEntity<String> generateAppraises(@RequestParam(defaultValue = "100000") int count) {
+    public ResponseEntity<String> generateAppraises(@RequestParam(defaultValue = "900000") int count) {
 
         bulkDataInsertService.insertBulkAppraises(count);
 

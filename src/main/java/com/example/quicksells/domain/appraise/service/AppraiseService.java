@@ -42,7 +42,7 @@ public class AppraiseService {
      * - Deal은 나중에 판매자가 감정을 선택할 때 생성
      */
     @Transactional
-    public AppraiseCreateResponse createAppraise(Long itemId, AppraiseCreateRequest request, Long adminId) {
+    public AppraiseCreateResponse createAppraise(Long itemId, AppraiseCreateRequest request, AuthUser authUser) {
 
         // 1. 상품 존재 여부 확인
         Item item = getItem(itemId);
@@ -50,14 +50,15 @@ public class AppraiseService {
         // 2. 상품이 감정 가능한 상태인지 확인
         validateItemStatus(item);
 
-        // 3. 감정사 정보 조회
-        User admin = userRepository.findById(adminId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISER));
-
-        // 4. 관리자가 해당 상품으로 이미 감정 생성 했는지 검증
-        if (appraiseRepository.existsByItemIdAndUserId(itemId, adminId)) {
+        // 3. 관리자가 해당 상품으로 이미 감정 생성 했는지 검증
+        if (appraiseRepository.existsByItemIdAndUserId(itemId, authUser.getId())) {
             throw new CustomException(ExceptionCode.ALREADY_EXISTS_APPRAISE);
         }
+
+        // 4. 감정사 정보 조회
+        User admin = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISER));
+
 
         // 5. 감정 엔티티 생성 (Deal 연결)
         Appraise appraise = new Appraise(
@@ -86,7 +87,7 @@ public class AppraiseService {
         }
 
         // 상품이 이미 판매 완료된 경우
-         if (item.isSelling()) {
+         if (item.isStatus()) {
              throw new CustomException(ExceptionCode.EXISTS_ITEM_SELL);
          }
     }
@@ -149,7 +150,7 @@ public class AppraiseService {
      * 상품 소유자 검증
      */
     private void validateItemOwner(Item item, Long userId) {
-        if (!item.getSeller().getId().equals(userId)) {
+        if (!item.getUser().getId().equals(userId)) {
             throw new CustomException(ExceptionCode.ONLY_OWNER_APPRAISE_SEARCH);
         }
     }
@@ -213,9 +214,9 @@ public class AppraiseService {
                 .orElseGet(() -> {
                     // 없으면 새로운 Deal 생성
                     Deal newDeal = new Deal(
-                            null,                  // buyer: 아직 미정
-                            item.getSeller(),              // seller: 상품 판매자
-                            item,                        // item: 상품 (1:1 관계)
+                            null,                  // buyer: 즉시 판매인 경우 정보 없음
+                            item.getUser(),              // seller: 상품 판매자
+                            item,                        // item: 상품 (1:N 관계)
                             DealType.IMMEDIATE_SELL,     // type: 즉시 판매
                             StatusType.ON_SALE,          // status: 거래 중
                             appraise.getBidPrice()       // dealPrice: 감정가
