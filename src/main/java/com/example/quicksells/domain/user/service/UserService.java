@@ -3,6 +3,8 @@ package com.example.quicksells.domain.user.service;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.enums.UserRole;
 import com.example.quicksells.common.exception.CustomException;
+import com.example.quicksells.common.redis.service.TokenBlackListService;
+import com.example.quicksells.common.util.JwtUtil;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.model.request.UserRoleUpdateRequest;
@@ -24,6 +26,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final TokenBlackListService tokenBlackListService;
 
     /**
      * 내 정보 조회 기능
@@ -87,12 +91,18 @@ public class UserService {
      * @throws CustomException 사용자 체크, 소프트 딜리트 여부 체크
      */
     @Transactional
-    public void delete(AuthUser authUser) {
+    public void delete(AuthUser authUser, String token) {
 
         // 사용자 및 소프트 딜리트 체크
         User user = findByUserIdOrException(authUser.getId());
 
         user.delete();
+
+        long remainingTime = jwtUtil.getRemainingTime(token);
+
+        if (remainingTime > 0) {
+            tokenBlackListService.addTokenToBlacklist(token, remainingTime);
+        }
     }
 
     /**
@@ -101,10 +111,7 @@ public class UserService {
      * @return 전체 유저 정보
      */
     @Transactional(readOnly = true)
-    public Page<UserGetAllResponse> getAllUsers(AuthUser authUser, Pageable pageable) {
-
-        // 관리자 체크
-        findByAdminIdOrException(authUser.getId());
+    public Page<UserGetAllResponse> getAllUsers(Pageable pageable) {
 
         // 사용자 전체 조회
         return userRepository.findAllByRole(UserRole.USER, pageable)
@@ -117,10 +124,7 @@ public class UserService {
      * @return 변경된 유저 정보
      */
     @Transactional
-    public UserUpdateResponse updateRole(AuthUser authUser, Long userId, UserRoleUpdateRequest request) {
-
-        // 관리자 체크
-        findByAdminIdOrException(authUser.getId());
+    public UserUpdateResponse updateRole(Long userId, UserRoleUpdateRequest request) {
 
         // 사용자 체크
         User user = findByUserIdOrException(userId);
@@ -144,13 +148,6 @@ public class UserService {
         if (userRepository.existsByPhone(phone)) {
             throw new CustomException(ExceptionCode.EXISTS_PHONE);
         }
-    }
-
-    // 관리자 체크
-    private void findByAdminIdOrException(Long adminId) {
-
-        userRepository.findById(adminId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ADMIN));
     }
 
     // 사용자 체크

@@ -1,6 +1,7 @@
 package com.example.quicksells.common.filter;
 
 import com.example.quicksells.common.enums.UserRole;
+import com.example.quicksells.common.redis.service.TokenBlackListService;
 import com.example.quicksells.common.security.JwtAuthenticationToken;
 import com.example.quicksells.common.util.JwtUtil;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
@@ -24,6 +25,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final TokenBlackListService tokenBlackListService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws ServletException, IOException {
@@ -43,6 +45,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 토큰 검증
         try {
             if (jwtUtil.validateToken(token)) {
+
+                if (tokenBlackListService.isContainToken(token)) {
+                    log.warn("블랙리스트 토큰 접근");
+
+                    SecurityContextHolder.clearContext();
+                    chain.doFilter(request, response);
+
+                    return;
+                }
                 // JWT 복호화
                 Claims claims = jwtUtil.extractAllClaims(token);
 

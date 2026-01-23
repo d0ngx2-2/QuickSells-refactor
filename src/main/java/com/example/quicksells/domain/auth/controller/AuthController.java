@@ -1,6 +1,7 @@
 package com.example.quicksells.domain.auth.controller;
 
 import com.example.quicksells.common.model.CommonResponse;
+import com.example.quicksells.common.util.JwtUtil;
 import com.example.quicksells.domain.auth.model.request.AuthLoginRequest;
 import com.example.quicksells.domain.auth.model.request.AuthSignupRequest;
 import com.example.quicksells.domain.auth.model.response.AuthLoginResponse;
@@ -8,6 +9,7 @@ import com.example.quicksells.domain.auth.model.response.AuthSignupResponse;
 import com.example.quicksells.domain.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     /**
      * 회원가입 API
@@ -51,5 +54,17 @@ public class AuthController {
         AuthLoginResponse response = authService.login(request);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("로그인 성공하셨습니다.", response));
+    }
+
+    @Operation(summary = "로그아웃")
+    @PostMapping("/auth/logout")
+    public ResponseEntity<CommonResponse> logout(HttpServletRequest request) {
+
+        String authorizationHeader = request.getHeader(JwtUtil.HEADER_KEY);
+        String token = jwtUtil.substringToken(authorizationHeader);
+
+        authService.logout(token);
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("로그아웃 성공하셨습니다."));
     }
 }
