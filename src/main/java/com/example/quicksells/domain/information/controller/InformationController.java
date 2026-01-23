@@ -16,7 +16,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -82,9 +81,9 @@ public class InformationController {
      */
     @Operation(summary = "공지사항 수정(관리자)")
     @PatchMapping(value = "/admin/informations/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CommonResponse> update(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @Valid @RequestPart(value = "request", required = false) InformationUpdateRequest request, @RequestPart(value = "image", required = false) MultipartFile image) {
+    public ResponseEntity<CommonResponse> update(@PathVariable Long id, @Valid @RequestPart(value = "request", required = false) InformationUpdateRequest request, @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        InformationUpdateResponse response = informationService.update(authUser, id, request, image);
+        InformationUpdateResponse response = informationService.update(id, request, image);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("공지사항 수정 성공하셨습니다.", response));
     }
@@ -96,9 +95,9 @@ public class InformationController {
      */
     @Operation(summary = "공지사항 삭제(관리자)")
     @DeleteMapping("/admin/informations/{id}")
-    public ResponseEntity<CommonResponse> delete(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public ResponseEntity<CommonResponse> delete(@PathVariable Long id) {
 
-        informationService.delete(authUser, id);
+        informationService.delete(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("공지사항 삭제 성공하셨습니다."));
     }
