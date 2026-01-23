@@ -5,6 +5,6 @@ import com.example.quicksells.domain.auction.model.request.AuctionSearchFilterRe
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface AuctionRepositoryCustom {
+public interface AuctionCustomRepository {
     Page<Auction> auctionSearch(Pageable pageable, AuctionSearchFilterRequest request);
 }

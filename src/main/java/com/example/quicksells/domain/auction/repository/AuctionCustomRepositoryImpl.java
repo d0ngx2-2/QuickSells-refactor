@@ -6,7 +6,6 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -17,7 +16,7 @@ import static com.example.quicksells.domain.auction.entity.QAuction.auction;
 import static com.example.quicksells.domain.item.entity.QItem.item;
 
 @RequiredArgsConstructor
-public class AuctionRepositoryImpl implements AuctionRepositoryCustom {
+public class AuctionCustomRepositoryImpl implements AuctionCustomRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
