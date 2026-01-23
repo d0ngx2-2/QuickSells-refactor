@@ -56,6 +56,7 @@ public enum ExceptionCode {
     ACCESS_DENIED_EXCEPTION_UPDATED_ITEM(HttpStatus.FORBIDDEN, "상품 수정 권한이 없습니다."),
     ACCESS_DENIED_EXCEPTION_DELETED_ITEM(HttpStatus.FORBIDDEN, "상품 삭제 권한이 없습니다."),
     CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다."),
+    ITEM_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "아이템 등록에 실패했습니다."),
 
     //AWS
     NOT_FOUND_FILE(HttpStatus.NOT_FOUND,"파일 이름이 존재하지 않습니다."),
@@ -65,6 +66,7 @@ public enum ExceptionCode {
 
     //ANSWER
     NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "답변 내역을 찾을 수 없습니다."),
+    ACCESS_DENIED_ANSWER(HttpStatus.FORBIDDEN, "조회할 권한이 없습니다."),
 
     //ASK
     NOT_FOUND_ASK(HttpStatus.NOT_FOUND, "문의 내역을 찾을 수 없습니다."),
@@ -72,6 +74,7 @@ public enum ExceptionCode {
 
     //SEARCH
     INVALID_SEARCH_KEYWORD(HttpStatus.NOT_FOUND, "검색어를 입력해주세요."),
+    UNAUTHORIZED_SEARCH(HttpStatus.UNAUTHORIZED, "로그인 후 입력해주세요"),
 
     //미사용
     AUCTION_EXPIRED_SOLD_OUT(HttpStatus.BAD_REQUEST, "경매 시간이 종료되어 낙찰이 완료 되었습니다."),

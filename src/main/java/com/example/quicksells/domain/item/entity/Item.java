@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
+
 @Entity
 @Table(name = "items")
 @Getter
@@ -51,11 +52,12 @@ public class Item extends BaseEntity {
         this.image = image;
     }
 
-    public void update(String name, Long hopePrice, String description, String image) {
+    public void update(String name, Long hopePrice, String description, String imageUrl) {
         this.name = name;
         this.hopePrice = hopePrice;
         this.description = description;
-        this.image = image;
+        this.image = imageUrl;
+
     }
 
     public void softDelete() {

@@ -6,7 +6,6 @@ import com.example.quicksells.common.security.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,7 +25,6 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -38,6 +36,9 @@ public class SecurityConfig {
                 )
                 // 폼 로그인 비활성화
                 .formLogin(AbstractHttpConfigurer::disable)
+
+                // 로그아웃 기능 추가
+                .logout(AbstractHttpConfigurer::disable)
                 // 인증/ 인가 실패 시 커스텀 응답 반환
                 .exceptionHandling(conf ->
                         conf.authenticationEntryPoint(authenticationEntryPoint)
@@ -46,10 +47,10 @@ public class SecurityConfig {
                 // HTTP Basic 인증 비활성화
                 .httpBasic(AbstractHttpConfigurer::disable)
                 // 세션 기반 기능 제거
-                .logout(AbstractHttpConfigurer::disable)
                 .rememberMe(AbstractHttpConfigurer::disable)
                 // 요청 URL 권한 설정
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         // swagger ui 설정 추가
                         .requestMatchers("/swagger-ui/**").permitAll()

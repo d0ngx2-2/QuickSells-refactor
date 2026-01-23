@@ -100,15 +100,12 @@ public class InformationService {
      * @throws CustomException 관리자 체크, 공지사항 체크
      */
     @Transactional
-    public InformationUpdateResponse update(AuthUser authUser, Long informationId, InformationUpdateRequest request, MultipartFile image) {
+    public InformationUpdateResponse update(Long informationId, InformationUpdateRequest request, MultipartFile image) {
 
         // request 값이 비었을 경우 예외
         if (request.isAllFieldEmpty() && (image == null || image.isEmpty())) {
             throw new CustomException(ExceptionCode.NO_UPDATE_FIELD);
         }
-
-        // 관리자 체크
-        findAdminOrException(authUser);
 
         // 공지사항 체크
         Information information = findInformationOrException(informationId);
@@ -132,10 +129,7 @@ public class InformationService {
      * @throws CustomException 관리자 체크, 공지사항 체크
      */
     @Transactional
-    public void delete(AuthUser authUser, Long informationId) {
-
-        // 관리자 체크
-        findAdminOrException(authUser);
+    public void delete(Long informationId) {
 
         // 공지사항 체크
         Information information = findInformationOrException(informationId);

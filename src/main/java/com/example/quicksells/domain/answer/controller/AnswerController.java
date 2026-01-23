@@ -41,9 +41,9 @@ public class AnswerController {
      * 답변 상세 조회
      */
     @GetMapping("/answers/asks/{askId}")
-    public ResponseEntity<CommonResponse> getAnswer(@PathVariable Long askId) {
+    public ResponseEntity<CommonResponse> getAnswer(@PathVariable Long askId, @AuthenticationPrincipal AuthUser authUser) {
 
-        AnswerGetResponse response = answerService.getAnswer(askId);
+        AnswerGetResponse response = answerService.getAnswer(askId, authUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("답변 조회에 성공하였습니다.", response));
     }
@@ -52,9 +52,9 @@ public class AnswerController {
      * 답변 전체 조회
      */
     @GetMapping("/answers")
-    public ResponseEntity<CommonResponse> getAnswers() {
+    public ResponseEntity<CommonResponse> getAnswers(AuthUser authUser) {
 
-        List<AnswerGetAllResponse> response = answerService.getAnswers();
+        List<AnswerGetAllResponse> response = answerService.getAnswers(authUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("답변 전체조회를 성공하였습니다.", response));
     }
@@ -62,7 +62,7 @@ public class AnswerController {
     /**
      * 답변 수정
      */
-    @PutMapping("/answers/{id}")
+    @PutMapping("/admin/answers/{id}")
     public ResponseEntity<CommonResponse> updateAnswer(@PathVariable Long id, @Valid @RequestBody AnswerUpdateRequest request) {
 
         answerService.updateAnswer(id, request);
@@ -73,7 +73,7 @@ public class AnswerController {
     /**
      * 답변 삭제
      */
-    @DeleteMapping("/answers/{id}")
+    @DeleteMapping("/admin/answers/{id}")
     public ResponseEntity<CommonResponse> deleteAnswer(@PathVariable Long id) {
 
         answerService.deleteAnswer(id);
