@@ -12,9 +12,8 @@ public class AuctionCreateResponse {
 
     private final Long id;
     private final Long appraiseId;
-    private final Long dealId;
     private final Long sellerId;
-    private final String appraiseItemName;
+    private final String itemName;
     private final Integer bidPrice;
     private final AuctionStatusType status;
     private final LocalDateTime createdAt;
@@ -23,7 +22,6 @@ public class AuctionCreateResponse {
         return new AuctionCreateResponse(
                 auction.getId(),
                 auction.getAppraise().getId(),
-                auction.getDeal().getId(),
                 auction.getAppraise().getItem().getUser().getId(),
                 auction.getAppraise().getItem().getName(),
                 auction.getBidPrice(),

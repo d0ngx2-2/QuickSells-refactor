@@ -14,9 +14,7 @@ import com.example.quicksells.domain.auction.model.response.AuctionUpdateRespons
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
-import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.deal.service.DealService;
-import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,9 +43,6 @@ public class AuctionService {
         // 중복 검증
         deduplicationAuction(foundAppraise);
 
-        // 거래 생성
-        Deal deal = dealService.createAuctionDeal(foundAppraise, foundAppraise.getBidPrice());
-
         // 경매 생성
         Auction newAuction = new Auction(foundAppraise, foundAppraise.getBidPrice());
 
@@ -56,8 +51,8 @@ public class AuctionService {
 
         Auction saveAuction = auctionRepository.save(newAuction);
 
-        // 거래에도 Auction FK키 값 세팅
-        deal.updateAuction(newAuction);
+        // 2. 거래 생성 (Auction 포함)
+        dealService.createAuctionDeal(foundAppraise, saveAuction);
 
         return AuctionCreateResponse.from(saveAuction);
     }

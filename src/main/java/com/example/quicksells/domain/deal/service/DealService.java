@@ -7,6 +7,7 @@ import com.example.quicksells.common.enums.UserRole;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
+import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.deal.model.request.DealCreateRequest;
@@ -14,6 +15,7 @@ import com.example.quicksells.domain.deal.model.response.DealCreateResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetAllQueryResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetResponse;
 import com.example.quicksells.domain.deal.repository.DealRepository;
+import com.example.quicksells.domain.item.entity.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +42,7 @@ public class DealService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
 
         // 이미 해당 감정으로 생성된 Deal 존재 여부
-        dealRepository.findByAppraise(appraise)
+        dealRepository.findByAppraiseId(appraise.getId())
                 .ifPresent(d -> {
                     throw new CustomException(ExceptionCode.EXISTS_ACTIVE_DEAL);
                 });
@@ -64,14 +66,14 @@ public class DealService {
      * - Deal이 경매의 "예정 거래" 역할을 함
      */
     @Transactional
-    public Deal createAuctionDeal(Appraise appraise, Integer startPrice) {
+    public Deal createAuctionDeal(Appraise appraise, Auction auction) {
 
         Deal deal = new Deal(
-                appraise,              // 감정 결과 (필수)
-                null,                  // auction FK는 아직 없음
+                appraise,
+                auction,
                 DealType.AUCTION,
                 StatusType.ON_SALE,
-                startPrice
+                auction.getBidPrice()
         );
 
         return dealRepository.save(deal);
