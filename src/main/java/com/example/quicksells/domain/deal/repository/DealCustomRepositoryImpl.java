@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 import static com.example.quicksells.domain.deal.entity.QDeal.deal;
-import static com.example.quicksells.domain.item.entity.QItem.item;
 
 @RequiredArgsConstructor
 public class DealCustomRepositoryImpl implements DealCustomRepository {
@@ -20,12 +19,12 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
 
     @Override
     public Page<DealGetAllQueryResponse> findPurchaseDeals(Long buyerId, Pageable pageable) {
-        return fetchDeals(deal.buyer.id.eq(buyerId), pageable);
+        return fetchDeals(deal.auction.buyer.id.eq(buyerId), pageable);
     }
 
     @Override
     public Page<DealGetAllQueryResponse> findSaleDeals(Long sellerId, Pageable pageable) {
-        return fetchDeals(deal.seller.id.eq(sellerId), pageable);
+        return fetchDeals(deal.appraise.item.user.id.eq(sellerId), pageable);
     }
 
     @Override
@@ -48,8 +47,8 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
                         deal.status,
                         deal.createdAt,
 
-                        item.id,
-                        item.name,
+                        deal.appraise.item.id,
+                        deal.appraise.item.name,
 
                         seller.id,
                         seller.name,
@@ -58,9 +57,11 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
                         buyer.name
                 ))
                 .from(deal)
-                .join(deal.item, item)
-                .join(deal.seller, seller)
-                .leftJoin(deal.buyer, buyer)
+                .join(deal.appraise)
+                .join(deal.appraise.item)
+                .join(deal.appraise.item.user, seller)
+                .leftJoin(deal.auction)
+                .leftJoin(deal.auction.buyer, buyer)
                 .where(condition)
                 .orderBy(deal.createdAt.desc())
                 .offset(pageable.getOffset())
