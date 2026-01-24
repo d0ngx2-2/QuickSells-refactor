@@ -60,11 +60,10 @@ public class AppraiseService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISER));
 
 
-        // 5. 감정 엔티티 생성 (Deal 연결)
+        // 5. 감정 엔티티 생성
         Appraise appraise = new Appraise(
                 admin,                      // user (감정사)
                 item,                       // item
-                null,                       // deal (아직 생성하지 않음)
                 request.getBidPrice(),      // bidPrice
                 false                       // isSelected (기본값)
         );
@@ -183,7 +182,7 @@ public class AppraiseService {
         // 4. 선택 여부에 따른 처리
         if (request.getIsSelected()) {
             // 즉시 판매 선택
-            handleImmediateSell(appraise, item, request);
+            handleImmediateSell(appraise, request);
         }
 
         appraiseRepository.flush();
@@ -193,46 +192,37 @@ public class AppraiseService {
 
     /**
      * 즉시 판매 처리
-     * - Item과 Deal은 1:N
-     * - 기존 Deal이 있으면 업데이트, 없으면 생성
+     * - Appraise 기준으로 Deal은 1:1
+     * - 기존 Deal 있으면 업데이트, 없으면 생성
+     * - Appraise와 Deal은 1:1
+     * - 선택된 감정(Appraise)을 기준으로 거래(Deal)가 생성된다
      */
-    private void handleImmediateSell(Appraise appraise, Item item, AppraiseUpdateRequest request) {
+    private void handleImmediateSell(Appraise appraise, AppraiseUpdateRequest request) {
 
-        // 1. 해당 Item에 대한 기존 Deal 확인 (Item-Deal 1:N 관계)
-        Deal deal = dealRepository.findByItem(item)
-                // 기존 Deal이 존재하는 경우
-                .map(existingDeal -> {
-                    // 기존 Deal 업데이트
-                    existingDeal.updateForAppraise(
-                            DealType.IMMEDIATE_SELL,     // type: 즉시 판매
-                            StatusType.ON_SALE,          // status: 거래 중
-                            appraise.getBidPrice()       // dealPrice: 감정가
-                    );
+        dealRepository.findByAppraise(appraise)
+                .ifPresentOrElse(
+                        existingDeal -> {
+                            existingDeal.updateForAppraise(
+                                    DealType.IMMEDIATE_SELL,
+                                    StatusType.ON_SALE,
+                                    appraise.getBidPrice()
+                            );
+                            // save 필요 없음 (더티채킹)
+                        },
+                        () -> {
+                            Deal newDeal = new Deal(
+                                    appraise,
+                                    null,
+                                    DealType.IMMEDIATE_SELL,
+                                    StatusType.ON_SALE,
+                                    appraise.getBidPrice()
+                            );
+                            dealRepository.save(newDeal);
+                        }
+                );
 
-                    return dealRepository.save(existingDeal);
-                })
-                .orElseGet(() -> {
-                    // 없으면 새로운 Deal 생성
-                    Deal newDeal = new Deal(
-                            null,                  // buyer: 즉시 판매인 경우 정보 없음
-                            item.getUser(),              // seller: 상품 판매자
-                            item,                        // item: 상품 (1:N 관계)
-                            DealType.IMMEDIATE_SELL,     // type: 즉시 판매
-                            StatusType.ON_SALE,          // status: 거래 중
-                            appraise.getBidPrice()       // dealPrice: 감정가
-                    );
-
-                    return dealRepository.save(newDeal);
-                });
-
-        dealRepository.flush();
-
-        // 2. Appraise 업데이트
-        appraise.updateSelected(request.getIsSelected());
-        appraise.connectDeal(deal);
-
-        // 3. 명시적 저장
-        appraiseRepository.save(appraise);
+        // 감정 선택 처리
+        appraise.updateSelected(true);
     }
 
     /**
