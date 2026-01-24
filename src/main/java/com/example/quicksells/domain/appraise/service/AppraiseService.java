@@ -182,7 +182,7 @@ public class AppraiseService {
         // 4. 선택 여부에 따른 처리
         if (request.getIsSelected()) {
             // 즉시 판매 선택
-            handleImmediateSell(appraise, request);
+            handleImmediateSell(appraise);
         }
 
         appraiseRepository.flush();
@@ -197,31 +197,27 @@ public class AppraiseService {
      * - Appraise와 Deal은 1:1
      * - 선택된 감정(Appraise)을 기준으로 거래(Deal)가 생성된다
      */
-    private void handleImmediateSell(Appraise appraise, AppraiseUpdateRequest request) {
+    private void handleImmediateSell(Appraise appraise) {
 
-        dealRepository.findByAppraise(appraise)
+        dealRepository.findByAppraiseId(appraise.getId())
                 .ifPresentOrElse(
-                        existingDeal -> {
-                            existingDeal.updateForAppraise(
-                                    DealType.IMMEDIATE_SELL,
-                                    StatusType.ON_SALE,
-                                    appraise.getBidPrice()
-                            );
-                            // save 필요 없음 (더티채킹)
-                        },
+                        deal -> deal.updateForAppraise(
+                                DealType.IMMEDIATE_SELL,
+                                StatusType.ON_SALE,
+                                appraise.getBidPrice()
+                        ),
                         () -> {
-                            Deal newDeal = new Deal(
+                            Deal deal = new Deal(
                                     appraise,
                                     null,
                                     DealType.IMMEDIATE_SELL,
                                     StatusType.ON_SALE,
                                     appraise.getBidPrice()
                             );
-                            dealRepository.save(newDeal);
+                            dealRepository.save(deal);
                         }
                 );
 
-        // 감정 선택 처리
         appraise.updateSelected(true);
     }
 
