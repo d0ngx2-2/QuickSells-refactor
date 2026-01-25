@@ -1,18 +1,15 @@
 package com.example.quicksells.domain.appraise.service;
 
-import com.example.quicksells.common.enums.DealType;
-import com.example.quicksells.common.enums.ExceptionCode;
-import com.example.quicksells.common.enums.StatusType;
-import com.example.quicksells.common.enums.UserRole;
+import com.example.quicksells.common.enums.*;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.appraise.model.request.AppraiseCreateRequest;
 import com.example.quicksells.domain.appraise.model.request.AppraiseUpdateRequest;
-import com.example.quicksells.domain.appraise.model.response.AppraiseCreateResponse;
-import com.example.quicksells.domain.appraise.model.response.AppraiseGetAllResponse;
-import com.example.quicksells.domain.appraise.model.response.AppraiseGetResponse;
-import com.example.quicksells.domain.appraise.model.response.AppraiseUpdateResponse;
+import com.example.quicksells.domain.appraise.model.response.*;
 import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
+import com.example.quicksells.domain.auction.model.request.AuctionCreateRequest;
+import com.example.quicksells.domain.auction.model.response.AuctionCreateResponse;
+import com.example.quicksells.domain.auction.service.AuctionService;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.deal.repository.DealRepository;
@@ -27,6 +24,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,6 +36,7 @@ public class AppraiseService {
     private final DealRepository dealRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final AuctionService auctionService;
 
     /**
      * 감정 생성 (관리자 권한만 가능)
@@ -60,11 +61,10 @@ public class AppraiseService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISER));
 
 
-        // 5. 감정 엔티티 생성 (Deal 연결)
+        // 5. 감정 엔티티 생성
         Appraise appraise = new Appraise(
                 admin,                      // user (감정사)
                 item,                       // item
-                null,                       // deal (아직 생성하지 않음)
                 request.getBidPrice(),      // bidPrice
                 false                       // isSelected (기본값)
         );
@@ -110,7 +110,12 @@ public class AppraiseService {
         // 3. 감정 목록 조회 (페이징)
         Page<Appraise> appraisePage = appraiseRepository.findByItemIdWithPaging(itemId, pageable);
 
-        // 4. DTO 변환
+        // 4. 상품별 감정 목록이 비어 있는 경우
+        if (!appraisePage.hasContent()) {
+            throw new CustomException(ExceptionCode.NOT_FOUND_APPRAISE);
+        }
+
+        // 5. DTO 변환
         return appraisePage.map(AppraiseGetAllResponse::from);
     }
 
@@ -163,12 +168,11 @@ public class AppraiseService {
     }
 
     /**
-     * 감정 선택 (판매자가 함)
-     * - isSelected = true: 즉시 판매 → Deal 생성 (status: ON_SALE, buyer: null)
-     * - isSelected = false: 판매자가 여러 감정가를 보고도 마음에 들지 않은 경우 경매 전환 > 경매 API 진행
+     * 감정 선택 (판매자가 원하는 감정가 선택만 처리)
      */
     @Transactional
     public AppraiseUpdateResponse updateAppraise(Long id, AppraiseUpdateRequest request, AuthUser authUser) {
+
         // 1. 감정 조회
         Appraise appraise = appraiseRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
@@ -180,10 +184,11 @@ public class AppraiseService {
         // 3. 감정 검증 상태인지 확인
         validateAppraise(appraise, item);
 
-        // 4. 선택 여부에 따른 처리
+        // 4. 선택 여부만 업데이트
         if (request.getIsSelected()) {
-            // 즉시 판매 선택
-            handleImmediateSell(appraise, item, request);
+            // 기존에 선택된 다른 감정이 있다면 해제 후 선택
+            resetOtherSelectedAppraises(item, appraise.getId());
+            appraise.updateSelected(request.getIsSelected());
         }
 
         appraiseRepository.flush();
@@ -192,11 +197,88 @@ public class AppraiseService {
     }
 
     /**
+     * 기존에 선택된 다른 감정들 선택 해제
+     */
+    private void resetOtherSelectedAppraises(Item item, Long currentAppraiseId) {
+
+        Optional<Appraise> appraises = appraiseRepository.findByItem(item);
+        appraises.stream()
+                .filter(a -> !a.getId().equals(currentAppraiseId))
+                .filter(Appraise::isSelected)
+                .forEach(a -> a.updateSelected(false));
+    }
+
+    /**
+     * 즉시 판매 확정
+     * - 판매자가 선택한 감정가로 즉시 판매 진행
+     */
+    @Transactional
+    public AppraiseImmediateSellResponse confirmImmediateSell(Long appraiseId) {
+
+        // 1. 감정 조회 (Item도 함께 fetch join으로 가져오기)
+        Appraise appraise = appraiseRepository.findByIdWithItem(appraiseId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
+
+        // 2. 비즈니스 검증
+        validateAppraiseForProcessing(appraise);
+
+        // 3. 즉시 판매 처리
+        Item item = appraise.getItem();
+        Deal deal = handleImmediateSell(appraise, item);
+
+        return AppraiseImmediateSellResponse.from(appraise, deal);
+    }
+
+    /**
+     * 경매 진행 확정 및 생성
+     * - 판매자가 선택한 감정가로 경매 확정 및 생성
+     */
+    @Transactional
+    public AppraiseAuctionProceedResponse confirmAuctionWithCreate(Long appraiseId, Integer timeOption) {
+
+        // 1. 감정 조회 및 검증
+        Appraise appraise = appraiseRepository.findById(appraiseId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
+
+        validateAppraiseForProcessing(appraise);
+
+        // 2. 경매 진행 상태로 변경
+        appraise.updateStatus(AppraiseStatus.AUCTION);
+        appraiseRepository.save(appraise);
+
+        // 3. 경매 생성 API
+        AuctionCreateRequest auctionRequest = new AuctionCreateRequest(appraiseId, timeOption);
+        AuctionCreateResponse auctionResponse = auctionService.saveAuction(auctionRequest);
+
+        // 4. 응답 생성 (경매 정보 포함)
+        return AppraiseAuctionProceedResponse.of(appraise, auctionResponse);
+    }
+
+    /**
+     * 감정 처리 전 비즈니스 검증
+     * - 선택 감정인지 확인
+     * - 이미 처리된 감정인지 확인
+     */
+    private void validateAppraiseForProcessing(Appraise appraise) {
+
+        // 선택된 감정인지 확인
+        if (!appraise.isSelected()) {
+            throw new CustomException(ExceptionCode.APPRAISE_NOT_SELECTED);
+        }
+
+        // 이미 처리된 감정인지 확인
+        if (appraise.getAppraiseStatus() == AppraiseStatus.IMMEDIATE_SELL ||
+                appraise.getAppraiseStatus() == AppraiseStatus.AUCTION) {
+            throw new CustomException(ExceptionCode.APPRAISE_ALREADY_PROCESSED);
+        }
+    }
+
+    /**
      * 즉시 판매 처리
      * - Item과 Deal은 1:N
      * - 기존 Deal이 있으면 업데이트, 없으면 생성
      */
-    private void handleImmediateSell(Appraise appraise, Item item, AppraiseUpdateRequest request) {
+    private Deal handleImmediateSell(Appraise appraise, Item item) {
 
         // 1. 해당 Item에 대한 기존 Deal 확인 (Item-Deal 1:N 관계)
         Deal deal = dealRepository.findByItem(item)
@@ -227,12 +309,9 @@ public class AppraiseService {
 
         dealRepository.flush();
 
-        // 2. Appraise 업데이트
-        appraise.updateSelected(request.getIsSelected());
-        appraise.connectDeal(deal);
-
         // 3. 명시적 저장
         appraiseRepository.save(appraise);
+        return deal;
     }
 
     /**
@@ -241,7 +320,7 @@ public class AppraiseService {
     private void validateAppraise(Appraise appraise, Item item) {
 
         // 이미 선택된 감정인지 확인 - (선택한 감정을 다시 선택시)
-        if (appraise.isSeleted()) {
+        if (appraise.isSelected()) {
             throw new CustomException(ExceptionCode.ALREADY_SELECT_APPRAISE);
         }
 
@@ -268,7 +347,7 @@ public class AppraiseService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
 
         // 3. 이미 선택된 감정인지 확인 (선택된 감정은 삭제 불가)
-        if (appraise.isSeleted()) {
+        if (appraise.isSelected()) {
             throw new CustomException(ExceptionCode.NOT_DELETE_SELECTED_APPRAISE);
         }
 

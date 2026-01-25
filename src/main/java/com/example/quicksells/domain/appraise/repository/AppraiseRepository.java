@@ -15,18 +15,26 @@ public interface AppraiseRepository extends JpaRepository<Appraise, Long>, Appra
     // LEFT JOIN FETCH: deal은 null 가능 (감정 생성 시 or 선택 전)
 
     // 특정 상품에 이미 선택된 감정이 있는지 확인 - count 쿼리는 JOIN FETCH 불필요
-    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appraise a WHERE a.item.id = :itemId AND a.isSeleted = true")
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appraise a WHERE a.item.id = :itemId AND a.isSelected = true")
     boolean existsByItemIdAndIsSelectedTrue(@Param("itemId") Long itemId);
 
     // 특정 상품에 대해 특정 감정사가 이미 감정을 등록했는지 확인
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appraise a WHERE a.item.id = :itemId AND a.admin.id = :adminId")
     boolean existsByItemIdAndUserId(@Param("itemId") Long itemId, @Param("adminId") Long adminId);
 
+    // 상품마다 감정된 목록 조회
+    @Query("SELECT a FROM Appraise a JOIN FETCH a.item WHERE a.item = :item")
+    Optional<Appraise> findByItem(@Param("item") Item item);
+
+    // 상품과 함께
+    @Query("SELECT a FROM Appraise a JOIN FETCH a.item WHERE a.id = :appraiseId")
+    Optional<Appraise> findByIdWithItem(@Param("appraiseId") Long appraiseId);
+
     // 감정사가 작성한 감정 목록 (삭제되지 않은 것만)
-    @Query("SELECT a FROM Appraise a JOIN FETCH a.admin JOIN FETCH a.item LEFT JOIN FETCH a.deal WHERE a.admin.id = :adminId")
+    @Query("SELECT a FROM Appraise a JOIN FETCH a.admin JOIN FETCH a.item WHERE a.admin.id = :adminId")
     List<Appraise> findByAdminId(@Param("adminId") Long adminId);
 
     // 특정 상품에 대한 특정 감정사의 감정 조회
-    @Query("SELECT a FROM Appraise a JOIN FETCH a.admin JOIN FETCH a.item LEFT JOIN FETCH a.deal WHERE a.item = :item AND a.admin.id = :userId")
+    @Query("SELECT a FROM Appraise a JOIN FETCH a.admin JOIN FETCH a.item WHERE a.item = :item AND a.admin.id = :userId")
     Optional<Appraise> findByItemAndUserId(@Param("item") Item item, @Param("userId") Long userId);
 }

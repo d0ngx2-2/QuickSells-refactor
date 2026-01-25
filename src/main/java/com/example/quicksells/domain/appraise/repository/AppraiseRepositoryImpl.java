@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import static com.example.quicksells.domain.appraise.entity.QAppraise.appraise;
-import static com.example.quicksells.domain.deal.entity.QDeal.deal;
 import static com.example.quicksells.domain.item.entity.QItem.item;
 
 @RequiredArgsConstructor
@@ -31,7 +30,6 @@ public class AppraiseRepositoryImpl implements AppraiseCustomRepository{
                 .selectFrom(appraise)
                 .join(appraise.admin, admin).fetchJoin()    // admin 조인
                 .join(appraise.item, item).fetchJoin()      // item 조인
-                .leftJoin(appraise.deal, deal).fetchJoin()  // deal은 left join (nullable)
                 .where(appraise.item.id.eq(itemId))
                 .orderBy(appraise.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -57,7 +55,6 @@ public class AppraiseRepositoryImpl implements AppraiseCustomRepository{
                 .selectFrom(appraise)
                 .join(appraise.admin, admin).fetchJoin()
                 .join(appraise.item, item).fetchJoin()
-                .leftJoin(appraise.deal, deal).fetchJoin()
                 .where(
                         appraise.id.eq(appraiseId),
                         appraise.item.id.eq(itemId)
