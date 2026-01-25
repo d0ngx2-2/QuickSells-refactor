@@ -60,7 +60,7 @@ public class AppraiseAdminController {
     }
 
     /**
-     * 관리자 본인이 감정한 상품 상세 조회
+     * 관리자 본인이 감정한 감정 상세 조회
      */
     @Operation(summary = "감정 단 건 조회(관리자)")
     @GetMapping("/admin/appraises/{id}")
