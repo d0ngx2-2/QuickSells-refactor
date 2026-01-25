@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import static com.example.quicksells.domain.appraise.entity.QAppraise.appraise;
-import static com.example.quicksells.domain.deal.entity.QDeal.deal;
 import static com.example.quicksells.domain.item.entity.QItem.item;
 
 @RequiredArgsConstructor

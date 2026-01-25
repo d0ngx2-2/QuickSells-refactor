@@ -94,43 +94,4 @@ public class Deal {
     public void updateAuction(Auction auction) {
         this.auction = auction;
     }
-
-
-
-
-//    /**
-//     * 감정 선택 시 Deal 업데이트
-//     * - type, status, dealPrice 업데이트
-//     */
-//    public void updateForAppraise(DealType type, StatusType status, Integer dealPrice) {
-//        this.type = type;
-//        this.status = status;
-//        this.dealPrice = dealPrice;
-//    }
-//
-//    /**
-//     * 거래 완료 처리
-//     * - status: ON_SALE -> SOLD
-//     * - 추후 결제 API 붙일때, 활용 하면 좋습니다.
-//     */
-//    public void completeAuction(User buyer, Integer finalPrice) {
-//
-//        if (this.status != StatusType.ON_SALE) {
-//            throw new CustomException(ExceptionCode.NOT_DEAL_ON_SALE);
-//        }
-//
-//        this.buyer = buyer;
-//        this.dealPrice = finalPrice;
-//        this.status = StatusType.SOLD;
-//    }
-//
-//    // 경매로 전환
-//    public void convertToAuction() {
-//        this.type = DealType.AUCTION;
-//    }
-//
-//    // 즉시판매로 전환
-//    public void convertToImmdiateSell() {
-//        this.type = DealType.IMMEDIATE_SELL;
-//    }
 }
