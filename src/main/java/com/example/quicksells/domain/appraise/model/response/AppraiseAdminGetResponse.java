@@ -64,9 +64,9 @@ public class AppraiseAdminGetResponse {
     @Getter
     @AllArgsConstructor
     public static class SellerDto {
-        private Long userId;
+        private Long sellerId;
         private String email;
-        private String name;
+        private String sellerName;
 
         public static SellerDto from(User user) {
             return new SellerDto(
