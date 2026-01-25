@@ -85,5 +85,14 @@ public class JwtUtil {
 
     // 토큰 복호화
     public Claims extractAllClaims(String token) {return parser.parseSignedClaims(token).getPayload();}
+
+    // 토큰 남은 유효시간 체크
+    public long getRemainingTime(String token) {
+
+        Date expiration = extractAllClaims(token).getExpiration();
+        long now = new Date().getTime();
+
+        return Math.max(expiration.getTime() - now, 0);
+    }
 }
 

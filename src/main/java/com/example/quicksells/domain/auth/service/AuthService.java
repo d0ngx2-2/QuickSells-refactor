@@ -2,6 +2,7 @@ package com.example.quicksells.domain.auth.service;
 
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
+import com.example.quicksells.common.redis.service.TokenBlackListService;
 import com.example.quicksells.common.util.JwtUtil;
 import com.example.quicksells.domain.auth.model.request.AuthLoginRequest;
 import com.example.quicksells.domain.auth.model.request.AuthSignupRequest;
@@ -21,6 +22,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final TokenBlackListService tokenBlackListService;
 
     /**
      * 회원가입 기능
@@ -72,4 +74,13 @@ public class AuthService {
         return AuthLoginResponse.from(token);
     }
 
+    @Transactional
+    public void logout(String token) {
+
+        long remainingTime = jwtUtil.getRemainingTime(token);
+
+        if (remainingTime > 0) {
+            tokenBlackListService.addTokenToBlacklist(token, remainingTime);
+        }
+    }
 }
