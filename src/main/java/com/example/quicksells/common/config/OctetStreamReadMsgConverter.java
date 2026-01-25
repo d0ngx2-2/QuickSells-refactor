@@ -15,9 +15,8 @@ import java.lang.reflect.Type;
 public class OctetStreamReadMsgConverter extends AbstractJackson2HttpMessageConverter {
     public OctetStreamReadMsgConverter(ObjectMapper objectMapper) {
         // 컨버터가 application/octet-steeam 타입을 담당함
-        /**
-         * 부모 클래스인 Jackson 컨버터에게 application/octet-stream타입도 Json처럼 앍을 수 있도록 범위를 넓혀줌
-         */
+        //부모 클래스인 Jackson 컨버터에게 application/octet-stream타입도 Json처럼 앍을 수 있도록 범위를 넓혀줌
+
         super(objectMapper, MediaType.APPLICATION_OCTET_STREAM);
     }
 
@@ -35,7 +34,5 @@ public class OctetStreamReadMsgConverter extends AbstractJackson2HttpMessageConv
     public boolean canWrite(MediaType mediaType) {
         return false;
     }
-
-
 
 }
