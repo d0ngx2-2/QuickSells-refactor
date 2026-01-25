@@ -43,6 +43,10 @@ public class S3Service {
                 throw new CustomException(ExceptionCode.INVALID_FILE_TYPE);
             }
 
+            // 파일 용량 체크
+            validateImageFile(file);
+
+
             // S3에 저장할 고유한 파일명 생성 (UUID + 확장자)
             String key = "products/" + UUID.randomUUID() + fileExtension;
 
@@ -109,5 +113,22 @@ public class S3Service {
                 lowerExtension.equals(".jpeg") ||
                 lowerExtension.equals(".png") ||
                 lowerExtension.equals(".gif");
+    }
+
+    // 이미지 파일 용량 제한
+    private MultipartFile validateImageFile(MultipartFile file) {
+
+        String contentType = file.getContentType();
+
+        //파일 타입 검증
+        if (contentType == null || !contentType.startsWith("image/")){
+            throw new CustomException(ExceptionCode.ONLY_IMAGE_FILE);
+        }
+
+        //용량 제한 yaml에서 1차 거르고 2차로 이중 방어
+        if (file.getSize() > 5 * 1024 * 1024) {
+            throw new CustomException(ExceptionCode.PAYLOAD_TOO_LARGE);
+        }
+        return file;
     }
 }
