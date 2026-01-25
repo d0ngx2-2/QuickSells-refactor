@@ -24,7 +24,7 @@ public class AuctionCreateResponse {
                 auction.getId(),
                 auction.getAppraise().getId(),
                 auction.getDeal().getId(),
-                auction.getAppraise().getItem().getUser().getId(),
+                auction.getAppraise().getItem().getSeller().getId(),
                 auction.getAppraise().getItem().getName(),
                 auction.getBidPrice(),
                 auction.getStatus(),
