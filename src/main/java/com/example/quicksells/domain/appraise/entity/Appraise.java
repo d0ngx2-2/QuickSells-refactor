@@ -3,6 +3,8 @@ package com.example.quicksells.domain.appraise.entity;
 import com.example.quicksells.common.enums.AppraiseStatus;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.SQLRestriction;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.user.entity.User;
@@ -76,8 +78,15 @@ public class Appraise {
         this.appraiseStatus = status;
     }
 
+    // 감정가 업데이트
+    public void updateBidPrice(Integer bidPrice) {
+        this.bidPrice = bidPrice;
+    }
+
     // 감정 삭제 처리
     public void delete() {
         this.isDeleted = true;
     }
+
+
 }

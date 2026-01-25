@@ -3,6 +3,7 @@ package com.example.quicksells.domain.appraise.service;
 import com.example.quicksells.common.enums.*;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
+import com.example.quicksells.domain.appraise.model.request.AppraiseAdminUpdateRequest;
 import com.example.quicksells.domain.appraise.model.request.AppraiseCreateRequest;
 import com.example.quicksells.domain.appraise.model.request.AppraiseUpdateRequest;
 import com.example.quicksells.domain.appraise.model.response.*;
@@ -120,6 +121,17 @@ public class AppraiseService {
     }
 
     /**
+     * 관리자 본인이 감정한 상품 목록 전체 조회
+     */
+    @Transactional(readOnly = true)
+    public Page<AppraiseAdminGetAllResponse> getMyAdminAppraises(Long appraiserId, AppraiseStatus status, Pageable pageable) {
+
+        Page<Appraise> appraises = appraiseRepository.findByAppraiserIdWithItemAndSeller(appraiserId, status, pageable);
+
+        return appraises.map(AppraiseAdminGetAllResponse::from);
+    }
+
+    /**
      * 감정 단건 조회
      * USER(판매자) : 본인 상품만 조회 가능
      * ADMIN : 모든 상품 조회 가능
@@ -165,6 +177,21 @@ public class AppraiseService {
      */
     private boolean isAdmin(AuthUser authUser) {
         return authUser.getRole() == UserRole.ADMIN;
+    }
+
+    /**
+     * 관리자 본인이 감정한 상품 상세 조회
+     */
+    @Transactional(readOnly = true)
+    public AppraiseAdminGetResponse getMyAdminAppraiseDetail(Long appraiseId, Long appraiserId) {
+
+        Appraise appraise = appraiseRepository.findByIdWithItemAndSeller(appraiseId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
+
+        // 본인이 감정한 것인지 확인
+        validateAppraiser(appraise, appraiserId);
+
+        return AppraiseAdminGetResponse.from(appraise);
     }
 
     /**
@@ -329,6 +356,57 @@ public class AppraiseService {
             throw new CustomException(ExceptionCode.EXISTS_ALREADY_SELECT_APPRAISE);
         }
     }
+
+    /**
+     * 관리자 본인이 감정한 감정가 수정
+     */
+    @Transactional
+    public AppraiseAdminUpdateResponse updateMyAdminAppraise(Long appraiseId, AppraiseAdminUpdateRequest request, Long appraiserId) {
+
+        // 1. 감정 조회
+        Appraise appraise = appraiseRepository.findById(appraiseId)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_APPRAISE));
+
+        // 2. 본인이 감정한 것인지 확인
+        validateAppraiser(appraise, appraiserId);
+
+        // 3. 수정 가능 여부 확인
+        validateUpdatable(appraise);
+
+        // 4. 감정가 수정
+        appraise.updateBidPrice(request.getBidPrice());
+
+        appraiseRepository.save(appraise);
+
+        return AppraiseAdminUpdateResponse.from(appraise);
+    }
+
+    /**
+     * 본인이 감정한 것인지 확인
+     */
+    private void validateAppraiser(Appraise appraise, Long appraiserId) {
+
+        if (!appraise.getAdmin().getId().equals(appraiserId)) {
+            throw new CustomException(ExceptionCode.FORBIDDEN_APPRAISE_ACCESS);
+        }
+    }
+
+    /**
+     * 수정 가능 여부 확인
+     * - 이미 선택되었거나 즉시판매/경매진행 상태면 수정 불가
+     */
+    private void validateUpdatable(Appraise appraise) {
+
+        if (appraise.isSelected()) {
+            throw new CustomException(ExceptionCode.CANNOT_UPDATE_SELECTED_APPRAISE);
+        }
+
+        if (appraise.getAppraiseStatus() == AppraiseStatus.IMMEDIATE_SELL ||
+                appraise.getAppraiseStatus() == AppraiseStatus.AUCTION) {
+            throw new CustomException(ExceptionCode.CANNOT_UPDATE_PROCESSED_APPRAISE);
+        }
+    }
+
 
     /**
      * 감정 삭제 (감정사 ADMIN만 가능)

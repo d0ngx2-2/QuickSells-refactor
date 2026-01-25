@@ -5,7 +5,6 @@ import com.example.quicksells.domain.item.entity.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import java.util.List;
 import java.util.Optional;
 
 public interface AppraiseRepository extends JpaRepository<Appraise, Long>, AppraiseCustomRepository {
@@ -29,10 +28,6 @@ public interface AppraiseRepository extends JpaRepository<Appraise, Long>, Appra
     // 상품과 함께
     @Query("SELECT a FROM Appraise a JOIN FETCH a.item WHERE a.id = :appraiseId")
     Optional<Appraise> findByIdWithItem(@Param("appraiseId") Long appraiseId);
-
-    // 감정사가 작성한 감정 목록 (삭제되지 않은 것만)
-    @Query("SELECT a FROM Appraise a JOIN FETCH a.admin JOIN FETCH a.item WHERE a.admin.id = :adminId")
-    List<Appraise> findByAdminId(@Param("adminId") Long adminId);
 
     // 특정 상품에 대한 특정 감정사의 감정 조회
     @Query("SELECT a FROM Appraise a JOIN FETCH a.admin JOIN FETCH a.item WHERE a.item = :item AND a.admin.id = :userId")
