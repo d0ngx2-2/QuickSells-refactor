@@ -100,6 +100,7 @@ public class AppraiseService {
      */
     @Transactional(readOnly = true)
     public Page<AppraiseGetAllResponse> getAppraisesByItemId(Long itemId, Pageable pageable, AuthUser authUser) {
+
         // 1. 상품 존재 여부 확인
         Item item = getItem(itemId);
 
@@ -127,6 +128,11 @@ public class AppraiseService {
     public Page<AppraiseAdminGetAllResponse> getMyAdminAppraises(Long appraiserId, AppraiseStatus status, Pageable pageable) {
 
         Page<Appraise> appraises = appraiseRepository.findByAppraiserIdWithItemAndSeller(appraiserId, status, pageable);
+
+        // 관리자가 감정한 목록이 없을경우
+        if(!appraises.hasContent()) {
+            throw new CustomException(ExceptionCode.NOT_FOUND_APPRAISE);
+        }
 
         return appraises.map(AppraiseAdminGetAllResponse::from);
     }
@@ -159,6 +165,7 @@ public class AppraiseService {
      * 상품 존재 여부 확인
      */
     private Item getItem(Long itemId) {
+
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
     }
@@ -167,6 +174,7 @@ public class AppraiseService {
      * 상품 소유자 검증
      */
     private void validateItemOwner(Item item, Long userId) {
+
         if (!item.getUser().getId().equals(userId)) {
             throw new CustomException(ExceptionCode.ONLY_OWNER_APPRAISE_SEARCH);
         }
