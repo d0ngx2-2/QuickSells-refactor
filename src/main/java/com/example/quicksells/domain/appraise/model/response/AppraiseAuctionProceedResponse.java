@@ -23,6 +23,7 @@ public class AppraiseAuctionProceedResponse {
 
     // 경매 정보
     private final Long auctionId;
+    private final Integer bidPrice;
     private final LocalDateTime expectedAuctionStartTime;
 
     // 경매 생성 후 정보 추가
@@ -34,6 +35,7 @@ public class AppraiseAuctionProceedResponse {
                 appraise.getItem().getId(),
                 appraise.getItem().getName(),
                 auction.getId(),
+                appraise.getBidPrice(),
                 auction.getCreatedAt()
         );
 
