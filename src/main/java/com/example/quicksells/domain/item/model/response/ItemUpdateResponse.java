@@ -15,14 +15,14 @@ public class ItemUpdateResponse {
     public static ItemUpdateResponse from(Item item) {
         return new ItemUpdateResponse(
                 item.getId(),
-                item.getUser().getId(),
+                item.getSeller().getId(),
                 new ItemInfoDto(
                         item.getName(),
                         item.getHopePrice(),
                         item.getDescription(),
                         item.getImage(),
-                        item.isStatus(),
-                        item.getUser().getRole(),
+                        item.isSelling(),
+                        item.getSeller().getRole(),
                         item.getCreatedAt()));
     }
 }

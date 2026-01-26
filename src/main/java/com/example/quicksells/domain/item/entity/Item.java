@@ -24,7 +24,7 @@ public class Item extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "seller_id", nullable = false)
-    private User user;
+    private User seller;
 
     @Column(name = "name", nullable = false, length = 255)
     private String name;
@@ -38,14 +38,14 @@ public class Item extends BaseEntity {
     @Column(name = "image", nullable = false)
     private String image;
 
-    @Column(name = "status", nullable = false)
-    private boolean status = false;
+    @Column(name = "selling", nullable = false)
+    private boolean selling = false;
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    public Item(User user, String name, Long hopePrice, String description, String image) {
-        this.user = user;
+    public Item(User seller, String name, Long hopePrice, String description, String image) {
+        this.seller = seller;
         this.name = name;
         this.hopePrice = hopePrice;
         this.description = description;
@@ -65,7 +65,7 @@ public class Item extends BaseEntity {
     }
 
     // 상품 판매 완료시 false > true 변경
-    public void updateItemStatus(boolean status) {
-        this.status = status;
+    public void updateItemStatus(boolean selling) {
+        this.selling = selling;
     }
 }

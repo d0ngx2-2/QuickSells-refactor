@@ -88,7 +88,7 @@ public class AppraiseService {
         }
 
         // 상품이 이미 판매 완료된 경우
-         if (item.isStatus()) {
+         if (item.isSelling()) {
              throw new CustomException(ExceptionCode.EXISTS_ITEM_SELL);
          }
     }
@@ -175,7 +175,7 @@ public class AppraiseService {
      */
     private void validateItemOwner(Item item, Long userId) {
 
-        if (!item.getUser().getId().equals(userId)) {
+        if (!item.getSeller().getId().equals(userId)) {
             throw new CustomException(ExceptionCode.ONLY_OWNER_APPRAISE_SEARCH);
         }
     }
@@ -332,7 +332,7 @@ public class AppraiseService {
                     // 없으면 새로운 Deal 생성
                     Deal newDeal = new Deal(
                             null,                  // buyer: 즉시 판매인 경우 정보 없음
-                            item.getUser(),              // seller: 상품 판매자
+                            item.getSeller(),              // seller: 상품 판매자
                             item,                        // item: 상품 (1:N 관계)
                             DealType.IMMEDIATE_SELL,     // type: 즉시 판매
                             StatusType.ON_SALE,          // status: 거래 중

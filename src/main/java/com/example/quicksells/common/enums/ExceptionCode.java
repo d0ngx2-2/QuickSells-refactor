@@ -6,6 +6,10 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ExceptionCode {
 
+    // S3Service
+    PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "최대 5MB까지 업로드 가능합니다."),
+    ONLY_IMAGE_FILE(HttpStatus.UNSUPPORTED_MEDIA_TYPE,"이미지 파일형식이 아닙니다."),
+
     //appraise
     NOT_FOUND_APPRAISE(HttpStatus.NOT_FOUND, "감정을 찾을 수 없습니다."), //auction
     NOT_FOUND_APPRAISER(HttpStatus.NOT_FOUND, "감정사를 찾을 수 없습니다."),
@@ -60,6 +64,7 @@ public enum ExceptionCode {
     NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "상품를 찾을 수 없습니다."), //appraise,Deal,item
     ACCESS_DENIED_EXCEPTION_UPDATED_ITEM(HttpStatus.FORBIDDEN, "상품 수정 권한이 없습니다."),
     ACCESS_DENIED_EXCEPTION_DELETED_ITEM(HttpStatus.FORBIDDEN, "상품 삭제 권한이 없습니다."),
+    ACCESS_DENIED_EXCEPTION_GET_DETAIL_MY_ITEM(HttpStatus.FORBIDDEN, "상품 조회 권한이 없습니다."),
     CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다."),
     ITEM_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "아이템 등록에 실패했습니다."),
 

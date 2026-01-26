@@ -143,7 +143,7 @@ public class AuctionService {
     private void validateUser(AuthUser authUser, Auction foundAuction, User foundBuyer) {
 
         Long authUserId = authUser.getId(); // 인증유저 아이디
-        Long sellerId = foundAuction.getAppraise().getItem().getUser().getId(); // 경매에 등록된 감정의 아이템을 등록한 판매자의 아이디
+        Long sellerId = foundAuction.getAppraise().getItem().getSeller().getId(); // 경매에 등록된 감정의 아이템을 등록한 판매자의 아이디
         Long buyerId = foundBuyer.getId(); // 조회된 유저 아이디
 
         // 인증유저와 구매자가 다를때 예외
