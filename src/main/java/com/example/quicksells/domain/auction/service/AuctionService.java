@@ -43,12 +43,6 @@ public class AuctionService {
         // 중복 검증
         deduplicationAuction(foundAppraise);
 
-        // 감정에 등록된 상품
-        Item item = foundAppraise.getItem();
-
-        // 거래 생성
-        dealService.createAuctionDeal(item, foundAppraise.getBidPrice());
-
         // 경매 생성
         Auction newAuction = new Auction(foundAppraise, foundAppraise.getBidPrice());
 
