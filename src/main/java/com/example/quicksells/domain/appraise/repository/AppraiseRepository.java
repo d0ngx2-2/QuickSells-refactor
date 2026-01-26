@@ -23,10 +23,10 @@ public interface AppraiseRepository extends JpaRepository<Appraise, Long>, Appra
     boolean existsByItemIdAndUserId(@Param("itemId") Long itemId, @Param("adminId") Long adminId);
 
     // 감정사가 작성한 감정 목록 (삭제되지 않은 것만)
-    @Query("SELECT a FROM Appraise a JOIN FETCH a.admin JOIN FETCH a.item LEFT JOIN FETCH a.deal WHERE a.admin.id = :adminId")
+    @Query("SELECT a FROM Appraise a JOIN FETCH a.admin JOIN FETCH a.item WHERE a.admin.id = :adminId")
     List<Appraise> findByAdminId(@Param("adminId") Long adminId);
 
     // 특정 상품에 대한 특정 감정사의 감정 조회
-    @Query("SELECT a FROM Appraise a JOIN FETCH a.admin JOIN FETCH a.item LEFT JOIN FETCH a.deal WHERE a.item = :item AND a.admin.id = :userId")
+    @Query("SELECT a FROM Appraise a JOIN FETCH a.admin JOIN FETCH a.item WHERE a.item = :item AND a.admin.id = :userId")
     Optional<Appraise> findByItemAndUserId(@Param("item") Item item, @Param("userId") Long userId);
 }

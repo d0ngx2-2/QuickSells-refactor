@@ -31,10 +31,6 @@ public class Appraise {
     @JoinColumn(name = "item_id")
     private Item item; // 상품 ID
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "deal_id")
-    private Deal deal; // 거래 ID
-
     @Column(nullable = false)
     private Integer bidPrice; // 감정 가격
 
@@ -54,10 +50,9 @@ public class Appraise {
         }
     }
 
-    public Appraise(User admin, Item item, Deal deal, Integer bidPrice, boolean isSeleted) {
+    public Appraise(User admin, Item item, Integer bidPrice, boolean isSeleted) {
         this.admin = admin;
         this.item = item;
-        this.deal = deal;
         this.bidPrice = bidPrice;
         this.isSeleted = isSeleted;
         this.isDeleted = false;
@@ -69,10 +64,6 @@ public class Appraise {
             throw new CustomException(ExceptionCode.ALREADY_SELECT_APPRAISE);
         }
         this.isSeleted = isSelected;
-    }
-
-    public void connectDeal(Deal deal) {
-        this.deal = deal;
     }
 
     // 감정 삭제 처리

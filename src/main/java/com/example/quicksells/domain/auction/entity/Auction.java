@@ -27,10 +27,6 @@ public class Auction {
     @JoinColumn(name = "appraise_id", nullable = false)
     private Appraise appraise; // 감정 ID
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false) // 거래x -> 경매 등록x
-    @JoinColumn(name = "deal_id")
-    private Deal deal; // 거래 ID
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id")
     private User buyer; // 구매자 ID
@@ -54,9 +50,8 @@ public class Auction {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Auction(Appraise appraise, Deal deal, Integer bidPrice) {
+    public Auction(Appraise appraise, Integer bidPrice) {
         this.appraise = appraise;
-        this.deal = deal;
         this.buyer = null;
         this.bidPrice = bidPrice;
         this.status = AuctionStatusType.AUCTIONING;
@@ -94,7 +89,6 @@ public class Auction {
             this.status = AuctionStatusType.UNSUCCESSFUL_BID; // 유찰완료 상태 변경
         } else {
             this.status = AuctionStatusType.SUCCESSFUL_BID;// 낙찰완료 상태 변경
-            this.deal.completeAuction(this.buyer, this.bidPrice); // 거래 완료 상태 변경
         }
     }
 
