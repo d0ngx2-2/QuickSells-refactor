@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface WishListRepository extends JpaRepository<WishList, Long> {
+public interface WishListRepository extends JpaRepository<WishList, Long>, WishListCustomRepository {
 
     // 동일한 유저ID 상품ID의 존재 여부
     boolean existsByBuyerAndItem(User user, Item item);

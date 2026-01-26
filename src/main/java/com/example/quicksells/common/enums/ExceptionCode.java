@@ -85,7 +85,8 @@ public enum ExceptionCode {
 
     NOT_FOUND_MY_WISHLIST(HttpStatus.NOT_FOUND, "내 관심 목록을 찾을 수 없습니다."),
     ACCESS_DENIED_EXCEPTION_WISHLIST(HttpStatus.FORBIDDEN, "관심 목록 대한 권한이 없습니다."),
-    NOT_EXIST_ONE_WISHLIST(HttpStatus.NOT_FOUND, "해당 관심 목록은 존재하지 않습니다.")
+    NOT_EXIST_ONE_WISHLIST(HttpStatus.NOT_FOUND, "해당 관심 목록은 존재하지 않습니다."),
+    BUYER_ID_REQUIRED_FOR_WISHLIST(HttpStatus.BAD_REQUEST, "관심목록 조회를 위해 구매자는 필수입니다.")
     ;
 
     private final HttpStatus status;

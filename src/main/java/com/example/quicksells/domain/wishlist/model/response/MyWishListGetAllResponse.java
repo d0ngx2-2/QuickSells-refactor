@@ -4,7 +4,6 @@ import com.example.quicksells.domain.wishlist.entity.WishList;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
@@ -15,14 +14,12 @@ public class MyWishListGetAllResponse {
     private final Long itemId;
     private final LocalDateTime createdAt;
 
-    public static List<MyWishListGetAllResponse> from(List<WishList> wishList) {
-        return wishList.stream()
-                .map(w -> new MyWishListGetAllResponse(
-                        w.getId(),
-                        w.getBuyer().getId(),
-                        w.getItem().getId(),
-                        w.getCreatedAt()
-                ))
-                .toList();
+    public static MyWishListGetAllResponse from(WishList wishList) {
+        return new MyWishListGetAllResponse(
+                wishList.getId(),
+                wishList.getBuyer().getId(),
+                wishList.getItem().getId(),
+                wishList.getCreatedAt()
+        );
     }
 }
