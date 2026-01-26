@@ -46,7 +46,7 @@ public class DealService {
         dealRepository.findTopByItemAndStatusOrderByCreatedAtDesc(item, StatusType.ON_SALE)
                 .ifPresent(deal -> {throw new CustomException(ExceptionCode.EXISTS_ACTIVE_DEAL);});
 
-        User seller = item.getUser();
+        User seller = item.getSeller();
         User buyer = null;
 
         // 즉시판매가 아닌 경우만 buyer 조회
@@ -69,7 +69,7 @@ public class DealService {
     public Deal createAuctionDeal(Item item, Integer startPrice) {
 
         // 판매자 = 현재 아이템 소유자
-        User seller = item.getUser();
+        User seller = item.getSeller();
 
         Deal deal = new Deal(
                 null,                 // buyer 없음

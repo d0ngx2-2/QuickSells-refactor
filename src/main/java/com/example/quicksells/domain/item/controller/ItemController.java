@@ -16,8 +16,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +41,8 @@ public class ItemController {
      * @return
      */
     @Operation(summary = "상품 등록")
-    @PostMapping("/items")
-    public ResponseEntity<CommonResponse> itemCreatedApi(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestPart(value = "request") ItemCreatedRequest request, MultipartFile image) { //(value = "image", required = false) -> 이미지가 없으면 400에러 발생하는데 글이 없이도 사용 가능하게 하는 로직
+    @PostMapping(value = "/items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CommonResponse> itemCreatedApi(@AuthenticationPrincipal AuthUser authUser, @Valid @RequestPart("request") ItemCreatedRequest request, @RequestPart(value = "files") MultipartFile image) {
 
         //생성 비지니스 핵심 로직
         ItemCreatedResponse response = itemService.itemCreated(authUser, request, image);
@@ -84,16 +86,52 @@ public class ItemController {
     }
 
     /**
+     * 내 등록 상품 상세 조회 기능
+     *
+     * @param id       조회할 상품의 id
+     * @param authUser 로그인한 사용자 정보
+     * @return 나의 상품 상세 정보 담은 응답 객체
+     */
+    //상품 등록 상세 조회
+    @Operation(summary = "나의 상품 상세 조회")
+    @GetMapping("/items/my/{id}")
+    public ResponseEntity<CommonResponse> itemGetMyDetailApi(@PathVariable Long id, @AuthenticationPrincipal AuthUser authUser) {
+
+        //나의 등록 상세 조회 비지니스 핵심 로직
+        ItemGetDetailResponse response = itemService.getMyDetail(id, authUser);
+
+        //200 상태 코드 반환
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("나의 등록 상품이 조회됐습니다.", response));
+    }
+
+    /**
+     *
+     * @param authUser 로그인한 사용자 정보
+     * @param pageable 페이징
+     * @return 페이징 적용 된 상품 목록 담은 응답 객체
+     */
+    //상품 등록 목록 조회
+    @Operation(summary = "나의 상품 전체 조회")
+    @GetMapping("/items/my")
+    public ResponseEntity<PageResponse> itemGetMyListApi(@AuthenticationPrincipal AuthUser authUser, @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        // 나의 전체 목록 비지니스 로직
+        Page<ItemGetListResponse> itemsList = itemService.getItemList(authUser, pageable);
+
+        // 페이징 적용된 200 상태 코드 반환
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("나의 등록 상품이 조회 됐습니다.", itemsList));
+    }
+
+    /**
      * 상품 수정 API
      *
      * @param authUser 사용자 정보
      * @param id       수정하려는 상품 ID
-     * @param request  수정할 상품 정보(이름, 가격, 설명, 이미지)
      * @return 수정된 상품 정보 담은 응답 객체
      */
     @Operation(summary = "상품 수정")
-    @PutMapping("/items/{id}")
-    public ResponseEntity<CommonResponse> itemUpdatedApi(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @Valid @RequestPart("request") ItemUpdateRequest request, @RequestPart(value = "image", required = false) MultipartFile image) {
+    @PatchMapping(value = "/items/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CommonResponse> itemUpdatedApi(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @Valid @RequestPart(value = "request") ItemUpdateRequest request, @RequestPart(value = "image", required = false) MultipartFile image) {
 
         //비지니스 로직
         ItemUpdateResponse response = itemService.itemUpdated(authUser, id, request, image);
@@ -116,7 +154,7 @@ public class ItemController {
         //비지니스 로직
         itemService.itemDeleted(id, authUser);
 
-        //반환
+        //성공적 삭제 메세지 반환
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("상품이 삭제됐습니다."));
     }
 }
