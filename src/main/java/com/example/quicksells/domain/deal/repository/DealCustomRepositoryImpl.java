@@ -1,5 +1,8 @@
 package com.example.quicksells.domain.deal.repository;
 
+import com.example.quicksells.common.enums.DealType;
+import com.example.quicksells.common.enums.StatusType;
+import com.example.quicksells.domain.deal.model.response.DealCompletedResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetAllQueryResponse;
 import com.example.quicksells.domain.user.entity.QUser;
 import com.querydsl.core.types.Projections;
@@ -11,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 import static com.example.quicksells.domain.deal.entity.QDeal.deal;
+import static com.example.quicksells.domain.item.entity.QItem.item;
 
 @RequiredArgsConstructor
 public class DealCustomRepositoryImpl implements DealCustomRepository {
@@ -75,5 +79,32 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, total);
+    }
+
+    @Override
+    public List<DealCompletedResponse> findCompletedDeals(int limit) {
+
+        return queryFactory
+                .select(Projections.constructor(
+                        DealCompletedResponse.class,
+                        deal.id,
+                        deal.type,
+                        deal.dealPrice,
+                        item.id,
+                        item.name,
+                        deal.createdAt
+                ))
+                .from(deal)
+                .join(deal.appraise.item, item)
+                .where(
+                        deal.status.eq(StatusType.SOLD),
+                        deal.type.in(
+                                DealType.IMMEDIATE_SELL,
+                                DealType.AUCTION
+                        )
+                )
+                .orderBy(deal.createdAt.desc())
+                .limit(limit)
+                .fetch();
     }
 }

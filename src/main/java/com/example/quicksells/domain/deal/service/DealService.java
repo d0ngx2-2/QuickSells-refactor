@@ -11,6 +11,7 @@ import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.deal.model.request.DealCreateRequest;
+import com.example.quicksells.domain.deal.model.response.DealCompletedResponse;
 import com.example.quicksells.domain.deal.model.response.DealCreateResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetAllQueryResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetResponse;
@@ -21,6 +22,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -120,6 +123,11 @@ public class DealService {
         }
 
         return dealRepository.findSaleDeals(authUser.getId(), pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DealCompletedResponse> getCompletedDeals(int limit) {
+        return dealRepository.findCompletedDeals(limit);
     }
 
     /**
