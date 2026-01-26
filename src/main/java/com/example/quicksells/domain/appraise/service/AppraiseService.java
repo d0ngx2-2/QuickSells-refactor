@@ -86,7 +86,7 @@ public class AppraiseService {
         }
 
         // 상품이 이미 판매 완료된 경우
-         if (item.isStatus()) {
+         if (item.isSelling()) {
              throw new CustomException(ExceptionCode.EXISTS_ITEM_SELL);
          }
     }
@@ -149,7 +149,7 @@ public class AppraiseService {
      * 상품 소유자 검증
      */
     private void validateItemOwner(Item item, Long userId) {
-        if (!item.getUser().getId().equals(userId)) {
+        if (!item.getSeller().getId().equals(userId)) {
             throw new CustomException(ExceptionCode.ONLY_OWNER_APPRAISE_SEARCH);
         }
     }

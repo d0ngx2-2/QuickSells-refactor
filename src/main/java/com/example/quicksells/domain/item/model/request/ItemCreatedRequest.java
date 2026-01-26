@@ -1,9 +1,13 @@
 package com.example.quicksells.domain.item.model.request;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemCreatedRequest {
     @NotBlank(message = "상품명은 필수 입니다.")
     @Size(max = 50, message = "상품명은 50자 이내입니다.")
@@ -17,11 +21,4 @@ public class ItemCreatedRequest {
     @Size(max = 500, message = "상품 설명은 500자 이내입니다.")
     private String description;
 
-
-    public ItemCreatedRequest(String name, Long hopePrice, String description) {
-        this.name = name;
-        this.hopePrice = hopePrice;
-        this.description = description;
-
-    }
 }

@@ -1,6 +1,7 @@
 package com.example.quicksells.domain.item.repository;
 
 import com.example.quicksells.domain.item.entity.Item;
+import com.example.quicksells.domain.user.entity.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,18 +12,21 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.example.quicksells.domain.item.entity.QItem.item;
-import static com.example.quicksells.domain.user.entity.QUser.user;
 
 @RequiredArgsConstructor
 public class ItemRepositoryImpl implements ItemCustomRepository{
     private final JPAQueryFactory jpaQueryFactory;
+
+
+    private final QUser seller = QUser.user;
+
 
     @Override
     public Page<Item> findItemList(Pageable pageable) {
 
         List<Item> content = jpaQueryFactory
                 .selectFrom(item) //item 찾기
-                .join(item.user,user).fetchJoin() //판매자 정보 가져오기
+                .join(item.seller,seller).fetchJoin() //판매자 정보 가져오기
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(item.id.desc()) //최신순 정렬 권장
@@ -42,7 +46,7 @@ public class ItemRepositoryImpl implements ItemCustomRepository{
         //DB에서 아이템을 찾는다
         Item foundItem = jpaQueryFactory
                 .selectFrom(item)
-                .join(item.user, user).fetchJoin()
+                .join(item.seller, seller).fetchJoin()
                 .where(item.id.eq(itemId))
                 .fetchOne();
 
@@ -57,7 +61,7 @@ public class ItemRepositoryImpl implements ItemCustomRepository{
 
         List<Item> content = jpaQueryFactory
                 .selectFrom(item) //item 찾기
-                .leftJoin(item.user, user).fetchJoin()
+                .leftJoin(item.seller,seller).fetchJoin()
                 .where(
                         item.isDeleted.eq(false), //삭제된 데이터 제외
                         item.name.containsIgnoreCase(safeKeyword) // 상품 이름 입력 시 대소문자 상관없음

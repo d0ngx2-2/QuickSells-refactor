@@ -14,7 +14,7 @@ import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.item.repository.ItemRepository;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemService {
 
     private final ItemRepository itemRepository;
@@ -44,7 +44,7 @@ public class ItemService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
 
         //중복 상품 검증
-        boolean exists = itemRepository.existsByUserIdAndName(authUser.getId(), request.getName());
+        boolean exists = itemRepository.existsBySellerIdAndName(authUser.getId(), request.getName());
 
         //상품 중복 등록 시 409에러 발생
         if (exists) {
@@ -110,7 +110,46 @@ public class ItemService {
         Page<Item> result = itemRepository.findItemList(pageable);
 
         //맵 사용하여 엔티티 목록 -> 응답 DTO 목록으로 조회
-        return result.map(itemDto -> ItemGetListResponse.from(itemDto));
+        return result.map(ItemGetListResponse::from);
+    }
+
+    /**
+     * 나의 상품 상세 조회
+     *
+     * @param id       상품 조회 ID
+     * @param authUser 로그인한 유저 ID
+     * @return 상품 상세 조회 응답 DTO
+     */
+    @Transactional(readOnly = true)
+    public ItemGetDetailResponse getMyDetail(Long id, AuthUser authUser) {
+        //상품 조회 아닌 경우 404에러
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
+
+        //상품 조회 후 내 상품이 맞는지 확인 아닌경우 403에러
+        if (!item.getSeller().getId().equals(authUser.getId())) {
+            throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_GET_DETAIL_MY_ITEM);
+        }
+        return ItemGetDetailResponse.from(item);
+    }
+
+    /**
+     * 나의 상품 목록 조회
+     *
+     * @param authUser 로그인한 유저 ID
+     * @param pageable 페이징 적용된 목록 조회
+     * @return 페이징 적용된 상품 목록 조회 응답 DTO
+     */
+    @Transactional(readOnly = true)
+    public Page<ItemGetListResponse> getItemList(AuthUser authUser, Pageable pageable) {
+        //유저 조회
+        User seller = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
+
+        //판매자 본인이 등록한 아이템 목록 확인
+        Page<Item> myItems = itemRepository.findAllBySeller(seller, pageable);
+
+        return myItems.map(ItemGetListResponse::from);
     }
 
     /**
@@ -129,7 +168,7 @@ public class ItemService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
         //상품 작성자와 로그인한 회원이 다르면 수정 불가
-        if (!item.getUser().getId().equals(authUser.getId())) {
+        if (!item.getSeller().getId().equals(authUser.getId())) {
             throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_UPDATED_ITEM);
         }
 
@@ -170,7 +209,7 @@ public class ItemService {
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
 
         // 상품 작성자와 로그인한 회원 정보 다르면 삭제 불가
-        if (!item.getUser().getId().equals(authUser.getId())) {
+        if (!item.getSeller().getId().equals(authUser.getId())) {
 
             throw new CustomException(ExceptionCode.ACCESS_DENIED_EXCEPTION_DELETED_ITEM);
         }
@@ -179,6 +218,12 @@ public class ItemService {
         item.softDelete();
     }
 
+    /**
+     * 이미지 업로드 여부 체크 기능
+     *
+     * @param itemImage 업로드할 이미지 파일
+     * @return 업로드된 이미지
+     */
     // 이미지 체크 기능
     private String uploadImageIfPresent(MultipartFile itemImage) {
 
@@ -191,12 +236,20 @@ public class ItemService {
         return s3Service.uploadImage(itemImage);
     }
 
+    /**
+     * 상품 이미지 수정 로직
+     *
+     * @param item      수정할 상품
+     * @param itemImage 상픔에 사용될 수정할 이미지 파일
+     * @return 최종 저장될 이미지
+     */
+    //수정된 이미지 업로드
     private String ItemImageUpdate(Item item, MultipartFile itemImage) {
         //데이터 불러오기
         String oldImage = item.getImage();
 
         //새 이미지 없는 경우 -> 기존 유지
-        if (itemImage == null || !itemImage.isEmpty()) {
+        if (itemImage == null || itemImage.isEmpty()) {
             return oldImage;
         }
 
