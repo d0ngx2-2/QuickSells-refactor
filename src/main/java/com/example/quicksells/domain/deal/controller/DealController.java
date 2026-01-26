@@ -70,6 +70,7 @@ public class DealController {
     /**
      * 완료된 거래 조회(판매)
      */
+    @Operation(summary = "거래 판매완료 조회")
     @GetMapping("/deals/completed")
     public ResponseEntity<CommonResponse> getCompletedDeals(@RequestParam(defaultValue = "10") int limit) {
 

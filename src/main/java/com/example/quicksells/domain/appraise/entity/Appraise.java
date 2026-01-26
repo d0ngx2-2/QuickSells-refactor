@@ -1,8 +1,10 @@
 package com.example.quicksells.domain.appraise.entity;
 
+import com.example.quicksells.common.enums.AppraiseStatus;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
-import com.example.quicksells.domain.deal.entity.Deal;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.SQLRestriction;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.user.entity.User;
@@ -31,11 +33,15 @@ public class Appraise {
     @JoinColumn(name = "item_id")
     private Item item; // 상품 ID
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AppraiseStatus appraiseStatus;
+
     @Column(nullable = false)
     private Integer bidPrice; // 감정 가격
 
     @Column(nullable = false, length = 10)
-    private boolean isSeleted; // 구매자 선택여부 (false > 경매 돌임, true > 즉시 매임)
+    private boolean isSelected; // 구매자 선택여부 (false > 경매 돌임, true > 즉시 매임)
 
     @Column(nullable = false, length = 10)
     private boolean isDeleted; // 삭제 여부
@@ -50,24 +56,37 @@ public class Appraise {
         }
     }
 
-    public Appraise(User admin, Item item, Integer bidPrice, boolean isSeleted) {
+    public Appraise(User admin, Item item, Integer bidPrice, boolean isSelected) {
         this.admin = admin;
         this.item = item;
+        this.appraiseStatus = AppraiseStatus.PENDING; // 처음 감정 생성시 : 대기중
         this.bidPrice = bidPrice;
-        this.isSeleted = isSeleted;
+        this.isSelected = isSelected;
         this.isDeleted = false;
     }
 
     // 여러 감정중 판매자가 선택할때,
     public void updateSelected(boolean isSelected) {
-        if (this.isSeleted) {
+        if (this.isSelected) {
             throw new CustomException(ExceptionCode.ALREADY_SELECT_APPRAISE);
         }
-        this.isSeleted = isSelected;
+        this.isSelected = isSelected;
+    }
+
+    // 감정 진행 상태 업데이트
+    public void updateStatus(AppraiseStatus status) {
+        this.appraiseStatus = status;
+    }
+
+    // 감정가 업데이트
+    public void updateBidPrice(Integer bidPrice) {
+        this.bidPrice = bidPrice;
     }
 
     // 감정 삭제 처리
     public void delete() {
         this.isDeleted = true;
     }
+
+
 }

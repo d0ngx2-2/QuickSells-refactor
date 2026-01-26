@@ -30,7 +30,7 @@ public class AppraiseGetAllResponse {
                 appraise.getAdmin().getId(),
                 appraise.getAdmin().getName(),
                 appraise.getBidPrice(),
-                appraise.isSeleted(),
+                appraise.isSelected(),
                 appraise.getCreatedAt());
     }
 }
