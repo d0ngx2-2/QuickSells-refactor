@@ -16,7 +16,6 @@ import com.example.quicksells.domain.deal.model.response.DealCreateResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetAllQueryResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetResponse;
 import com.example.quicksells.domain.deal.repository.DealRepository;
-import com.example.quicksells.domain.item.entity.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -109,11 +108,8 @@ public class DealService {
      * BUYER	 본인 구매 거래
      */
     @Transactional(readOnly = true)
-    public Page<DealGetAllQueryResponse> getDeals(
-            DealType type,
-            AuthUser authUser,
-            Pageable pageable
-    ) {
+    public Page<DealGetAllQueryResponse> getDeals(DealType type, AuthUser authUser, Pageable pageable) {
+
         if (isAdmin(authUser)) {
             return dealRepository.findAllDeals(pageable);
         }
