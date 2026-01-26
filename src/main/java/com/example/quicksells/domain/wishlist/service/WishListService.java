@@ -14,6 +14,8 @@ import com.example.quicksells.domain.wishlist.model.response.MyWishListGetAllRes
 import com.example.quicksells.domain.wishlist.model.response.WishListCreateResponse;
 import com.example.quicksells.domain.wishlist.repository.WishListRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -50,15 +52,15 @@ public class WishListService {
     }
 
     @Transactional(readOnly = true)
-    public List<MyWishListGetAllResponse> getAllMyWishList(AuthUser authUser, Long buyerId) {
+    public Slice<MyWishListGetAllResponse> getAllMyWishList(AuthUser authUser, Long buyerId, Pageable pageable) {
 
         // 구매자 검증
         validateUser(authUser, buyerId);
 
         // 구매자의 관심 목록 조회 (생성일 기준 내림차순)
-        List<WishList> myWishList = wishListRepository.findAllByBuyerIdOrderByCreatedAtDesc(buyerId);
+        Slice<WishList> myWishListSlice = wishListRepository.myWishListSearch(buyerId, pageable);
 
-        return MyWishListGetAllResponse.from(myWishList);
+        return myWishListSlice.map(MyWishListGetAllResponse::from);
     }
 
     @Transactional
@@ -67,7 +69,7 @@ public class WishListService {
         // 구매자 검증
         validateUser(authUser, request.getBuyerId());
 
-        // 구매자의 관심 목록 조회 (생성일 기준 내림차순)
+        // 구매자의 관심 목록 조회
         List<WishList> myWishList = wishListRepository.findAllByBuyerIdOrderByCreatedAtDesc(request.getBuyerId());
 
         // 내 관심 목록 인덱스 번호

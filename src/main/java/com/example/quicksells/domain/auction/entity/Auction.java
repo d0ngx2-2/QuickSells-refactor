@@ -2,13 +2,13 @@ package com.example.quicksells.domain.auction.entity;
 
 import com.example.quicksells.common.enums.AuctionStatusType;
 import com.example.quicksells.domain.appraise.entity.Appraise;
-import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
+
 import java.time.Clock;
 import java.time.LocalDateTime;
 
@@ -70,7 +70,7 @@ public class Auction {
         this.updatedAt = LocalDateTime.now(clock); // 수정일 적용 후 DB저장
     }
 
-    public void update (User buyer, Integer bidPrice) {
+    public void update(User buyer, Integer bidPrice) {
         this.buyer = buyer;
         this.bidPrice = bidPrice;
     }
