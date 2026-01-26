@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -314,35 +315,38 @@ public class AppraiseService {
      */
     private Deal handleImmediateSell(Appraise appraise, Item item) {
 
-        dealRepository.findByAppraiseId(appraise.getId())
-                .ifPresentOrElse(
-                        deal -> deal.updateForAppraise(
-                                DealType.IMMEDIATE_SELL,
-                                StatusType.ON_SALE,
-                                appraise.getBidPrice()
-                        ),
-                        () -> {
-                            Deal deal = new Deal(
-                                    appraise,
-                                    null,
-                                    DealType.IMMEDIATE_SELL,
-                                    StatusType.ON_SALE,
-                                    appraise.getBidPrice()
-                            );
-                            dealRepository.save(deal);
-                        }
-                );
-
-
-                    return dealRepository.save(newDeal);
+        // 1. 해당 Appraise에 연결된 Deal 조회 또는 생성
+        Deal deal = dealRepository.findByAppraiseId(appraise.getId())
+                .map(existingDeal -> {
+                    // 기존 Deal 업데이트
+                    existingDeal.updateForAppraise(
+                            DealType.IMMEDIATE_SELL,
+                            StatusType.ON_SALE,
+                            appraise.getBidPrice()
+                    );
+                    return existingDeal;
+                })
+                .orElseGet(() -> {
+                    // 새로운 Deal 생성
+                    Deal newDeal = new Deal(
+                            appraise,                    // appraise 1:1
+                            null,                        // auction null
+                            DealType.IMMEDIATE_SELL,
+                            StatusType.ON_SALE,
+                            appraise.getBidPrice()
+                    );
+                    return newDeal;
                 });
 
-        appraise.updateSelected(true);
+        // 2. Deal 저장
+        dealRepository.save(deal);
         dealRepository.flush();
 
-        // 3. 명시적 저장
+        // 3. Appraise 상태 업데이트
+        appraise.updateSelected(true);
         appraiseRepository.save(appraise);
-        return deal;
+
+        return deal;  // Deal 리턴
     }
 
     /**

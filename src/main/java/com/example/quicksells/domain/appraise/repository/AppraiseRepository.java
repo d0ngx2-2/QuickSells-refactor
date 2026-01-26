@@ -21,10 +21,6 @@ public interface AppraiseRepository extends JpaRepository<Appraise, Long>, Appra
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appraise a WHERE a.item.id = :itemId AND a.admin.id = :adminId")
     boolean existsByItemIdAndUserId(@Param("itemId") Long itemId, @Param("adminId") Long adminId);
 
-    // 감정사가 작성한 감정 목록 (삭제되지 않은 것만)
-    @Query("SELECT a FROM Appraise a JOIN FETCH a.admin JOIN FETCH a.item WHERE a.admin.id = :adminId")
-    List<Appraise> findByAdminId(@Param("adminId") Long adminId);
-
     // 상품마다 감정된 목록 조회
     @Query("SELECT a FROM Appraise a JOIN FETCH a.item WHERE a.item = :item")
     Optional<Appraise> findByItem(@Param("item") Item item);
