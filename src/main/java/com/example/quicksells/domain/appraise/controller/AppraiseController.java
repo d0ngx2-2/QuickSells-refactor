@@ -2,12 +2,9 @@ package com.example.quicksells.domain.appraise.controller;
 
 import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
-import com.example.quicksells.domain.appraise.model.request.AppraiseCreateRequest;
+import com.example.quicksells.domain.appraise.model.request.AppraiseAuctionProceedRequest;
 import com.example.quicksells.domain.appraise.model.request.AppraiseUpdateRequest;
-import com.example.quicksells.domain.appraise.model.response.AppraiseCreateResponse;
-import com.example.quicksells.domain.appraise.model.response.AppraiseGetAllResponse;
-import com.example.quicksells.domain.appraise.model.response.AppraiseGetResponse;
-import com.example.quicksells.domain.appraise.model.response.AppraiseUpdateResponse;
+import com.example.quicksells.domain.appraise.model.response.*;
 import com.example.quicksells.domain.appraise.service.AppraiseService;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 // swagger 컨트롤러 그룹화
-@Tag(name = "감정(appraise) 관리")
+@Tag(name = "사용자 감정(appraise) 관리")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -33,22 +30,10 @@ public class AppraiseController {
     private final AppraiseService appraiseService;
 
     /**
-     * 감정 생성 (ADMIN(감정사) 권한)
-     */
-    @Operation(summary = "감정 생성(관리자(감정사))") // 각 API의 설명
-    @PostMapping("/admin/appraises/items/{itemId}")
-    public ResponseEntity<CommonResponse> createAppraise(@PathVariable Long itemId, @Valid @RequestBody AppraiseCreateRequest request, @AuthenticationPrincipal AuthUser authUser) {
-
-        AppraiseCreateResponse response = appraiseService.createAppraise(itemId, request, authUser);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("감정 생성에 성공했습니다.", response));
-    }
-
-    /**
      * 상품별 감정 목록 전체 조회 (페이징)
      */
     @Operation(summary = "상품별 감정 목록 전체 조회")
-    @GetMapping("/appraises/items/{itemId}")
+    @GetMapping("/items/{itemId}/appraises")
     public ResponseEntity<PageResponse> getAppraises(@PathVariable Long itemId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "desc") String order, @AuthenticationPrincipal AuthUser authUser) {
 
         // 정렬 방향 결정 (기본: 최신순)
@@ -66,7 +51,7 @@ public class AppraiseController {
      * 상품별 감정 단건 조회
      */
     @Operation(summary = "상품별 감정 단건 조회")
-    @GetMapping("/appraises/{id}/items/{itemId}")
+    @GetMapping("/items/{itemId}/appraises/{id}")
     public ResponseEntity<CommonResponse> getAppraise(@PathVariable Long id, @PathVariable Long itemId,@AuthenticationPrincipal AuthUser authUser) {
 
         AppraiseGetResponse response = appraiseService.getAppraise(id, itemId, authUser);
@@ -90,18 +75,27 @@ public class AppraiseController {
     }
 
     /**
-     * 감정 삭제 (ADMIN 권한)
-     *
-     * 감정사가 자신이 작성한 감정 제안을 삭제
-     * - 본인이 작성한 감정만 삭제 가능
-     * - 선택된 감정(isSelected = true)은 삭제 불가
+     * 즉시 판매 확정
      */
-    @Operation(summary = "감정 삭제(관리자)")
-    @DeleteMapping("/admin/appraises/items/{itemId}")
-    public ResponseEntity<CommonResponse> deleteAppraise(@PathVariable Long itemId, @AuthenticationPrincipal AuthUser authUser) {
+    @Operation(summary = "즉시 판매")
+    @PostMapping("/appraises/{id}/immediate-sell")
+    public ResponseEntity<CommonResponse> confirmImmediateSell(@PathVariable Long id) {
 
-        appraiseService.deleteAppraise(itemId, authUser);
+        AppraiseImmediateSellResponse response = appraiseService.confirmImmediateSell(id);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("감정 삭제에 성공했습니다."));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("선택한 감정가로 즉시 판매합니다.", response));
     }
+
+    /**
+     * 경매 진행 확정 및 생성
+     */
+    @Operation(summary = "경매 진행")
+    @PostMapping("/appraises/{id}/auction-proceed")
+    public ResponseEntity<CommonResponse> confirmAuctionWithCreate(@PathVariable Long id, @Valid @RequestBody AppraiseAuctionProceedRequest request) {
+
+        AppraiseAuctionProceedResponse response = appraiseService.confirmAuctionWithCreate(id, request.getTimeOption());
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("선택한 감정가로 경매 진행합니다.", response));
+    }
+
 }

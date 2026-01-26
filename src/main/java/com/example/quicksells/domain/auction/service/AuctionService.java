@@ -15,7 +15,6 @@ import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.service.DealService;
-import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +56,9 @@ public class AuctionService {
         newAuction.auctionCloseTime(request.getTimeOption());
 
         Auction saveAuction = auctionRepository.save(newAuction);
+
+        // 2. 거래 생성 (Auction 포함)
+        dealService.createAuctionDeal(foundAppraise, saveAuction);
 
         return AuctionCreateResponse.from(saveAuction);
     }
@@ -142,7 +144,7 @@ public class AuctionService {
     private void validateUser(AuthUser authUser, Auction foundAuction, User foundBuyer) {
 
         Long authUserId = authUser.getId(); // 인증유저 아이디
-        Long sellerId = foundAuction.getAppraise().getItem().getUser().getId(); // 경매에 등록된 감정의 아이템을 등록한 판매자의 아이디
+        Long sellerId = foundAuction.getAppraise().getItem().getSeller().getId(); // 경매에 등록된 감정의 아이템을 등록한 판매자의 아이디
         Long buyerId = foundBuyer.getId(); // 조회된 유저 아이디
 
         // 인증유저와 구매자가 다를때 예외

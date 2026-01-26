@@ -1,5 +1,8 @@
 package com.example.quicksells.domain.deal.repository;
 
+import com.example.quicksells.common.enums.DealType;
+import com.example.quicksells.common.enums.StatusType;
+import com.example.quicksells.domain.deal.model.response.DealCompletedResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetAllQueryResponse;
 import com.example.quicksells.domain.user.entity.QUser;
 import com.querydsl.core.types.Projections;
@@ -20,12 +23,12 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
 
     @Override
     public Page<DealGetAllQueryResponse> findPurchaseDeals(Long buyerId, Pageable pageable) {
-        return fetchDeals(deal.buyer.id.eq(buyerId), pageable);
+        return fetchDeals(deal.auction.buyer.id.eq(buyerId), pageable);
     }
 
     @Override
     public Page<DealGetAllQueryResponse> findSaleDeals(Long sellerId, Pageable pageable) {
-        return fetchDeals(deal.seller.id.eq(sellerId), pageable);
+        return fetchDeals(deal.appraise.item.seller.id.eq(sellerId), pageable);
     }
 
     @Override
@@ -48,8 +51,8 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
                         deal.status,
                         deal.createdAt,
 
-                        item.id,
-                        item.name,
+                        deal.appraise.item.id,
+                        deal.appraise.item.name,
 
                         seller.id,
                         seller.name,
@@ -58,9 +61,11 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
                         buyer.name
                 ))
                 .from(deal)
-                .join(deal.item, item)
-                .join(deal.seller, seller)
-                .leftJoin(deal.buyer, buyer)
+                .join(deal.appraise)
+                .join(deal.appraise.item)
+                .join(deal.appraise.item.seller, seller)
+                .leftJoin(deal.auction)
+                .leftJoin(deal.auction.buyer, buyer)
                 .where(condition)
                 .orderBy(deal.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -74,5 +79,32 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, total);
+    }
+
+    @Override
+    public List<DealCompletedResponse> findCompletedDeals(int limit) {
+
+        return queryFactory
+                .select(Projections.constructor(
+                        DealCompletedResponse.class,
+                        deal.id,
+                        deal.type,
+                        deal.dealPrice,
+                        item.id,
+                        item.name,
+                        deal.createdAt
+                ))
+                .from(deal)
+                .join(deal.appraise.item, item)
+                .where(
+                        deal.status.eq(StatusType.SOLD),
+                        deal.type.in(
+                                DealType.IMMEDIATE_SELL,
+                                DealType.AUCTION
+                        )
+                )
+                .orderBy(deal.createdAt.desc())
+                .limit(limit)
+                .fetch();
     }
 }

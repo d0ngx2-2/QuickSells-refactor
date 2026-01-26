@@ -6,6 +6,10 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ExceptionCode {
 
+    // S3Service
+    PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "최대 5MB까지 업로드 가능합니다."),
+    ONLY_IMAGE_FILE(HttpStatus.UNSUPPORTED_MEDIA_TYPE,"이미지 파일형식이 아닙니다."),
+
     //appraise
     NOT_FOUND_APPRAISE(HttpStatus.NOT_FOUND, "감정을 찾을 수 없습니다."), //auction
     NOT_FOUND_APPRAISER(HttpStatus.NOT_FOUND, "감정사를 찾을 수 없습니다."),
@@ -16,6 +20,11 @@ public enum ExceptionCode {
     EXISTS_ALREADY_SELECT_APPRAISE(HttpStatus.CONFLICT, "이미 선택된 다른 감정이 존재합니다."),
     ALREADY_SELECT_APPRAISE(HttpStatus.CONFLICT, "이미 선택된 감정입니다."),
     ALREADY_EXISTS_APPRAISE(HttpStatus.CONFLICT, "해당 상품에 이미 감정을 등록하셨습니다."),
+    APPRAISE_NOT_SELECTED(HttpStatus.CONFLICT, "선택되지 않은 감정입니다."),
+    APPRAISE_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 즉시판매/경매 진행중인 감정입니다."),
+    FORBIDDEN_APPRAISE_ACCESS(HttpStatus.FORBIDDEN, "본인이 감정한 상품만 조회/수정할 수 있습니다."),
+    CANNOT_UPDATE_SELECTED_APPRAISE(HttpStatus.CONFLICT, "이미 선택된 감정은 수정할 수 없습니다."),
+    CANNOT_UPDATE_PROCESSED_APPRAISE(HttpStatus.CONFLICT, "이미 처리된 감정은 수정할 수 없습니다."),
 
     //auction
     NOT_FOUND_AUCTION(HttpStatus.NOT_FOUND, "경매 정보를 찾을 수 없습니다."),
@@ -55,6 +64,7 @@ public enum ExceptionCode {
     NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "상품를 찾을 수 없습니다."), //appraise,Deal,item
     ACCESS_DENIED_EXCEPTION_UPDATED_ITEM(HttpStatus.FORBIDDEN, "상품 수정 권한이 없습니다."),
     ACCESS_DENIED_EXCEPTION_DELETED_ITEM(HttpStatus.FORBIDDEN, "상품 삭제 권한이 없습니다."),
+    ACCESS_DENIED_EXCEPTION_GET_DETAIL_MY_ITEM(HttpStatus.FORBIDDEN, "상품 조회 권한이 없습니다."),
     CONFLICT_ITEM(HttpStatus.CONFLICT, "중복된 상품입니다."),
     ITEM_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "아이템 등록에 실패했습니다."),
 

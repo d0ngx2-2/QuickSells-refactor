@@ -5,6 +5,7 @@ import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.model.request.DealCreateRequest;
+import com.example.quicksells.domain.deal.model.response.DealCompletedResponse;
 import com.example.quicksells.domain.deal.model.response.DealCreateResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetAllQueryResponse;
 import com.example.quicksells.domain.deal.model.response.DealGetResponse;
@@ -19,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "거래(deal) 관리")
 @RestController
@@ -61,6 +64,18 @@ public class DealController {
 
         Page<DealGetAllQueryResponse> response = dealService.getDeals(type, user, pageable);
 
-        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("거래 조회 성공", response));
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("거래 목록 조회를 성공하였습니다.", response));
+    }
+
+    /**
+     * 완료된 거래 조회(판매)
+     */
+    @Operation(summary = "거래 판매완료 조회")
+    @GetMapping("/deals/completed")
+    public ResponseEntity<CommonResponse> getCompletedDeals(@RequestParam(defaultValue = "10") int limit) {
+
+        List<DealCompletedResponse> response = dealService.getCompletedDeals(limit);
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("판매 완료된 거래 목록 조회를 성공하였습니다.", response));
     }
 }

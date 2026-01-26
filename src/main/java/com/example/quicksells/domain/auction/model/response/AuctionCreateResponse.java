@@ -22,7 +22,7 @@ public class AuctionCreateResponse {
         return new AuctionCreateResponse(
                 auction.getId(),
                 auction.getAppraise().getId(),
-                auction.getAppraise().getItem().getUser().getId(),
+                auction.getAppraise().getItem().getSeller().getId(),
                 auction.getAppraise().getItem().getName(),
                 auction.getBidPrice(),
                 auction.getStatus(),

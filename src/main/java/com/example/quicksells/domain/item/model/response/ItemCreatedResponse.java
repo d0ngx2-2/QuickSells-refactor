@@ -10,19 +10,19 @@ import lombok.RequiredArgsConstructor;
 public class ItemCreatedResponse {
     private final Long id;
     private final Long userId;
-    private final ItemInfoDto user;
+    private final ItemInfoDto seller;
 
     public static ItemCreatedResponse from(Item item) {
         return new ItemCreatedResponse(
                 item.getId(),
-                item.getUser().getId(),
+                item.getSeller().getId(),
                 new ItemInfoDto(
                         item.getName(),
                         item.getHopePrice(),
                         item.getDescription(),
                         item.getImage(),
-                        item.isStatus(),
-                        item.getUser().getRole(),
+                        item.isSelling(),
+                        item.getSeller().getRole(),
                         item.getCreatedAt()));
     }
 }
