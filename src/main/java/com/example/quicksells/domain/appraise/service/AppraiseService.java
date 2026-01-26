@@ -24,7 +24,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -308,38 +307,37 @@ public class AppraiseService {
 
     /**
      * 즉시 판매 처리
-     * - Item과 Deal은 1:N
-     * - 기존 Deal이 있으면 업데이트, 없으면 생성
+     * - Appraise 기준으로 Deal은 1:1
+     * - 기존 Deal 있으면 업데이트, 없으면 생성
+     * - Appraise와 Deal은 1:1
+     * - 선택된 감정(Appraise)을 기준으로 거래(Deal)가 생성된다
      */
     private Deal handleImmediateSell(Appraise appraise, Item item) {
 
-        // 1. 해당 Item에 대한 기존 Deal 확인 (Item-Deal 1:N 관계)
-        Deal deal = dealRepository.findByItem(item)
-                // 기존 Deal이 존재하는 경우
-                .map(existingDeal -> {
-                    // 기존 Deal 업데이트
-                    existingDeal.updateForAppraise(
-                            DealType.IMMEDIATE_SELL,     // type: 즉시 판매
-                            StatusType.ON_SALE,          // status: 거래 중
-                            appraise.getBidPrice()       // dealPrice: 감정가
-                    );
+        dealRepository.findByAppraiseId(appraise.getId())
+                .ifPresentOrElse(
+                        deal -> deal.updateForAppraise(
+                                DealType.IMMEDIATE_SELL,
+                                StatusType.ON_SALE,
+                                appraise.getBidPrice()
+                        ),
+                        () -> {
+                            Deal deal = new Deal(
+                                    appraise,
+                                    null,
+                                    DealType.IMMEDIATE_SELL,
+                                    StatusType.ON_SALE,
+                                    appraise.getBidPrice()
+                            );
+                            dealRepository.save(deal);
+                        }
+                );
 
-                    return dealRepository.save(existingDeal);
-                })
-                .orElseGet(() -> {
-                    // 없으면 새로운 Deal 생성
-                    Deal newDeal = new Deal(
-                            null,                  // buyer: 즉시 판매인 경우 정보 없음
-                            item.getSeller(),              // seller: 상품 판매자
-                            item,                        // item: 상품 (1:N 관계)
-                            DealType.IMMEDIATE_SELL,     // type: 즉시 판매
-                            StatusType.ON_SALE,          // status: 거래 중
-                            appraise.getBidPrice()       // dealPrice: 감정가
-                    );
 
                     return dealRepository.save(newDeal);
                 });
 
+        appraise.updateSelected(true);
         dealRepository.flush();
 
         // 3. 명시적 저장
