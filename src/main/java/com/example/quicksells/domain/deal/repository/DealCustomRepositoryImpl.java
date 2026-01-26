@@ -28,7 +28,7 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
 
     @Override
     public Page<DealGetAllQueryResponse> findSaleDeals(Long sellerId, Pageable pageable) {
-        return fetchDeals(deal.appraise.item.user.id.eq(sellerId), pageable);
+        return fetchDeals(deal.appraise.item.seller.id.eq(sellerId), pageable);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
                 .from(deal)
                 .join(deal.appraise)
                 .join(deal.appraise.item)
-                .join(deal.appraise.item.user, seller)
+                .join(deal.appraise.item.seller, seller)
                 .leftJoin(deal.auction)
                 .leftJoin(deal.auction.buyer, buyer)
                 .where(condition)

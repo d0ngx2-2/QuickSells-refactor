@@ -145,7 +145,7 @@ public class DealService {
 
         Long userId = authUser.getId();
 
-        boolean isSeller = deal.getAppraise().getItem().getUser().getId().equals(userId);
+        boolean isSeller = deal.getAppraise().getItem().getSeller().getId().equals(userId);
         boolean isBuyer = deal.getAuction() != null
                 && deal.getAuction().getBuyer() != null
                 && deal.getAuction().getBuyer().getId().equals(userId);
