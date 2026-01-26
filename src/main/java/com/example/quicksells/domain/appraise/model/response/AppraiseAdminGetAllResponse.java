@@ -31,7 +31,7 @@ public class AppraiseAdminGetAllResponse {
 
     public static AppraiseAdminGetAllResponse from(Appraise appraise) {
         Item item = appraise.getItem();
-        User seller = item.getUser();
+        User seller = item.getSeller();
 
         return new AppraiseAdminGetAllResponse(
                 seller.getId(),

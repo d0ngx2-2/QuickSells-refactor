@@ -28,7 +28,7 @@ public class AppraiseAdminGetResponse {
 
     public static AppraiseAdminGetResponse from(Appraise appraise) {
         return new AppraiseAdminGetResponse(
-                SellerDto.from(appraise.getItem().getUser()),
+                SellerDto.from(appraise.getItem().getSeller()),
                 ItemDetailDto.from(appraise.getItem()),
                 appraise.getId(),
                 appraise.getBidPrice(),
@@ -56,7 +56,7 @@ public class AppraiseAdminGetResponse {
                     item.getDescription(),
                     item.getHopePrice(),
                     item.getImage(),
-                    item.isStatus()
+                    item.isSelling()
             );
         }
     }

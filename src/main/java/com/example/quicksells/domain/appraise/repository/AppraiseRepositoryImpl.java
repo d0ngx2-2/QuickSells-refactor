@@ -84,7 +84,7 @@ public class AppraiseRepositoryImpl implements AppraiseCustomRepository{
         List<Appraise> contents = queryFactory
                 .selectFrom(appraise)
                 .join(appraise.item, item).fetchJoin()
-                .join(item.user, seller).fetchJoin()
+                .join(item.seller, seller).fetchJoin()
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -108,7 +108,7 @@ public class AppraiseRepositoryImpl implements AppraiseCustomRepository{
         Appraise result = queryFactory
                 .selectFrom(appraise)
                 .join(appraise.item, item).fetchJoin()
-                .join(item.user, seller).fetchJoin()
+                .join(item.seller, seller).fetchJoin()
                 .where(appraise.id.eq(appraiseId))
                 .fetchOne();
 
