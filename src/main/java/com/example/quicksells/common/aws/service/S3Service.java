@@ -117,18 +117,18 @@ public class S3Service {
 
     // 이미지 파일 용량 제한
     private MultipartFile validateImageFile(MultipartFile file) {
-
         String contentType = file.getContentType();
 
-        //파일 타입 검증
+        // 파일 타입 검증
         if (contentType == null || !contentType.startsWith("image/")){
             throw new CustomException(ExceptionCode.ONLY_IMAGE_FILE);
         }
 
-        //용량 제한 yaml에서 1차 거르고 2차로 이중 방어
+        // 파일 용량 제한 체크
         if (file.getSize() > 5 * 1024 * 1024) {
             throw new CustomException(ExceptionCode.PAYLOAD_TOO_LARGE);
         }
+        // 검증 후 통과 시 원본 파일 반환
         return file;
     }
 }
