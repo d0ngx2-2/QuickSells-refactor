@@ -86,6 +86,10 @@ public enum ExceptionCode {
     INVALID_SEARCH_KEYWORD(HttpStatus.NOT_FOUND, "검색어를 입력해주세요."),
     UNAUTHORIZED_SEARCH(HttpStatus.UNAUTHORIZED, "로그인 후 입력해주세요"),
 
+    //PAYMENT
+    AMOUNT_MUST_BE_POSITIVE(HttpStatus.BAD_REQUEST, "금액은 양수여야 합니다."),
+    INSUFFICIENT_POINT(HttpStatus.CONFLICT, "충분한 금액을 소유하고 있지 않습니다."),
+
     //미사용
     AUCTION_EXPIRED_SOLD_OUT(HttpStatus.BAD_REQUEST, "경매 시간이 종료되어 낙찰이 완료 되었습니다."),
     AUCTION_EXPIRED_UNSOLD(HttpStatus.BAD_REQUEST, "경매시간이 종료되었으나 낙찰자가 없습니다."),
