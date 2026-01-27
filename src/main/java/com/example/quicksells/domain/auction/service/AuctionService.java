@@ -1,5 +1,6 @@
 package com.example.quicksells.domain.auction.service;
 
+import com.example.quicksells.common.enums.AuctionStatusType;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
@@ -22,6 +23,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.Clock;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -70,8 +73,11 @@ public class AuctionService {
     @Transactional(readOnly = true)
     public AuctionGetResponse getAuction(Long auctionId) {
 
+        // 경매 종료 여부 확인 후 결과
+        auctionCloseService.auctionIsCloseCheckResult(auctionId);
+
         // 경매 상세 조회
-        Auction foundAuction = auctionRepository.findById(auctionId)
+        Auction foundAuction = auctionRepository.findByIdAndStatusAndEndTimeBefore(auctionId, AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()))
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
 
         return AuctionGetResponse.from(foundAuction);
@@ -85,7 +91,7 @@ public class AuctionService {
         auctionCloseService.auctionIsCloseCheckResult(auctionId);
 
         // 경매 조회
-        Auction foundAuction = auctionRepository.findById(auctionId)
+        Auction foundAuction = auctionRepository.findByIdAndStatusAndEndTimeBefore(auctionId, AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()))
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
 
         // 구매자 조회
@@ -115,7 +121,7 @@ public class AuctionService {
         auctionCloseService.auctionIsCloseCheckResult(auctionId);
 
         // 경매 조회
-        Auction foundAuction = auctionRepository.findById(auctionId)
+        Auction foundAuction = auctionRepository.findByIdAndIsDeletedFalse(auctionId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
 
         // 삭제되지 않은 경매 삭제
