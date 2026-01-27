@@ -1,5 +1,6 @@
 package com.example.quicksells.domain.auction.service;
 
+import com.example.quicksells.common.annotation.RedissonLock;
 import com.example.quicksells.common.enums.AuctionStatusType;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
@@ -83,7 +84,7 @@ public class AuctionService {
         return AuctionGetResponse.from(foundAuction);
     }
 
-
+    @RedissonLock(key = "lock:auction")
     @Transactional
     public AuctionUpdateResponse updateBidPrice(Long auctionId, AuctionUpdateRequest request, AuthUser authUser) {
 
