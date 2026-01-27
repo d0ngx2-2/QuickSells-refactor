@@ -13,7 +13,6 @@ import com.example.quicksells.domain.auction.model.response.AuctionCreateRespons
 import com.example.quicksells.domain.auction.service.AuctionService;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.entity.Deal;
-import com.example.quicksells.domain.deal.repository.DealRepository;
 import com.example.quicksells.domain.deal.service.DealService;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.item.repository.ItemRepository;
@@ -33,11 +32,10 @@ import java.util.Optional;
 public class AppraiseService {
 
     private final AppraiseRepository appraiseRepository;
-    private final DealRepository dealRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final AuctionService auctionService;
-    private final DealService  dealService;
+    private final DealService dealService;
 
     /**
      * 감정 생성 (관리자 권한만 가능)
