@@ -1,12 +1,15 @@
 package com.example.quicksells.domain.search.controller;
 
+import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.search.model.response.SearchGetResponse;
+import com.example.quicksells.domain.search.service.SearchCacheService;
 import com.example.quicksells.domain.search.service.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -15,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "검색(search) 관리")
 @RestController
 @RequestMapping("/api")
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class SearchController {
 
     private final SearchService searchService;
+    private final SearchCacheService searchCacheService;
 
     /**
      * 상품검색 API
@@ -38,6 +44,26 @@ public class SearchController {
         Page<SearchGetResponse> responsesDto = searchService.search(authUser, keyword, pageable);
 
         //응답 값
-        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("검색 결과입니다.",responsesDto));
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("검색 결과입니다.", responsesDto));
     }
+
+    @GetMapping("/popular/searches")
+    public ResponseEntity<CommonResponse> getPopularRankings() {
+
+        // searchCacheService에서 Top10 검색 목록 가져오기
+        List<String> popularKeywords = searchCacheService.getPopularKeywordsList();
+
+        //응답 값
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("인기 검색어 목록입니다.", popularKeywords));
+    }
+
+//    @DeleteMapping("/admin//popular/searches")
+//    public ResponseEntity<CommonResponse> clearPopularRankings() {
+//
+//        //비지니스로직
+//        searchCacheService.clearRankingCache();
+//
+//        //응답 객체
+//        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("인기 검색어 목록이 삭제 됐습니다."));
+//    }
 }

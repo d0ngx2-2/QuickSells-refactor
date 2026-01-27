@@ -13,7 +13,9 @@ public class KeywordService {
 
     private final SearchRepository searchRepository;
 
-    /** 검색어 공백 관리 및 카운트 증가
+    /**
+     * 검색어 공백 관리 및 카운트 증가
+     *
      * @param keyword 사용자가 입력한 검색어
      */
     @Transactional
@@ -37,4 +39,10 @@ public class KeywordService {
         //저장
         searchRepository.save(search);
     }
+
+//    //전체 검색 데이터 삭제
+//    @Transactional
+//    public void deleteAll() {
+//        searchRepository.deleteAll();
+//    }
 }
