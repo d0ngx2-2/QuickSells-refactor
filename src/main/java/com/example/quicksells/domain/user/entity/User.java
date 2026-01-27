@@ -37,6 +37,7 @@ public class User extends BaseEntity {
     @Column(length = 25)
     private String birth;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status;
 
