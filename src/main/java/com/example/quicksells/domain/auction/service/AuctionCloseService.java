@@ -6,10 +6,7 @@ import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -31,11 +28,17 @@ public class AuctionCloseService {
         // 마감 시간 기준 오름차순
         Pageable pageable = PageRequest.of(0, 100, Sort.by("endTime").ascending());
 
-        // 현재 시간 이전의 마감 시간 조회
-        Page<Auction> foundAuction = auctionRepository.findAllByStatusAndEndTimeBefore(pageable, AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()));
+        while (true) {
 
-        // 페이지 내용마다 마감시간 체크
-        foundAuction.getContent().forEach(Auction::auctionEndTimeCheck);
+            // 현재 시간 이전의 마감 시간 조회
+            Slice<Auction> foundAuction = auctionRepository.findAllByStatusAndEndTimeBefore(pageable, AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()));
+
+            // 슬라이스가 존재하지 않으면 종료
+            if (foundAuction.hasContent()) {break;}
+
+            // 슬라이스 내용마다 마감시간 체크
+            foundAuction.getContent().forEach(Auction::auctionEndTimeCheck);
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
