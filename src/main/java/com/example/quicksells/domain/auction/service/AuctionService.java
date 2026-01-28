@@ -113,6 +113,8 @@ public class AuctionService {
         foundAuction.update(foundBuyer, request.getBidPrice());
 
         return AuctionUpdateResponse.from(foundAuction);
+
+
     }
 
 
