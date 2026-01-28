@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <title>QuickSells Toss Test</title>
+    <script src="https://js.tosspayments.com/v1/payment-widget"></script>
+</head>
+<body>
+<h2>토스 결제 테스트 (백엔드 단독)</h2>
+
+<p>1) 먼저 /api/auth/login 으로 로그인해서 JWT 토큰을 발급받고 아래에 붙여넣으세요.</p>
+
+<label>JWT (Bearer 없이 토큰만):</label><br/>
+<input id="token" style="width: 900px;" />
+<button onclick="saveToken()">토큰 저장</button>
+
+<hr/>
+
+<label>충전 금액:</label>
+<input id="amount" type="number" value="10000" min="10000" />
+<button onclick="startPayment()">결제창 열기</button>
+
+<script>
+    function saveToken() {
+        const token = document.getElementById("token").value.trim();
+        localStorage.setItem("QS_TOKEN", token);
+        alert("저장됨");
+    }
+
+    async function fetchClientKey() {
+        // ✅ 백엔드에서 clientKey 받아오기 (prompt 제거)
+        const res = await fetch("/api/payments/config");
+        const json = await res.json();
+        if (!res.ok) {
+            throw new Error("config fetch failed: " + JSON.stringify(json));
+        }
+        return json.data.clientKey;
+    }
+
+    async function startPayment() {
+        const token = localStorage.getItem("QS_TOKEN");
+        if (!token) {
+            alert("토큰을 먼저 저장하세요.");
+            return;
+        }
+
+        const amount = parseInt(document.getElementById("amount").value, 10);
+
+        // ✅ 최소 충전 금액 프론트 검증(백엔드도 동일하게 검증함)
+        if (Number.isNaN(amount) || amount < 10000) {
+            alert("최소 충전 금액은 10,000원입니다.");
+            return;
+        }
+
+        // 1) 주문 생성
+        const orderRes = await fetch("/api/payments/orders", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({ amount })
+        });
+
+        const orderJson = await orderRes.json();
+        if (!orderRes.ok) {
+            alert("주문 생성 실패: " + JSON.stringify(orderJson));
+            return;
+        }
+
+        const orderId = orderJson.data.orderId;
+
+        // 2) ✅ clientKey를 서버에서 가져오기
+        const clientKey = await fetchClientKey();
+
+        // 3) 토스 결제 위젯 호출
+        const paymentWidget = PaymentWidget(clientKey, "ANONYMOUS");
+
+        await paymentWidget.requestPayment({
+            orderId: orderId,
+            orderName: "QuickSells 포인트 충전",
+            successUrl: window.location.origin + "/payment-success.html",
+            failUrl: window.location.origin + "/payment-fail.html"
+        });
+    }
+</script>
+</body>
+</html>
