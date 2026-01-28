@@ -1,4 +1,4 @@
-package com.example.quicksells.common.config;
+package com.example.quicksells.common.schedule;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;

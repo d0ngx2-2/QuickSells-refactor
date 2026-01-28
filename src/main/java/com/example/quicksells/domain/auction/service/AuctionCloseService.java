@@ -6,6 +6,7 @@ import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuctionCloseService {
 
     private final AuctionRepository auctionRepository;
@@ -33,8 +35,10 @@ public class AuctionCloseService {
             // 마감시간이 현재 시간보다 이 전일떄 진행중인 경매 조회
             Slice<Auction> foundAuction = auctionRepository.findAllByStatusAndEndTimeBefore(pageable, AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()));
 
+            log.info("마감 처리할 경매 - {}", foundAuction);
+
             // 슬라이스가 존재하지 않으면 종료
-            if (foundAuction.hasContent()) {break;}
+            if (!foundAuction.hasContent()) {break;}
 
             // 슬라이스 내용마다 마감시간 체크
             foundAuction.getContent().forEach(Auction::auctionEndTimeCheck);
