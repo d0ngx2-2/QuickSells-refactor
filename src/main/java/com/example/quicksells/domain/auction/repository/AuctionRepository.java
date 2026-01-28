@@ -21,8 +21,8 @@ public interface AuctionRepository extends JpaRepository<Auction, Long>, Auction
     // 진행중인 경매에 마감 시간이 현재 시간보다 이 전일떄
     Slice<Auction> findAllByStatusAndEndTimeBefore(Pageable pageable, AuctionStatusType status, LocalDateTime endTime);
 
-    // 요청한 경매의 진행 상태와 마감 시간이 현재 시간보다 어 전일때
-    Optional<Auction> findByIdAndStatusAndEndTimeBefore(Long id, AuctionStatusType status, LocalDateTime endTimeBefore);
+    // 요청한 경매의 진행 상태와 마감 시간이 현재 시간보다 어 후일때
+    Optional<Auction> findByIdAndStatusAndEndTimeAfter(Long id, AuctionStatusType status, LocalDateTime endTimeBefore);
 
     // 삭제 되지 않은 경매
     Optional<Auction> findByIdAndIsDeletedFalse(Long id);

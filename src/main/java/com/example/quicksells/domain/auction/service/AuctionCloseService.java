@@ -30,7 +30,7 @@ public class AuctionCloseService {
 
         while (true) {
 
-            // 현재 시간 이전의 마감 시간 조회
+            // 마감시간이 현재 시간보다 이 전일떄 진행중인 경매 조회
             Slice<Auction> foundAuction = auctionRepository.findAllByStatusAndEndTimeBefore(pageable, AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()));
 
             // 슬라이스가 존재하지 않으면 종료
@@ -44,9 +44,11 @@ public class AuctionCloseService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void auctionIsCloseCheckResult(Long auctionId) {
 
-        Auction foundAuction = auctionRepository.findByIdAndStatusAndEndTimeBefore(auctionId, AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()))
+        // 마감시간이 현재 시간보다 이 후일떄 진행중인 경매 조회
+        Auction foundAuction = auctionRepository.findByIdAndStatusAndEndTimeAfter(auctionId, AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()))
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
 
+        // 마감 시간 체크
         foundAuction.auctionEndTimeCheck();
     }
 }
