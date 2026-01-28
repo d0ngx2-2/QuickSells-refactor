@@ -11,7 +11,6 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
 import java.util.concurrent.TimeUnit;
 
 @Aspect
@@ -48,7 +47,7 @@ public class RedissonLockAop {
                 throw new CustomException(ExceptionCode.LOCK_ACQUISITION_FAILED);
             }
 
-            return joinPoint.proceed();
+            return joinPoint.proceed(); // 비즈니스 로직 실행
 
         } catch (InterruptedException interruptedException) {
             // 인터럽트 상태 복구
@@ -57,6 +56,7 @@ public class RedissonLockAop {
             throw new CustomException(ExceptionCode.LOCK_INTERRUPTED_ERROR);
 
         } finally {
+            // 획득한 락의 주인 여부
             if (lock.isHeldByCurrentThread()) {
                 // ttl 만료로 인한 동시성 이슈로 락이 헤재된 상태일때 에러발생 x
                 lock.unlock();
