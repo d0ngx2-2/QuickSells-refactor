@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -29,7 +28,7 @@ public class MailController {
 
         mailService.sendMail(request.getEmail());
 
-        return ResponseEntity.ok(CommonResponse.success("인증번호가 발송되었습니다."));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("인증번호가 발송되었습니다."));
     }
 
     /**
@@ -40,9 +39,10 @@ public class MailController {
 
         boolean isVerified = mailService.verifyCode(request.getEmail(), request.getCode());
 
-        if (isVerified) {return ResponseEntity.ok(CommonResponse.success("이메일 인증에 성공하였습니다."));
-        } else {
+        if (!isVerified) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommonResponse.error("인증번호가 일치하지 않거나 만료되었습니다."));
         }
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("이메일 인증에 성공하였습니다."));
     }
 }
