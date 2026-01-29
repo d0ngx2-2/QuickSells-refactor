@@ -9,7 +9,6 @@ import com.example.quicksells.domain.search.service.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -56,14 +55,4 @@ public class SearchController {
         //응답 값
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("인기 검색어 목록입니다.", popularKeywords));
     }
-
-//    @DeleteMapping("/admin//popular/searches")
-//    public ResponseEntity<CommonResponse> clearPopularRankings() {
-//
-//        //비지니스로직
-//        searchCacheService.clearRankingCache();
-//
-//        //응답 객체
-//        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("인기 검색어 목록이 삭제 됐습니다."));
-//    }
 }
