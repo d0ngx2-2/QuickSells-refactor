@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 public class AuctionCloseService {
 
     private final AuctionRepository auctionRepository;
+    private final AuctionSettlementService auctionSettlementService;
 
     // 스케쥴러를 활용한 분기마다 종료시간 체크
     @Scheduled(cron = "0 * * * * *")
@@ -40,8 +41,17 @@ public class AuctionCloseService {
             // 슬라이스가 존재하지 않으면 종료
             if (!foundAuction.hasContent()) {break;}
 
-            // 슬라이스 내용마다 마감시간 체크
-            foundAuction.getContent().forEach(Auction::auctionEndTimeCheck);
+            // 슬라이스 내용마다 마감시간 체크 + 낙찰이면 정산
+            for (Auction auction : foundAuction.getContent()) {
+
+                // 1) 경매 종료 상태 반영 (AUCTIONING -> SUCCESSFUL_BID / UNSUCCESSFUL_BID)
+                auction.auctionEndTimeCheck();
+
+                // 2) 낙찰이면 정산(포인트 이동 + Deal SOLD 처리)
+                if (auction.getStatus() == AuctionStatusType.SUCCESSFUL_BID) {
+                    auctionSettlementService.settleSuccessfulAuction(auction);
+                }
+            }
         }
     }
 
