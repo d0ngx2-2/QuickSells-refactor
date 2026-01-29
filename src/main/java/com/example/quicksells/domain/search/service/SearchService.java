@@ -39,9 +39,6 @@ public class SearchService {
         //Redis 인기 검색어 카운트 기록
         searchCacheService.increaseViewCount(searchKeyword);
 
-        //검색어 카운트 -> DB 저장, 캐시에는 X
-        keywordService.recordKeyword(searchKeyword);
-
         // 캐시 적용된 상품 조회
         Page<Item> items = searchCacheService.cachedSearch(searchKeyword, pageable);
 
