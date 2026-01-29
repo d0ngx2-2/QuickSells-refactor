@@ -74,12 +74,14 @@ public class ChatController {
 
     /**
      * 메시지 전송
+     * - chatRoomId는 URL 경로에서 받으므로 Request Body의 chatRoomId는 무시
      */
     @Operation(summary = "메시지 전송",
             description = "채팅방에 메시지를 전송합니다.")
     @PostMapping("/chat/rooms/{id}/messages")
     public ResponseEntity<CommonResponse> sendMessage(@PathVariable Long id, @Valid @RequestBody ChatMessageRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
+        // URL 경로의 id를 사용 (request.getChatRoomId()는 무시)
         ChatMessageResponse response = chatService.sendMessage(id, request, authUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("메시지 전송에 성공했습니다.", response));

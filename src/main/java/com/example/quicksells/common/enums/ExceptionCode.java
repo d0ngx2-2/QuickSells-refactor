@@ -98,9 +98,10 @@ public enum ExceptionCode {
     MISSING_TOKEN(HttpStatus.UNAUTHORIZED, "유효한 토큰이 없습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
     CHAT_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "채팅 권한이 없습니다."),
+    PRINCIPAL_CHAT_PERMISSION_DENIED(HttpStatus.BAD_REQUEST, "본인과는 채팅할 수 없습니다."),
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."),
     CHAT_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "메시지를 찾을 수 없습니다."),
-    CHAT_BETWEEN_USERS_NOT_ALLOWED(HttpStatus.FORBIDDEN, "일반 사용자끼리는 구매자와 판매자 관계일때 채팅 가능합니다."),
+    CHAT_BETWEEN_USERS_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "일반 사용자는 구매자와 판매자 관계이며 경매 낙찰시 채팅 가능합니다."),
     NOT_MATCHED_CHAT_USER(HttpStatus.BAD_REQUEST, "해당 사용자는 이 채팅방의 참여자가 아닙니다"),
     INVALID_CHAT_ROOM_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 채팅방 타입입니다."),
 

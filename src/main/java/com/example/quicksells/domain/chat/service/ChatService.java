@@ -46,7 +46,7 @@ public class ChatService {
 
         // 1. 자기 자신과 채팅 시도 차단
         if (currentUserId.equals(otherUserId)) {
-            throw new CustomException(ExceptionCode.CHAT_PERMISSION_DENIED);
+            throw new CustomException(ExceptionCode.PRINCIPAL_CHAT_PERMISSION_DENIED);
         }
 
         // 2. 상대방 조회
