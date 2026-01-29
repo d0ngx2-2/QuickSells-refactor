@@ -65,10 +65,9 @@ public class SecurityConfig {
                         .requestMatchers("/oauth/google/success/**").permitAll()
                         // 채팅 API 추가 (인증 필요)
                         .requestMatchers("/api/chat/**").authenticated()
-                        // WebSocket 엔드포인트 추가!
+                        // WebSocket 엔드포인트 추가
                         .requestMatchers(
                                 "/ws-stomp/**",           // WebSocket 연결 엔드포인트
-                                "/test-websocket.html",    // 테스트 페이지 - 삭제 예정
                                 "/chat-test.html"         // 실제 사용할 채팅 페이지
                         ).permitAll()
                         // swagger ui 설정 추가

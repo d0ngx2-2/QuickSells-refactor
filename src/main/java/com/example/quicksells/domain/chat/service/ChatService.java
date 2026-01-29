@@ -88,9 +88,6 @@ public class ChatService {
         if (role1 == UserRole.USER && role2 == UserRole.USER) {
             throw new CustomException(ExceptionCode.CHAT_BETWEEN_USERS_NOT_ALLOWED);
         }
-
-        // 한 명이라도 관리자면 허용
-        log.info("채팅 허용 - User1: {} ({}), User2: {} ({})", user1.getId(), role1, user2.getId(), role2);
     }
 
     /**
@@ -168,7 +165,6 @@ public class ChatService {
         ChatMessage message = new ChatMessage(chatRoom, sender, request.getContent());
         chatMessageRepository.save(message);
 
-        log.info("메시지 전송 - ChatRoom: {}, Sender: {}, Content: {}", chatRoomId, userId, request.getContent());
 
         return ChatMessageResponse.from(message);
     }
@@ -216,6 +212,5 @@ public class ChatService {
         // 3. 읽음 처리
         int updatedCount = chatMessageRepository.markAllAsRead(chatRoomId, userId);
 
-        log.info("메시지 읽음 처리 - ChatRoom: {}, User: {}, Count: {}", chatRoomId, userId, updatedCount);
     }
 }

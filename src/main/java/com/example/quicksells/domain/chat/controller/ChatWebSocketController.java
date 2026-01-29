@@ -1,5 +1,7 @@
 package com.example.quicksells.domain.chat.controller;
 
+import com.example.quicksells.common.enums.ExceptionCode;
+import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.common.security.JwtAuthenticationToken;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.chat.model.request.ChatMessageRequest;
@@ -43,16 +45,12 @@ public class ChatWebSocketController {
             // 1. 인증 정보 추출
             AuthUser authUser = extractAuthUser(principal);
 
-            log.info("WebSocket 메시지 수신 - User: {}, ChatRoom: {}, Content: {}", authUser.getId(), request.getChatRoomId(), request.getContent());
-
             // 2. 메시지 저장 (ChatService 활용)
             ChatMessageResponse response = chatService.sendMessage(request.getChatRoomId(), request, authUser);
 
             // 3. 채팅방 구독자들에게 브로드캐스트
             String destination = "/topic/chat/room/" + request.getChatRoomId();
             messagingTemplate.convertAndSend(destination, response);
-
-            log.info("메시지 브로드캐스트 완료 - Destination: {}, MessageId: {}", destination, response.getMessageId());
 
         } catch (Exception e) {
             // 에러는 클라이언트로 전달되지 않으므로 로깅만 수행
@@ -68,18 +66,18 @@ public class ChatWebSocketController {
     private AuthUser extractAuthUser(Principal principal) {
 
         if (principal == null) {
-            throw new IllegalStateException("인증 정보가 없습니다");
+            throw new CustomException(ExceptionCode.NOT_FOUND_PRINCIPAL);
         }
 
         if (!(principal instanceof JwtAuthenticationToken)) {
-            throw new IllegalStateException("잘못된 인증 타입입니다: " + principal.getClass());
+            throw new CustomException(ExceptionCode.WRONG_PRINCIPAL_TYPE);
         }
 
         JwtAuthenticationToken token = (JwtAuthenticationToken) principal;
         Object principalObj = token.getPrincipal();
 
         if (!(principalObj instanceof AuthUser)) {
-            throw new IllegalStateException("Principal이 AuthUser 타입이 아닙니다");
+            throw new CustomException(ExceptionCode.NOT_SAME_PRINCIPAL_AUTH_USER);
         }
 
         return (AuthUser) principalObj;
