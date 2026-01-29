@@ -107,9 +107,11 @@ public class PaymentService {
             payment.markAsApproved(tossResponse.getPaymentKey());
             Payment savedPayment = paymentRepository.save(payment);
 
+            // 지갑 생성
             PointWallet wallet = pointWalletRepository.findById(userId)
                     .orElseGet(() -> pointWalletRepository.save(new PointWallet(userId)));
 
+            // 잔액 충전
             wallet.increaseBalance(savedPayment.getAmount().longValue());
             PointWallet savedWallet = pointWalletRepository.save(wallet);
 
