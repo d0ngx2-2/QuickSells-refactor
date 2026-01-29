@@ -112,6 +112,21 @@ public enum ExceptionCode {
     ACCESS_DENIED_EXCEPTION_WISHLIST(HttpStatus.FORBIDDEN, "관심 목록 대한 권한이 없습니다."),
     NOT_EXIST_ONE_WISHLIST(HttpStatus.NOT_FOUND, "해당 관심 목록은 존재하지 않습니다."),
 
+    //WebSocket & 채팅 & 토큰 및 principal 인증 관련
+    MISSING_TOKEN(HttpStatus.UNAUTHORIZED, "유효한 토큰이 없습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
+    CHAT_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "채팅 권한이 없습니다."),
+    PRINCIPAL_CHAT_PERMISSION_DENIED(HttpStatus.BAD_REQUEST, "본인과는 채팅할 수 없습니다."),
+    CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."),
+    CHAT_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "메시지를 찾을 수 없습니다."),
+    CHAT_BETWEEN_USERS_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "일반 사용자는 구매자와 판매자 관계이며 경매 낙찰시 채팅 가능합니다."),
+    NOT_MATCHED_CHAT_USER(HttpStatus.BAD_REQUEST, "해당 사용자는 이 채팅방의 참여자가 아닙니다"),
+    INVALID_CHAT_ROOM_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 채팅방 타입입니다."),
+    NOT_FOUND_PRINCIPAL(HttpStatus.NOT_FOUND, "인증 정보가 없습니다."),
+    WRONG_PRINCIPAL_TYPE(HttpStatus.BAD_REQUEST, "잘못된 인증 타입입니다."),
+    NOT_SAME_PRINCIPAL_AUTH_USER(HttpStatus.BAD_REQUEST, "Principal이 AuthUser 타입이 아닙니다"),
+
+
     //미사용
     AUCTION_EXPIRED_SOLD_OUT(HttpStatus.BAD_REQUEST, "경매 시간이 종료되어 낙찰이 완료 되었습니다."),
     AUCTION_EXPIRED_UNSOLD(HttpStatus.BAD_REQUEST, "경매시간이 종료되었으나 낙찰자가 없습니다."),
