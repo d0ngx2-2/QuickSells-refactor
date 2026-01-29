@@ -63,6 +63,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/oauth/google/success/**").permitAll()
+                        // WebSocket 엔드포인트 추가!
+                        .requestMatchers(
+                                "/ws-stomp/**",           // WebSocket 연결 엔드포인트
+                                "/test-websocket.html"    // 테스트 페이지
+                        ).permitAll()
                         // swagger ui 설정 추가
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()

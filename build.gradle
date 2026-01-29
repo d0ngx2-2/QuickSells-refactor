@@ -64,6 +64,12 @@ dependencies {
 
     // redisson
     implementation 'org.redisson:redisson:4.1.0'
+
+    // WebSocket & STOMP
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // JSON 처리
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.named('test') {
