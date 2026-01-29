@@ -78,3 +78,9 @@ cloud:
       bucket: ${AWS_S3_BUCKET}
     stack:
       auto: false
+
+toss:
+  payments:
+    base-url: https://api.tosspayments.com
+    client-key: ${TOSS_CLIENT_KEY}
+    secret-key: ${TOSS_SECRET_KEY}

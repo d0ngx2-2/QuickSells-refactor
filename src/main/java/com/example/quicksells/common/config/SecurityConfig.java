@@ -70,6 +70,12 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(
+                                "/api/payments/config",   // clientKey 제공 (공개키만)
+                                "/toss-test.html",
+                                "/payment-success.html",
+                                "/payment-fail.html"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 // Spring Security 필터보다 JWT 필터를 먼저 실행
