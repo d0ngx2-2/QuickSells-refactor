@@ -61,6 +61,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/mail","/api/verify-code").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/oauth/google/success/**").permitAll()
                         // 채팅 API 추가 (인증 필요)
@@ -76,6 +77,12 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(
+                                "/api/payments/config",   // clientKey 제공 (공개키만)
+                                "/toss-test.html",
+                                "/payment-success.html",
+                                "/payment-fail.html"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 // Spring Security 필터보다 JWT 필터를 먼저 실행
