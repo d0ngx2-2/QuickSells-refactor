@@ -90,6 +90,24 @@ public enum ExceptionCode {
     INVALID_SEARCH_KEYWORD(HttpStatus.NOT_FOUND, "검색어를 입력해주세요."),
     UNAUTHORIZED_SEARCH(HttpStatus.UNAUTHORIZED, "로그인 후 입력해주세요"),
 
+    //PAYMENT
+    INVALID_CHARGE_AMOUNT(HttpStatus.BAD_REQUEST, "충전 금액은 최소 10,000원 이상이어야 합니다."),
+    NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "결제 정보를 찾을 수 없습니다."),
+    INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 올바르지 않습니다."),
+    DUPLICATE_PAYMENT_KEY(HttpStatus.CONFLICT, "이미 처리된 결제입니다."),
+
+    /**
+     * 토스 승인(confirm) 요청 자체가 실패한 경우
+     * - 네트워크 오류, 인증 오류, 토스 측 검증 실패 등
+     */
+    TOSS_CONFIRM_FAILED(HttpStatus.BAD_GATEWAY, "토스 결제 승인에 실패했습니다."),
+    /**
+     * 내부 DB 반영 실패 → 토스 cancel로 롤백 시도했는데 cancel까지 실패한 경우
+     * - 이 경우는 '돈은 빠져나갔는데 DB 반영이 안됨' 같은 위험 상태가 될 수 있어
+     *   빠르게 알람/로그로 잡아야 하는 심각도 높은 에러로 취급
+     */
+    TOSS_CANCEL_FAILED(HttpStatus.BAD_GATEWAY, "토스 결제 취소(롤백)에 실패했습니다."),
+
     //WISH_LIST
     ACCESS_DENIED_EXCEPTION_WISHLIST(HttpStatus.FORBIDDEN, "관심 목록 대한 권한이 없습니다."),
     NOT_EXIST_ONE_WISHLIST(HttpStatus.NOT_FOUND, "해당 관심 목록은 존재하지 않습니다."),
