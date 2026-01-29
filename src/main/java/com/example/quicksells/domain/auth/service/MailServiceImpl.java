@@ -5,7 +5,6 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -23,6 +22,7 @@ public class MailServiceImpl implements MailService {
     // 멀티스레드 환경을 위해 ConcurrentHashMap 사용
     private final Map<String, Integer> verificationCodes = new ConcurrentHashMap<>();
 
+    // 메일 생성
     @Override
     public MimeMessage createMail(String mail) {
 
@@ -44,13 +44,13 @@ public class MailServiceImpl implements MailService {
                             "</div>";
             helper.setText(body, true);
         } catch (MessagingException e) {
-            // 적절한 예외 처리
             throw new RuntimeException("메일 생성 중 오류가 발생했습니다.", e);
         }
 
         return message;
     }
 
+    // 인증 코드 보내기
     @Override
     public CompletableFuture<Integer> sendMail(String mail) {
         MimeMessage message = createMail(mail);
@@ -58,6 +58,7 @@ public class MailServiceImpl implements MailService {
         return CompletableFuture.completedFuture(verificationCodes.get(mail));
     }
 
+    // 인증 코드 검증
     @Override
     public boolean verifyCode(String email, int code) {
         Integer storedCode = verificationCodes.get(email);
@@ -69,9 +70,7 @@ public class MailServiceImpl implements MailService {
         return false;
     }
 
-    /**
-     * 인증 코드 생성 및 저장
-     */
+    // 인증 코드 생성 및 저장
     private int createNumber(String email) {
 
         int number = new Random().nextInt(900000) + 100000;
