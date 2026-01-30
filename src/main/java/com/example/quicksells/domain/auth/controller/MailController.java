@@ -24,7 +24,7 @@ public class MailController {
     /**
      * 인증번호 발송 메소드
      */
-    @PostMapping("/mail")
+    @PostMapping("/emails/verification")
     public ResponseEntity<CommonResponse> mailSend(@Valid @RequestBody AuthMailRequest request) {
 
         mailService.sendCodeMail(request.getEmail());
@@ -35,7 +35,7 @@ public class MailController {
     /**
      * 인증번호 검증 메소드
      */
-    @PostMapping("/verify-code")
+    @PostMapping("/emails/verification/verify")
     public ResponseEntity<CommonResponse> verifyCode(@Valid @RequestBody AuthMailCodeVerificationRequest request) {
 
         boolean isVerified = mailService.verifyCode(request.getEmail(), request.getCode());
@@ -50,7 +50,7 @@ public class MailController {
     /**
      * 임시 비밀번호 재발급 발송 메서드
      */
-    @PostMapping("/reset-password")
+    @PostMapping("/passwords/reset")
     public ResponseEntity<CommonResponse> resetPassword(@Valid @RequestBody AuthMailRequest mailRequest) {
 
         String tempPassword = mailService.createTemporaryPassword(mailRequest.getEmail());
@@ -64,7 +64,7 @@ public class MailController {
     /**
      * 임시 비밀번호 검증 메소드
      */
-    @PostMapping("/verify-temporary-password")
+    @PostMapping("/passwords/verify")
     public ResponseEntity<CommonResponse> verifyTemporaryPassword(@Valid @RequestBody AuthPasswordVerificationRequest request) {
 
         boolean isVerified = mailService.verifyTemporaryPassword(request.getEmail(), request.getTemporaryPassword());
