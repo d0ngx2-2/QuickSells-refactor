@@ -3,6 +3,7 @@ package com.example.quicksells.common.scheduler;
 import com.example.quicksells.common.enums.AuctionStatusType;
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
+import com.example.quicksells.domain.auction.service.AuctionSettlementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 public class AuctionCloseScheduler {
 
     private final AuctionRepository auctionRepository;
+    private final AuctionSettlementService auctionSettlementService;
 
     // 스케쥴러를 활용한 분기마다 종료시간 체크
     @Scheduled(cron = "0 * * * * *")
@@ -37,8 +39,17 @@ public class AuctionCloseScheduler {
             // 슬라이스가 존재하지 않으면 종료
             if (!foundAuction.hasContent()) {break;}
 
-            // 슬라이스 내용마다 마감시간 체크
-            foundAuction.getContent().forEach(Auction::auctionEndTimeCheck);
+            // 슬라이스 내용마다 마감시간 체크 + 낙찰이면 정산
+            for (Auction auction : foundAuction.getContent()) {
+
+                // 1) 경매 종료 상태 반영 (AUCTIONING -> SUCCESSFUL_BID / UNSUCCESSFUL_BID)
+                auction.auctionEndTimeCheck();
+
+                // 2) 낙찰이면 정산(포인트 이동 + Deal SOLD 처리)
+                if (auction.getStatus() == AuctionStatusType.SUCCESSFUL_BID) {
+                    auctionSettlementService.settleSuccessfulAuction(auction);
+                }
+            }
         }
     }
 }

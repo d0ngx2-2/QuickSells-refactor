@@ -95,6 +95,7 @@ public enum ExceptionCode {
     NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "결제 정보를 찾을 수 없습니다."),
     INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 올바르지 않습니다."),
     DUPLICATE_PAYMENT_KEY(HttpStatus.CONFLICT, "이미 처리된 결제입니다."),
+    NOT_FOUND_WALLET(HttpStatus.NOT_FOUND, "지갑 정보를 찾을 수 없습니다."),
 
     /**
      * 토스 승인(confirm) 요청 자체가 실패한 경우
