@@ -1,11 +1,15 @@
 package com.example.quicksells.domain.search.service;
 
+import com.example.quicksells.common.enums.ExceptionCode;
+import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.search.repository.SearchRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.example.quicksells.domain.search.entity.Search;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 
@@ -13,36 +17,39 @@ public class KeywordService {
 
     private final SearchRepository searchRepository;
 
+
     /**
-     * 검색어 공백 관리 및 카운트 증가
+     * DB에 인기검색 Top10 업데이트
      *
-     * @param keyword 사용자가 입력한 검색어
+     * @param keyword
+     * @param count
      */
     @Transactional
-    public void recordKeyword(String keyword) {
+    public void upsertSnapshot(String keyword, Long count) {
 
-        //keyword 공백, null방지
-        String readKeyword = keyword == null ? "" : keyword.trim();
-
-        //공백 제거해도 잘못된 요청일 경우 예외처리
-        if (readKeyword.isEmpty()) {
-            throw new RuntimeException("검색어 입력은 필수입니다.");
+        //null 방지
+        if (keyword == null) {
+            throw new CustomException(ExceptionCode.INVALID_SEARCH_KEYWORD);
         }
 
-        //DB에 요청한 키워드가 있는지 조회
+        // 검색어 정규화 (앞, 뒤 공백 제거 및 중간에 공백 통일)
+        String readKeyword = keyword.trim().replaceAll("\\s+", " ");
+
+        //정규화 후 빈 문자열 검증 (2차 검증)
+        if (readKeyword.isEmpty()) {
+            throw new CustomException(ExceptionCode.INVALID_SEARCH_KEYWORD);
+        }
+
+        // DB 기존 검색어 조회
         Search search = searchRepository.findByKeyword(readKeyword)
                 .orElseGet(() -> new Search(readKeyword));
 
-        //카운트 +1 증가
-        search.increase();
+        // 조회수 업데이트
+        search.updateCount(count);
 
-        //저장
         searchRepository.save(search);
-    }
 
-//    //전체 검색 데이터 삭제
-//    @Transactional
-//    public void deleteAll() {
-//        searchRepository.deleteAll();
-//    }
+        //DB에 반영
+        searchRepository.flush();
+    }
 }
