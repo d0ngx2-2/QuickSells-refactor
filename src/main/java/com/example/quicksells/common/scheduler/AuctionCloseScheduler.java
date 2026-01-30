@@ -1,8 +1,6 @@
-package com.example.quicksells.domain.auction.service;
+package com.example.quicksells.common.scheduler;
 
 import com.example.quicksells.common.enums.AuctionStatusType;
-import com.example.quicksells.common.enums.ExceptionCode;
-import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -18,7 +15,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuctionCloseService {
+public class AuctionCloseScheduler {
 
     private final AuctionRepository auctionRepository;
 
@@ -43,16 +40,5 @@ public class AuctionCloseService {
             // 슬라이스 내용마다 마감시간 체크
             foundAuction.getContent().forEach(Auction::auctionEndTimeCheck);
         }
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void auctionIsCloseCheckResult(Long auctionId) {
-
-        // 마감시간이 현재 시간보다 이 후일떄 진행중인 경매 조회
-        Auction foundAuction = auctionRepository.findByIdAndStatusAndEndTimeAfter(auctionId, AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()))
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
-
-        // 마감 시간 체크
-        foundAuction.auctionEndTimeCheck();
     }
 }
