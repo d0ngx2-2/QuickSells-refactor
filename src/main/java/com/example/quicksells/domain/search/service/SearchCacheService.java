@@ -9,10 +9,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +27,8 @@ public class SearchCacheService {
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String POPULAR_RANKING_KEY = "ranking:keyword";
     private final KeywordService keywordService;
+    private final SearchRepository searchRepository;
+
     /**
      * 캐시에 적용된 검색 메소드
      *
@@ -50,27 +54,74 @@ public class SearchCacheService {
 
         Set<Object> count = redisTemplate.opsForZSet().reverseRange(POPULAR_RANKING_KEY, 0, 9);
 
-        // NPE 방어
+        // Null 방어
         if (count == null || count.isEmpty()) {
             return List.of();
         }
 
         //Object를 String으로 반환
         return count.stream()
-                .map(keyword ->String.valueOf(keyword.toString()))
+                .map(keyword -> String.valueOf(keyword.toString()))
                 .toList();
     }
 
-//    //캐시 및 DB 동시 삭제 메소드(관리자 전용)
-//    public void clearRankingCache() {
-//
-//        //DB 키워드 삭제
-//        keywordService.deleteAll();
-//
-//        // Redis 비우기
-//        redisTemplate.delete(POPULAR_RANKING_KEY);
-//
-//        //삭제 멘트
-//        log.info("삭제완료");
-//    }
+    /**
+     * Redis에 있는 캐시 정보를 10분마다 DB로 복사 및 백업
+     */
+    @Scheduled(fixedDelay = 600_000) //10분 마다
+    @Transactional
+    public void snapshotTop10toDB() {
+
+        log.info("[snapshot] start");
+        log.info("[snapshot] TICK {}", LocalDateTime.now());
+
+        Long size = redisTemplate.opsForZSet().size(POPULAR_RANKING_KEY);
+        log.info("[snapshot] redis zset size={}", size);
+
+        Set<ZSetOperations.TypedTuple<Object>> top10 =
+                redisTemplate.opsForZSet().reverseRangeWithScores(POPULAR_RANKING_KEY, 0, 9);
+
+        log.info("[snapshot] {}", top10);
+
+        // 캐시 데이터가 없는 경우
+        if (top10 == null || top10.isEmpty()) {
+            return;
+        }
+
+        //인기 검색어 top10 DB에 스냅샷 저장, (cacheDate = value, score)
+        for (ZSetOperations.TypedTuple<Object> cacheData : top10) {
+
+            //레디스 데이터에서 null, 스케줄러 에러 방지
+            if (cacheData == null || cacheData.getValue() == null || cacheData.getScore() == null) {
+                continue; //이상한 데이터 건너뜀
+            }
+
+            //레디스 캐시에서 가져온 값 파싱
+            // value = object -> String 변환
+            String keyword = cacheData.getValue().toString();
+
+            //count = Double -> Long 변환
+            Long count = Math.round(cacheData.getScore());
+            log.info("[snapshot] upsert keyword={}, count={}", keyword, count);
+
+            //DB 업데이트 로직 -> 존재하는 키워드 update, 키워드 없는 경우 insert
+            keywordService.upsertSnapshot(keyword, count);
+            log.info("[snapshot] done");
+        }
+    }
+
+    /**
+     * DB 데이터 삭제 (최신 내역 3일 보관)
+     */
+    // 3일 마다  DB 삭제
+    @Scheduled(cron = "0 0 0 */3 * *", zone = "Asia/Seoul")
+    @Transactional
+    public void cleanDBSearchLogs() {
+
+        //시간 지정 (3일 전 내역 삭제)
+        LocalDateTime threeDay = LocalDateTime.now().minusDays(3);
+
+        //데이터 삭제
+        searchRepository.deletedOldLogs(threeDay);
+    }
 }
