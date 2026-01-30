@@ -14,7 +14,6 @@ import com.example.quicksells.domain.user.model.response.UserGetAllResponse;
 import com.example.quicksells.domain.user.model.response.UserGetResponse;
 import com.example.quicksells.domain.user.model.response.UserProfileUpdateResponse;
 import com.example.quicksells.domain.user.repository.UserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -84,7 +83,7 @@ public class UserService {
      * @throws CustomException 사용자 체크, 현재 비밀번호 체크, 이전 비밀번호와 동일 여부 체크
      */
     @Transactional
-    public void updatePassword(AuthUser authUser, @Valid UserPasswordUpdateRequest request) {
+    public void updatePassword(AuthUser authUser,UserPasswordUpdateRequest request) {
 
         User user = findByUserIdOrException(authUser.getId());
 
