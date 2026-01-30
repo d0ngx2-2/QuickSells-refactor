@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RedissonLock {
 
-    String key();      // lock key
+    String key() default "lock:auction:";      // lock key
     long waitTime() default 5; // 대기 시간
 }
 
