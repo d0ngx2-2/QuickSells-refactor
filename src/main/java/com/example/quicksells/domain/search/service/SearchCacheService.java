@@ -72,16 +72,9 @@ public class SearchCacheService {
     @Transactional
     public void snapshotTop10toDB() {
 
-        log.info("[snapshot] start");
-        log.info("[snapshot] TICK {}", LocalDateTime.now());
-
-        Long size = redisTemplate.opsForZSet().size(POPULAR_RANKING_KEY);
-        log.info("[snapshot] redis zset size={}", size);
-
+        //조회수 기준 내림차순, 상위 10개 데이터 조회
         Set<ZSetOperations.TypedTuple<Object>> top10 =
                 redisTemplate.opsForZSet().reverseRangeWithScores(POPULAR_RANKING_KEY, 0, 9);
-
-        log.info("[snapshot] {}", top10);
 
         // 캐시 데이터가 없는 경우
         if (top10 == null || top10.isEmpty()) {
@@ -102,11 +95,9 @@ public class SearchCacheService {
 
             //count = Double -> Long 변환
             Long count = Math.round(cacheData.getScore());
-            log.info("[snapshot] upsert keyword={}, count={}", keyword, count);
 
             //DB 업데이트 로직 -> 존재하는 키워드 update, 키워드 없는 경우 insert
             keywordService.upsertSnapshot(keyword, count);
-            log.info("[snapshot] done");
         }
     }
 
