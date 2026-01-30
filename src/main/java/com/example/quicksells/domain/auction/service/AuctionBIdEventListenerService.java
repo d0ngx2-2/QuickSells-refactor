@@ -31,6 +31,6 @@ public class AuctionBIdEventListenerService {
         // 입찰이벤트 토픽 발행
         Long receiverCount = topic.publish(bidInfo);
 
-        log.info("🚀 [PUB] 이벤트 발행 성공 ▶ Target Channel : {}, ▶ 수신자 수 : {}명", channelName,  receiverCount);
+        log.info("[PUB] 이벤트 발행 성공 ▶ Target Channel : {}, ▶ 수신자 수 : {}명", channelName,  receiverCount);
     }
 }
