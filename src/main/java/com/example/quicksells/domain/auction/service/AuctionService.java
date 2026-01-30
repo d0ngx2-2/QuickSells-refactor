@@ -6,6 +6,7 @@ import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
+import com.example.quicksells.domain.auction.model.dto.BidInfo;
 import com.example.quicksells.domain.auction.model.request.AuctionCreateRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionSearchFilterRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionUpdateRequest;
@@ -36,7 +37,6 @@ public class AuctionService {
     private final AuctionRepository auctionRepository;
     private final AppraiseRepository appraiseRepository;
     private final UserRepository userRepository;
-    private final AuctionCloseService auctionCloseService;
     private final DealService dealService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -77,9 +77,6 @@ public class AuctionService {
     @Transactional(readOnly = true)
     public AuctionGetResponse getAuction(Long auctionId) {
 
-        // 경매 종료 여부 확인 후 결과
-        auctionCloseService.auctionIsCloseCheckResult(auctionId);
-
         // 경매 상세 조회
         Auction foundAuction = auctionRepository.findByIdAndStatusAndEndTimeAfter(auctionId, AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()))
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
@@ -90,9 +87,6 @@ public class AuctionService {
     @RedissonLock
     @Transactional
     public AuctionUpdateResponse updateBidPrice(Long auctionId, AuctionUpdateRequest request, AuthUser authUser) {
-
-        // 경매 종료 여부 확인 후 결과
-        auctionCloseService.auctionIsCloseCheckResult(auctionId);
 
         // 경매 조회
         Auction foundAuction = auctionRepository.findByIdAndStatusAndEndTimeAfter(auctionId, AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()))
@@ -112,8 +106,6 @@ public class AuctionService {
         foundAuction.update(foundBuyer, request.getBidPrice());
 
         return AuctionUpdateResponse.from(foundAuction);
-
-
     }
 
 
@@ -122,9 +114,6 @@ public class AuctionService {
      */
     @Transactional
     public void deleteAuction(Long auctionId) {
-
-        // 경매 종료 여부 확인 후 결과
-        auctionCloseService.auctionIsCloseCheckResult(auctionId);
 
         // 경매 조회
         Auction foundAuction = auctionRepository.findByIdAndIsDeletedFalse(auctionId)
