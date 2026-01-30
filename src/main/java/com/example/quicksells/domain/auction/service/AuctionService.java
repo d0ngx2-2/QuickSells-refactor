@@ -6,6 +6,7 @@ import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
+import com.example.quicksells.domain.auction.model.dto.BidInfo;
 import com.example.quicksells.domain.auction.model.request.AuctionCreateRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionSearchFilterRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionUpdateRequest;
@@ -25,7 +26,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Clock;
 import java.time.LocalDateTime;
 
@@ -103,6 +103,16 @@ public class AuctionService {
 
         // 경매 입찰
         foundAuction.update(foundBuyer, request.getBidPrice());
+
+        // 경매 정보
+        BidInfo bidInfo = new BidInfo(
+                foundAuction.getId(),
+                foundBuyer.getName(),
+                foundAuction.getBidPrice()
+        );
+
+        // 이벤트 퍼블리싱
+        eventPublisher.publishEvent(bidInfo);
 
         return AuctionUpdateResponse.from(foundAuction);
     }
