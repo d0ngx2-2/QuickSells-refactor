@@ -46,10 +46,5 @@ public class KeywordService {
 
         // 조회수 업데이트
         search.updateCount(count);
-
-        searchRepository.save(search);
-
-        //DB에 반영
-        searchRepository.flush();
     }
 }

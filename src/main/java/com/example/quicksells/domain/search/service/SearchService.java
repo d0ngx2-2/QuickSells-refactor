@@ -25,7 +25,7 @@ public class SearchService {
      * @param pageable 페이징 정보
      * @return 상품 목록 검색 결과
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<SearchGetResponse> search(AuthUser authUser, String keyword, Pageable pageable) {
 
         //로그인 예외처리
@@ -37,7 +37,7 @@ public class SearchService {
         String searchKeyword = safeKeyword(keyword);
 
         //Redis 인기 검색어 카운트 기록
-        searchCacheService.increaseViewCount(searchKeyword);
+        searchCacheService.increaseSearchCount(searchKeyword);
 
         // 캐시 적용된 상품 조회
         Page<Item> items = searchCacheService.cachedSearch(searchKeyword, pageable);

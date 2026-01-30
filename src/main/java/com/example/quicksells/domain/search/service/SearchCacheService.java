@@ -45,7 +45,7 @@ public class SearchCacheService {
     }
 
     //레디스 조회된 검색어 조회수 증가
-    public void increaseViewCount(String keyword) {
+    public void increaseSearchCount(String keyword) {
         redisTemplate.opsForZSet().incrementScore(POPULAR_RANKING_KEY, keyword, 1);
     }
 
