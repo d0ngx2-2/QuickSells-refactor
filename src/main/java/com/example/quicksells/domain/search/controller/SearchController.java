@@ -42,6 +42,11 @@ public class SearchController {
         //비지니스 로직
         Page<SearchGetResponse> responsesDto = searchService.search(authUser, keyword, pageable);
 
+        // 미등록 상품 검색한 경우 응답 값
+        if (responsesDto.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("등록된 상품이 없습니다.", responsesDto));
+        }
+
         //응답 값
         return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("검색 결과입니다.", responsesDto));
     }
