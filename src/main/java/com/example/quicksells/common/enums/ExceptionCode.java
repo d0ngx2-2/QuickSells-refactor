@@ -124,6 +124,8 @@ public enum ExceptionCode {
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."),
     CHAT_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "메시지를 찾을 수 없습니다."),
     CHAT_BETWEEN_USERS_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "일반 사용자는 구매자와 판매자 관계이며 경매 낙찰시 채팅 가능합니다."),
+    NOT_FOUND_BUYER(HttpStatus.NOT_FOUND, "구매자 정보가 없습니다."),
+    NOT_FOUND_SELLER(HttpStatus.NOT_FOUND, "판매자 정보가 없습니다."),
     NOT_MATCHED_CHAT_USER(HttpStatus.BAD_REQUEST, "해당 사용자는 이 채팅방의 참여자가 아닙니다"),
     INVALID_CHAT_ROOM_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 채팅방 타입입니다."),
     NOT_FOUND_PRINCIPAL(HttpStatus.NOT_FOUND, "인증 정보가 없습니다."),
