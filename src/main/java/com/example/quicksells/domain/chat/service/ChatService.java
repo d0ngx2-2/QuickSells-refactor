@@ -143,15 +143,14 @@ public class ChatService {
     private User getBuyerFromDeal(Deal deal) {
 
         Auction auction = deal.getAuction();
+
         if (auction == null) {
-            log.error("Deal에 Auction이 없음 - Deal ID: {}", deal.getId());
-            throw new CustomException(ExceptionCode.CHAT_PERMISSION_DENIED);
+            throw new CustomException(ExceptionCode.NOT_FOUND_AUCTION);
         }
 
         User buyer = auction.getBuyer();
         if (buyer == null) {
-            log.error("Auction에 구매자가 없음 - Auction ID: {}", auction.getId());
-            throw new CustomException(ExceptionCode.CHAT_PERMISSION_DENIED);
+            throw new CustomException(ExceptionCode.NOT_FOUND_BUYER);
         }
 
         return buyer;
@@ -165,19 +164,16 @@ public class ChatService {
 
         Appraise appraise = deal.getAppraise();
         if (appraise == null) {
-            log.error("Deal에 Appraise가 없음 - Deal ID: {}", deal.getId());
-            throw new CustomException(ExceptionCode.CHAT_PERMISSION_DENIED);
+            throw new CustomException(ExceptionCode.NOT_FOUND_APPRAISE);
         }
 
         if (appraise.getItem() == null) {
-            log.error("Appraise에 Item이 없음 - Appraise ID: {}", appraise.getId());
-            throw new CustomException(ExceptionCode.CHAT_PERMISSION_DENIED);
+            throw new CustomException(ExceptionCode.NOT_FOUND_ITEM);
         }
 
         User seller = appraise.getItem().getSeller();
         if (seller == null) {
-            log.error("Item에 판매자가 없음 - Item ID: {}", appraise.getItem().getId());
-            throw new CustomException(ExceptionCode.CHAT_PERMISSION_DENIED);
+            throw new CustomException(ExceptionCode.NOT_FOUND_SELLER);
         }
 
         return seller;
@@ -194,26 +190,25 @@ public class ChatService {
         // 1. Appraise 확인
         Appraise appraise = deal.getAppraise();
         if (appraise == null) {
-            throw new CustomException(ExceptionCode.CHAT_PERMISSION_DENIED);
+            throw new CustomException(ExceptionCode.NOT_FOUND_APPRAISE);
         }
 
         if (appraise.getAppraiseStatus() != AppraiseStatus.AUCTION) {
             log.warn("감정 상태가 경매가 아님 - Appraise: {}, Status: {}", appraise.getId(), appraise.getAppraiseStatus());
-            throw new CustomException(ExceptionCode.CHAT_PERMISSION_DENIED);
+            throw new CustomException(ExceptionCode.CHAT_BETWEEN_USERS_NOT_ALLOWED);
         }
 
         // 2. Auction 확인
         Auction auction = deal.getAuction();
         if (auction == null) {
-            throw new CustomException(ExceptionCode.CHAT_PERMISSION_DENIED);
+            throw new CustomException(ExceptionCode.NOT_FOUND_AUCTION);
         }
 
         if (auction.getStatus() != AuctionStatusType.SUCCESSFUL_BID) {
             log.warn("경매 상태가 낙찰이 아님 - Auction: {}, Status: {}", auction.getId(), auction.getStatus());
-            throw new CustomException(ExceptionCode.CHAT_PERMISSION_DENIED);
+            throw new CustomException(ExceptionCode.CHAT_BETWEEN_USERS_NOT_ALLOWED);
         }
 
-        log.info("경매 낙찰 확인 완료 - Deal: {}, Appraise: {}, Auction: {}", deal.getId(), appraise.getId(), auction.getId());
     }
 
     /**
