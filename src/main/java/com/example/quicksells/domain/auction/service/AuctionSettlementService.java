@@ -10,7 +10,7 @@ import com.example.quicksells.domain.deal.repository.DealRepository;
 import com.example.quicksells.domain.payment.entity.PointTransaction;
 import com.example.quicksells.domain.payment.entity.PointWallet;
 import com.example.quicksells.domain.payment.repository.PointTransactionRepository;
-import com.example.quicksells.domain.payment.repository.PointWalletRepository;
+import com.example.quicksells.domain.payment.service.PointWalletService;
 import com.example.quicksells.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuctionSettlementService {
 
-    private final PointWalletRepository pointWalletRepository;
     private final PointTransactionRepository pointTransactionRepository;
     private final DealRepository dealRepository;
+    private final PointWalletService pointWalletService;
 
     /**
      * 경매 낙찰 정산 처리
@@ -73,12 +73,9 @@ public class AuctionSettlementService {
             return;
         }
 
-        // 3) 포인트 지갑 로드 (없으면 생성/없으면 예외 정책은 회의 필요⭕⭕⭕⭕)
-        PointWallet buyerWallet = pointWalletRepository.findById(buyer.getId())
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_WALLET));
-
-        PointWallet sellerWallet = pointWalletRepository.findById(seller.getId())
-                .orElseGet(() -> pointWalletRepository.save(new PointWallet(seller.getId())));
+        // 3) 포인트 지갑 로드 (없으면 생성)
+        PointWallet buyerWallet = pointWalletService.getOrCreate(buyer.getId());
+        PointWallet sellerWallet = pointWalletService.getOrCreate(seller.getId());
 
         /**
          * 4) 포인트 이동
@@ -86,13 +83,9 @@ public class AuctionSettlementService {
          * - seller 적립
          *
          *  여기서 buyerWallet.decreaseBalance()는 잔액 부족 시 예외 발생
-         * - 정책에 따라 변할 것 같고, 회의 필요함..!⭕⭕⭕⭕⭕
-         *   A) 예외로 처리하고 운영자가 조치
-         *   B) 낙찰 실패로 전환(UNSUCCESSFUL_BID) + 구매자 null 처리
-         *
-         *  현재는 A) 방식으로 적용한 상태..!
+         * - 예외 처리 이후 재정산 API 호출
          */
-        buyerWallet.decreaseBalance(amount);
+        buyerWallet.decreaseBalance(amount);   // 부족하면 CustomException(INSUFFICIENT_BALANCE)
         sellerWallet.increaseBalance(amount);
 
         // 5) 포인트 거래내역 2건 기록(구매자는 포인트 차감 / 판매자는 포인트 추가)

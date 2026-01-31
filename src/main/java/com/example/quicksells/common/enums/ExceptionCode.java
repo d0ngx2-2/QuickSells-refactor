@@ -97,6 +97,8 @@ public enum ExceptionCode {
     INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 올바르지 않습니다."),
     DUPLICATE_PAYMENT_KEY(HttpStatus.CONFLICT, "이미 처리된 결제입니다."),
     NOT_FOUND_WALLET(HttpStatus.NOT_FOUND, "지갑 정보를 찾을 수 없습니다."),
+    AUCTION_SETTLEMENT_PAYMENT_REQUIRED(HttpStatus.PAYMENT_REQUIRED, "낙찰 정산 실패: 포인트가 부족합니다. 추가 충전 후 재정산이 필요합니다."),
+    INSUFFICIENT_BALANCE(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
 
     /**
      * 토스 승인(confirm) 요청 자체가 실패한 경우
