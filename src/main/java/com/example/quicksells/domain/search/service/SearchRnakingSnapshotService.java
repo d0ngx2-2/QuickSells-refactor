@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @AllArgsConstructor
 
-public class KeywordService {
+public class SearchRnakingSnapshotService {
 
     private final SearchRepository searchRepository;
 
