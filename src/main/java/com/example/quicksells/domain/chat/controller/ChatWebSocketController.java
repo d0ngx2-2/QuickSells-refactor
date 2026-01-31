@@ -46,7 +46,6 @@ public class ChatWebSocketController {
 
             // 2. canChat() 으로 채팅 권한 검증
             if (!chatService.canChat(authUser.getId(), request.getChatRoomId())) {
-                log.warn("채팅 권한 없음 - User: {}, ChatRoom: {}", authUser.getId(), request.getChatRoomId());
                 return;  // WebSocket은 에러 응답 불가능함. canChat() 내에서 예외처리
             }
 
