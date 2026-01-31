@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @AllArgsConstructor
 
-public class SearchRnakingSnapshotService {
+public class SearchRankingSnapshotService {
 
     private final SearchRepository searchRepository;
 
@@ -42,9 +42,13 @@ public class SearchRnakingSnapshotService {
 
         // DB 기존 검색어 조회
         Search search = searchRepository.findByKeyword(readKeyword)
+                // new Search(readKeyword); -> 추가됨
                 .orElseGet(() -> new Search(readKeyword));
 
         // 조회수 업데이트
         search.updateCount(count);
+
+        // 검색 데이터 저장
+        searchRepository.save(search);
     }
 }
