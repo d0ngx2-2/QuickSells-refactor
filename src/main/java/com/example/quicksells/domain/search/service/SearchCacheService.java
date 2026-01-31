@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +27,7 @@ public class SearchCacheService {
     private final ItemRepository itemRepository;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String POPULAR_RANKING_KEY = "ranking:keyword";
-    private final KeywordService keywordService;
+    private final SearchRankingSnapshotService searchRankingSnapshotService;
     private final SearchRepository searchRepository;
 
     /**
@@ -42,11 +43,6 @@ public class SearchCacheService {
     public Page<Item> cachedSearch(String keyword, Pageable pageable) {
 
         return itemRepository.searchItems(keyword, pageable);
-    }
-
-    //레디스 조회된 검색어 조회수 증가
-    public void increaseSearchCount(String keyword) {
-        redisTemplate.opsForZSet().incrementScore(POPULAR_RANKING_KEY, keyword, 1);
     }
 
     //인기 검색어 조회
@@ -70,7 +66,7 @@ public class SearchCacheService {
      */
     @Scheduled(fixedDelay = 600_000) //10분 마다
     @Transactional
-    public void snapshotTop10toDB() {
+    public void snapshotTop10toDb() {
 
         //조회수 기준 내림차순, 상위 10개 데이터 조회
         Set<ZSetOperations.TypedTuple<Object>> top10 =
@@ -97,7 +93,7 @@ public class SearchCacheService {
             Long count = Math.round(cacheData.getScore());
 
             //DB 업데이트 로직 -> 존재하는 키워드 update, 키워드 없는 경우 insert
-            keywordService.upsertSnapshot(keyword, count);
+            searchRankingSnapshotService.upsertSnapshot(keyword, count);
         }
     }
 
@@ -114,5 +110,37 @@ public class SearchCacheService {
 
         //데이터 삭제
         searchRepository.deletedOldLogs(threeDay);
+    }
+
+    /**
+     * 검색어 중복 클릭 방지 기능 (첫 클릭에만 카운트)
+     *
+     * @param clientKey 사용자 구분하는 값
+     * @param keyword   사용자가 입력한 검색어
+     */
+    public void notDoubleClick(String clientKey, String keyword) {
+        // 키워드 검증
+        if (keyword == null) return;
+
+        String writeKeyword = keyword.trim().replaceAll("\\s+", " ");
+        if (writeKeyword.isEmpty()) {
+            return;
+        }
+
+        // 중복 방지 키 설정 -> popular:dup:{사용자 식별자}:{검색어}
+        String dupKey = "popular:dup:" + clientKey + ":" + writeKeyword;
+
+        //Redis에 중복 확인용 키 저장
+        Boolean first = redisTemplate.opsForValue()
+                .setIfAbsent(dupKey, "1", Duration.ofSeconds(3));
+
+        // 키가 없을 때 저장 후 3초 클릭 방지
+        if (Boolean.TRUE.equals(first)) { //setIfAbsent()는 처음 저장 시 true = 성공임
+            return;
+        }
+
+        // 첫 실행에만 Redis 카운트 증가
+        redisTemplate.opsForZSet()
+                .incrementScore(POPULAR_RANKING_KEY, writeKeyword, 1);
     }
 }

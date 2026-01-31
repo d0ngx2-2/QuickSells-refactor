@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 public class SearchService {
 
-    private final KeywordService keywordService;
+    private final SearchRankingSnapshotService searchRankingSnapshotService;
     private final SearchCacheService searchCacheService;
 
     /**
@@ -36,8 +36,8 @@ public class SearchService {
         //검색어 공백, null 방지
         String searchKeyword = safeKeyword(keyword);
 
-        //Redis 인기 검색어 카운트 기록
-        searchCacheService.increaseSearchCount(searchKeyword);
+        // 검색어 중복 방지
+        searchCacheService.notDoubleClick(String.valueOf(authUser.getId()),searchKeyword);
 
         // 캐시 적용된 상품 조회
         Page<Item> items = searchCacheService.cachedSearch(searchKeyword, pageable);
