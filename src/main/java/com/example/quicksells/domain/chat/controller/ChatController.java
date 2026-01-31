@@ -129,6 +129,6 @@ public class ChatController {
 
         chatService.markMessagesAsRead(id, authUser);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("메시지를 읽었습니다."));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("메시지를 읽음에 성공했습니다."));
     }
 }
