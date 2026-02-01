@@ -15,12 +15,14 @@ import com.example.quicksells.domain.item.repository.ItemRepository;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemService {
@@ -38,7 +40,10 @@ public class ItemService {
      */
     @Transactional
     public ItemCreatedResponse itemCreated(AuthUser authUser, ItemCreatedRequest request, MultipartFile itemImage) {
-
+        log.info("INFO 로그 기록");
+        log.warn("WARN 로그 기록");
+        log.error("Error 로그 기록");
+        log.debug("DEBUG 로그 기록");
         //유저(판매자) 조회
         User seller = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
