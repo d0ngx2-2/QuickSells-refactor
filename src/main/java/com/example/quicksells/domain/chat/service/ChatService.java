@@ -347,8 +347,7 @@ public class ChatService {
      * - 성능 최적화
      */
     @Transactional
-    public ChatMessageResponse sendMessageWithoutValidation(
-            Long chatRoomId, ChatMessageRequest request, AuthUser authUser) {
+    public ChatMessageResponse sendMessageWithoutValidation(Long chatRoomId, AuthUser authUser, String filteringMessage) {
 
         Long userId = authUser.getId();
 
@@ -359,7 +358,7 @@ public class ChatService {
         User sender = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
 
-        ChatMessage message = new ChatMessage(chatRoom, sender, request.getContent());
+        ChatMessage message = new ChatMessage(chatRoom, sender, filteringMessage);
         chatMessageRepository.save(message);
 
         return ChatMessageResponse.from(message);

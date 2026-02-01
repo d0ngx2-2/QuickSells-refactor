@@ -7,6 +7,7 @@ import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.chat.model.request.ChatMessageRequest;
 import com.example.quicksells.domain.chat.model.response.ChatMessageResponse;
 import com.example.quicksells.domain.chat.service.ChatNotificationService;
+import com.example.quicksells.domain.chat.service.ChatProfanityFilterService;
 import com.example.quicksells.domain.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 import java.security.Principal;
+import java.util.Map;
 
 /**
  * WebSocket 채팅 컨트롤러
@@ -27,6 +29,7 @@ public class ChatWebSocketController {
 
     private final ChatService chatService;
     private final ChatNotificationService notificationService;
+    private final ChatProfanityFilterService chatProfanityFilterService;
 
     /**
      * 실시간 메시지 전송
@@ -44,13 +47,13 @@ public class ChatWebSocketController {
             // 1. 인증 정보 추출
             AuthUser authUser = extractAuthUser(principal);
 
-            // 권한 검증 제거 (클라이언트가 이미 입장한 채팅방만 구독)
-            // 채팅방 입장 시에만 검증 - interceptor
+            // 2. 비속어 필터링 : 치환
+            String filteredContent = chatProfanityFilterService.filterProfanity(request.getContent());
 
-            // 2. 메시지 저장
-            ChatMessageResponse response = chatService.sendMessageWithoutValidation(request.getChatRoomId(), request, authUser);
+            // 3. 메시지 저장
+            ChatMessageResponse response = chatService.sendMessageWithoutValidation(request.getChatRoomId(), authUser, filteredContent);
 
-            // 3. 채팅방 구독자들에게 브로드캐스트 (알림 서비스 사용)
+            // 4. 채팅방 구독자들에게 브로드캐스트 (알림 서비스 사용)
             notificationService.broadcastMessage(request.getChatRoomId(), response);
 
         } catch (Exception e) {
