@@ -2,23 +2,18 @@ package com.example.quicksells.domain.auction.controller;
 
 import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.common.model.PageResponse;
+import com.example.quicksells.common.model.SliceResponse;
 import com.example.quicksells.domain.auction.model.request.AuctionCreateRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionSearchFilterRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionUpdateRequest;
-import com.example.quicksells.domain.auction.model.response.AuctionCreateResponse;
-import com.example.quicksells.domain.auction.model.response.AuctionGetAllResponse;
-import com.example.quicksells.domain.auction.model.response.AuctionGetResponse;
-import com.example.quicksells.domain.auction.model.response.AuctionUpdateResponse;
+import com.example.quicksells.domain.auction.model.response.*;
 import com.example.quicksells.domain.auction.service.AuctionService;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -59,6 +54,17 @@ public class AuctionController {
         AuctionGetResponse result = auctionService.getAuction(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("경매 상세 조회에 성공했습니다.", result));
+    }
+
+    @Operation(summary = "경매 내역 조회")
+    @GetMapping("/auctionHistory")
+    public ResponseEntity<SliceResponse> getAllAuctionHistory(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @AuthenticationPrincipal AuthUser authUser, @RequestParam Long buyerId) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "updatedAt");
+
+        Slice<AuctionHistoryGetAllResponse> result = auctionService.GetAllAuctionHistory(pageable, authUser, buyerId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(SliceResponse.success("경매 내역 조회에 성공했습니다", result));
     }
 
     @Operation(summary = "경매 입찰(구매자)")
