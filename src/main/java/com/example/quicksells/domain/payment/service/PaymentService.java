@@ -81,7 +81,7 @@ public class PaymentService {
         }
 
         if (!payment.getAmount().equals(request.getAmount())) {
-            payment.markAsFailed("금액 불일치 (변조 간으성 있음) - ready=" + payment.getAmount() + ", request=" + request.getAmount());
+            payment.markAsFailed("금액 불일치 (변조 가능성 있음) - ready=" + payment.getAmount() + ", request=" + request.getAmount());
             paymentRepository.save(payment);
             throw new CustomException(ExceptionCode.INVALID_PAYMENT_AMOUNT);
         }
