@@ -1,6 +1,5 @@
 package com.example.quicksells.domain.chat.service;
 
-import com.example.quicksells.domain.chat.entity.ChatRoom;
 import com.example.quicksells.domain.chat.model.response.ChatRoomResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
