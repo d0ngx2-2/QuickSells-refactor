@@ -56,7 +56,7 @@ public class AuctionController {
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("경매 상세 조회에 성공했습니다.", response));
     }
 
-    @Operation(summary = "경매 내역 조회")
+    @Operation(summary = "내 경매 내역 조회")
     @GetMapping("/auctionHistory")
     public ResponseEntity<SliceResponse> getAllAuctionHistory(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @AuthenticationPrincipal AuthUser authUser, @RequestParam Long buyerId) {
 
@@ -64,7 +64,7 @@ public class AuctionController {
 
         Slice<AuctionHistoryGetAllResponse> response = auctionService.GetAllAuctionHistory(pageable, authUser, buyerId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(SliceResponse.success("경매 내역 조회에 성공했습니다", response));
+        return ResponseEntity.status(HttpStatus.OK).body(SliceResponse.success("내 경매 내역 조회에 성공했습니다", response));
     }
 
     @Operation(summary = "경매 입찰(구매자)")
