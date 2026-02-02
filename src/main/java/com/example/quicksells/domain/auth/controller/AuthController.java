@@ -56,6 +56,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("로그인 성공하셨습니다.", response));
     }
 
+    /**
+     * 로그아웃 API
+     */
     @Operation(summary = "로그아웃")
     @PostMapping("/auth/logout")
     public ResponseEntity<CommonResponse> logout(HttpServletRequest request) {

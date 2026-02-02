@@ -5,6 +5,7 @@ import com.example.quicksells.domain.payment.repository.PointWalletRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -21,7 +22,7 @@ public class PointWalletService {
 
     private final PointWalletRepository pointWalletRepository;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public PointWallet getOrCreate(Long userId) {
         return pointWalletRepository.findById(userId)
                 .orElseGet(() -> {
