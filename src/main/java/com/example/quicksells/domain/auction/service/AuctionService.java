@@ -17,6 +17,8 @@ import com.example.quicksells.domain.auction.repository.AuctionHistoryRepository
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.service.DealService;
+import com.example.quicksells.domain.payment.entity.PointWallet;
+import com.example.quicksells.domain.payment.service.PointWalletService;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,7 @@ public class AuctionService {
     private final DealService dealService;
     private final ApplicationEventPublisher eventPublisher;
     private final AuctionHistoryRepository auctionHistoryRepository;
+    private final PointWalletService pointWalletService;
 
     @Transactional
     public AuctionCreateResponse saveAuction(AuctionCreateRequest request) {
@@ -133,6 +136,12 @@ public class AuctionService {
                 foundBuyer.getName(),
                 foundAuction.getBidPrice()
         );
+
+        // 잔액 검증(포인트 차감은 안됨)
+        PointWallet buyerWallet = pointWalletService.getOrCreate(foundBuyer.getId());
+        if (buyerWallet.getAvailableBalance() < request.getBidPrice()) {
+            throw new CustomException(ExceptionCode.INSUFFICIENT_BALANCE);
+        }
 
         // 이벤트 퍼블리싱
         eventPublisher.publishEvent(bidInfo);
