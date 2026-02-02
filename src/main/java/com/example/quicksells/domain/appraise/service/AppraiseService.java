@@ -236,7 +236,7 @@ public class AppraiseService {
      */
     private void resetOtherSelectedAppraises(Item item, Long currentAppraiseId) {
 
-        Optional<Appraise> appraises = appraiseRepository.findByItem(item);
+        Optional<Appraise> appraises = appraiseRepository.findByItemAppraise(item);
         appraises.stream()
                 .filter(a -> !a.getId().equals(currentAppraiseId))
                 .filter(Appraise::isSelected)
