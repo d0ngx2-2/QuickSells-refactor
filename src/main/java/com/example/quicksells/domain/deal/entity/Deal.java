@@ -65,7 +65,7 @@ public class Deal {
     /* ===== 비즈니스 메서드 ===== */
 
     // 거래 완료 처리
-    public void completeAuction(User buyer, Integer finalPrice) {
+    public void completeAuction(Integer finalPrice) {
         if (this.status != StatusType.ON_SALE) {
             throw new CustomException(ExceptionCode.NOT_DEAL_ON_SALE);
         }
@@ -73,8 +73,6 @@ public class Deal {
         // 경매가 완료된 시점의 구매자 처리
         this.dealPrice = finalPrice;
         this.status = StatusType.SOLD;
-
-        // 이 부분에서 buyer 또는 seller를 사용하는 다른 로직이 필요할 수 있습니다.
     }
 
     // 감정 선택 시 Deal 업데이트
