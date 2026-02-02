@@ -80,6 +80,9 @@ public class AuthService {
         return AuthLoginResponse.from(token);
     }
 
+    /**
+     * 로그아웃 기능
+     */
     @Transactional
     public void logout(String token) {
 
