@@ -92,7 +92,7 @@ public class MailServiceImpl implements MailService {
 
         String temporaryPassword = createRandomPassword();
 
-        user.updatePassword(passwordEncoder.encode(temporaryPassword));
+        user.updateTemporaryPassword(passwordEncoder.encode(temporaryPassword), true);
 
         return temporaryPassword;
     }

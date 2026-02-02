@@ -81,8 +81,10 @@ public class ChatService {
                         ChatRoom newChatRoom = new ChatRoom(currentUser, otherUser);
                         ChatRoom saved = chatRoomRepository.save(newChatRoom);
 
-                        // 새 채팅방 알림 전송
-                        notificationService.sendNewChatRoomNotification(otherUserId, saved);
+                        // 새 채팅방 알림 전송 - ChatRoomResponse로 변환
+                        ChatRoomResponse otherUserResponse = ChatRoomResponse.of(saved, otherUserId, null, 0L);
+                        notificationService.sendNewChatRoomNotification(otherUserId, otherUserResponse);
+
                         return saved;
                     }
                 });
@@ -161,7 +163,9 @@ public class ChatService {
 
                         // 람다 내부에서 직접 알림 전송
                         Long otherUserId = userId.equals(buyer.getId()) ? seller.getId() : buyer.getId();
-                        notificationService.sendNewChatRoomNotification(otherUserId, saved);
+                        // 새 채팅방 알림 전송 - ChatRoomResponse로 변환
+                        ChatRoomResponse otherUserResponse = ChatRoomResponse.of(saved, otherUserId, null, 0L);
+                        notificationService.sendNewChatRoomNotification(otherUserId, otherUserResponse);
 
                         return saved;
                     }

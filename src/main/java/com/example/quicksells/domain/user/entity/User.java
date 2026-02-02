@@ -48,6 +48,9 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private boolean isDeleted;
 
+    @Column(nullable = false)
+    private boolean passwordResetRequired;
+
     // 회원가입
     public User(String email, String password, String name, String phone, String address, String birth){
         this.email = email;
@@ -59,6 +62,7 @@ public class User extends BaseEntity {
         this.role = UserRole.USER;
         this.status = UserStatus.ACTIVE;
         this.isDeleted = false;
+        this.passwordResetRequired = false;
     }
 
     // 소셜 로그인
@@ -72,6 +76,7 @@ public class User extends BaseEntity {
         this.phone = null;
         this.address = null;
         this.birth = null;
+        this.passwordResetRequired = false;
     }
 
     // 소셜 로그인 이후 추가 정보 입력
@@ -82,11 +87,19 @@ public class User extends BaseEntity {
         this.status = UserStatus.ACTIVE;
     }
 
+    public void updateTemporaryPassword(String encodedPassword, boolean resetRequired) {
+        this.password = encodedPassword;
+        this.passwordResetRequired = resetRequired;
+    }
+
     public void updatePhone(String phone) {this.phone = phone;}
 
     public void updateAddress(String address) {this.address = address;}
 
-    public void updatePassword(String encodedPassword) {this.password = encodedPassword;}
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+        this.passwordResetRequired = false;
+    }
 
     public void updateRole(String role) {this.role = UserRole.of(role);}
 
