@@ -38,7 +38,7 @@ public class ChatController {
      * - 일반 사용자끼리는 채팅 불가 (403 에러)
      */
     @Operation(summary = "사용자 - 관리자 채팅방 생성 또는 조회", description = "상대방과의 채팅방을 생성하거나 기존 채팅방을 반환합니다. " + "일반 사용자끼리는 채팅할 수 없습니다.")
-    @PostMapping("/chat/rooms")
+    @PostMapping("/chat/rooms/user-admin")
     public ResponseEntity<CommonResponse> createOrGetChatRoom(@Valid @RequestBody ChatRoomCreateRequest request, @AuthenticationPrincipal AuthUser authUser) {
 
         ChatRoomResponse response = chatService.createOrGetChatRoom(request, authUser);

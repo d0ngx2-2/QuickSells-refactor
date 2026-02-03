@@ -5,6 +5,8 @@ import com.example.quicksells.domain.auth.model.request.AuthMailRequest;
 import com.example.quicksells.domain.auth.model.request.AuthMailCodeVerificationRequest;
 import com.example.quicksells.domain.auth.model.request.AuthPasswordVerificationRequest;
 import com.example.quicksells.domain.auth.service.MailService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "사용자 이메일(email) 관리")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -24,6 +27,7 @@ public class MailController {
     /**
      * 인증번호 발송 메소드
      */
+    @Operation(summary = "이메일 인증번호 발송")
     @PostMapping("/emails/verification")
     public ResponseEntity<CommonResponse> mailSend(@Valid @RequestBody AuthMailRequest request) {
 
@@ -35,6 +39,7 @@ public class MailController {
     /**
      * 인증번호 검증 메소드
      */
+    @Operation(summary = "이메일 인증번호 검증")
     @PostMapping("/emails/verification/verify")
     public ResponseEntity<CommonResponse> verifyCode(@Valid @RequestBody AuthMailCodeVerificationRequest request) {
 
@@ -50,6 +55,7 @@ public class MailController {
     /**
      * 임시 비밀번호 재발급 발송 메서드
      */
+    @Operation(summary = "임시 비밀번호 재발급 이메일 발송")
     @PostMapping("/passwords/reset")
     public ResponseEntity<CommonResponse> resetPassword(@Valid @RequestBody AuthMailRequest mailRequest) {
 
@@ -64,6 +70,7 @@ public class MailController {
     /**
      * 임시 비밀번호 검증 메소드
      */
+    @Operation(summary = "임시 비밀번호 검증")
     @PostMapping("/passwords/verify")
     public ResponseEntity<CommonResponse> verifyTemporaryPassword(@Valid @RequestBody AuthPasswordVerificationRequest request) {
 
