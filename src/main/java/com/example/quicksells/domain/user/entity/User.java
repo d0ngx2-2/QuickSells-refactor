@@ -45,10 +45,10 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 10)
     private UserRole role;
 
-    @Column(nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
 
-    @Column(nullable = false)
+    @Column(name = "password_reset_required",nullable = false)
     private boolean passwordResetRequired;
 
     // 회원가입

@@ -18,7 +18,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Deal {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
@@ -40,10 +41,10 @@ public class Deal {
     @Column(length = 20)
     private StatusType status;
 
-    @Column(nullable = false)
+    @Column(name = "deal_price" , nullable = false)
     private Integer dealPrice;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at" , nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     // 생성 시간
