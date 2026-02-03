@@ -51,6 +51,9 @@ public class User extends BaseEntity {
     @Column(name = "password_reset_required",nullable = false)
     private boolean passwordResetRequired;
 
+    @Column(name = "provider_id", unique = true)
+    private String providerId;
+
     // 회원가입
     public User(String email, String password, String name, String phone, String address, String birth){
         this.email = email;
@@ -66,10 +69,11 @@ public class User extends BaseEntity {
     }
 
     // 소셜 로그인
-    public User(String email, String password, String name) {
+    public User(String email, String password, String name, String providerId) {
         this.email = email;
         this.password = password;
         this.name = name;
+        this.providerId = providerId;
         this.role = UserRole.USER;
         this.status = UserStatus.PENDING;
         this.isDeleted = false;

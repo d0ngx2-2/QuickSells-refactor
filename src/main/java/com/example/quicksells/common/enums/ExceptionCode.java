@@ -50,7 +50,6 @@ public enum ExceptionCode {
     EXISTS_EMAIL(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     ALREADY_COMPLETED_SIGNUP(HttpStatus.CONFLICT, "이미 회원가입이 완료된 사용자입니다."),
     OAUTH_PROVIDER_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "지원하지 않는 OAuth 공급자입니다."),
-    OAUTH_EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "OAuth 로그인 정보에서 이메일을 찾을 수 없습니다."),
 
 
     //USER
