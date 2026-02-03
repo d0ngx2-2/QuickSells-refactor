@@ -12,6 +12,7 @@ import com.example.quicksells.domain.user.model.response.UserGetAllResponse;
 import com.example.quicksells.domain.user.model.response.UserGetResponse;
 import com.example.quicksells.domain.user.model.response.UserProfileUpdateResponse;
 import com.example.quicksells.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,6 @@ import java.util.Optional;
 import static com.example.quicksells.common.enums.UserRole.USER;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,16 +55,23 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    private AuthUser authUser;
+
+    private User user;
+
+    @BeforeEach
+    void setUp() {
+        authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
+
+        user = new User("test@test.com", "encodedPassword", "홍길동", "010-0000-1111", "서울시 관악구", "20010101");
+        ReflectionTestUtils.setField(user, "id", 1L);
+    }
+
     @Test
     @DisplayName("마이페이지 조회 성공")
     void getMyPage_success() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", 1L);
-
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
 
         // when
@@ -74,7 +81,7 @@ class UserServiceTest {
         assertThat(response.getId()).isEqualTo(1L);
         assertThat(response.getEmail()).isEqualTo("test@test.com");
         assertThat(response.getName()).isEqualTo("홍길동");
-        assertThat(response.getPhone()).isEqualTo("01012345678");
+        assertThat(response.getPhone()).isEqualTo("010-0000-1111");
         assertThat(response.getAddress()).isEqualTo("서울시 관악구");
         assertThat(response.getBirth()).isEqualTo("20010101");
         assertThat(response.getRole()).isEqualTo("USER");
@@ -85,8 +92,6 @@ class UserServiceTest {
     void getMyPage_userNotFound() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
-
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.empty());
 
         // when & then
@@ -100,11 +105,7 @@ class UserServiceTest {
     void updateProfile_noUpdateFiled() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
         UserProfileUpdateRequest request = new UserProfileUpdateRequest(null, null);
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
 
@@ -119,11 +120,7 @@ class UserServiceTest {
     void updateProfile_updateOnlyPhone() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
         UserProfileUpdateRequest request = new UserProfileUpdateRequest("010-1111-2222", null);
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
 
@@ -136,15 +133,27 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("전화번호 변경 안 됨 - 변경 전회번호가 기존과 동일")
+    void updateProfile_phoneSameValue() {
+
+        // given
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest("010-0000-1111", null);
+
+        when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
+
+        // when
+        userService.updateProfile(authUser, request);
+
+        // then
+        assertThat(user.getPhone()).isEqualTo("010-0000-1111");
+    }
+
+    @Test
     @DisplayName("내 정보 수정 성공 - 주소만 변경")
     void updateProfile_updateOnlyAddress() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
         UserProfileUpdateRequest request = new UserProfileUpdateRequest(null, "서울시 강남구");
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
 
@@ -157,15 +166,28 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("주소 변경 안 됨 - 변경 주소가 기존과 동일")
+    void updateProfile_addressSameValue() {
+
+        // given
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest(null, "서울시 관악구");
+
+        when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
+
+        // when
+        userService.updateProfile(authUser, request);
+
+        // then
+        assertThat(user.getAddress()).isEqualTo("서울시 관악구");
+
+    }
+
+    @Test
     @DisplayName("내 정보 수정 성공 - 전화번호, 주소 둘 다 변경")
     void updateProfile_updatePhoneAndAddress() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
         UserProfileUpdateRequest request = new UserProfileUpdateRequest("010-1111-2222", "서울시 강남구");
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
 
@@ -184,11 +206,7 @@ class UserServiceTest {
     void updateProfile_phoneAlreadyExists() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
         UserProfileUpdateRequest request = new UserProfileUpdateRequest("010-1111-2222", null);
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
         when(userRepository.existsByPhone(request.getPhone())).thenReturn(true);
@@ -204,11 +222,7 @@ class UserServiceTest {
     void updatePassword_wrongCurrentPassword() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
         UserPasswordUpdateRequest request = new UserPasswordUpdateRequest("wrongPassword", "newPassword");
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
@@ -224,11 +238,7 @@ class UserServiceTest {
     void updatePassword_sameAsOldPassword() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
         UserPasswordUpdateRequest request = new UserPasswordUpdateRequest("currentPassword", "currentPassword");
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("currentPassword", "encodedPassword")).thenReturn(true);
@@ -245,11 +255,7 @@ class UserServiceTest {
     void updatePassword_success() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
         UserPasswordUpdateRequest request = new UserPasswordUpdateRequest("currentPassword", "newPassword");
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("currentPassword", "encodedPassword")).thenReturn(true);
@@ -269,11 +275,7 @@ class UserServiceTest {
     void delete_success() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
         String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJmbHV4aW5nMTIzQG5hdmVyLmNvbSIsIm5hbWUiOiLstZzsoJXtmIEiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc3MDA4NjYwMCwiZXhwIjoxNzcwMDkwMjAwfQ.YkgducyoS7S57JQPhBxVHeOfnjJ58QEc6GZ5c2m2HRs";
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
 
@@ -289,12 +291,8 @@ class UserServiceTest {
     void delete_tokenBlackList_success() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", USER, "홍길동");
         Long remainingTime = 3600L;
         String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJmbHV4aW5nMTIzQG5hdmVyLmNvbSIsIm5hbWUiOiLstZzsoJXtmIEiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc3MDA4NjYwMCwiZXhwIjoxNzcwMDkwMjAwfQ.YkgducyoS7S57JQPhBxVHeOfnjJ58QEc6GZ5c2m2HRs";
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", 1L);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(user));
         when(jwtUtil.getRemainingTime(token)).thenReturn(remainingTime);
@@ -311,8 +309,8 @@ class UserServiceTest {
     void getAllUsers_success() {
 
         // given
-        User user1 = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        User user2 = new User("test1@test.com", "encodedPassword", "배추도사", "01012345679", "서울시 관악구", "20010102");
+        User user1 = new User("test@test.com", "encodedPassword", "홍길동", "010-0000-1111", "서울시 관악구", "20010101");
+        User user2 = new User("test1@test.com", "encodedPassword", "배추도사", "010-0000-2222", "서울시 관악구", "20010102");
         List<User> userList = Arrays.asList(user1, user2);
 
         Page<User> userPage = new PageImpl<>(userList, pageable, userList.size());
@@ -324,7 +322,7 @@ class UserServiceTest {
 
         // then
         assertEquals(2, responses.getSize());
-        verify(userRepository).findAllByRole(USER,pageable);
+        verify(userRepository).findAllByRole(USER, pageable);
     }
 
     @Test
@@ -335,9 +333,6 @@ class UserServiceTest {
         Long userId = 1L;
 
         UserRoleUpdateRequest request = new UserRoleUpdateRequest("ADMIN");
-
-        User user = new User("test@test.com", "encodedPassword", "홍길동", "01012345678", "서울시 관악구", "20010101");
-        ReflectionTestUtils.setField(user, "id", userId);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
