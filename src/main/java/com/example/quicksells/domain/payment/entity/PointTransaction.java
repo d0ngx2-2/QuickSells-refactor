@@ -82,11 +82,4 @@ public class PointTransaction {
         this.dealId = dealId;
         this.createdAt = LocalDateTime.now();
     }
-
-    /**
-     * 기존 호출부 호환용 (dealId 없는 기존 생성자 유지)
-     */
-    public PointTransaction(Long userId, PointTransactionType transactionType, Long amount, Long paymentId, Long auctionId) {
-        this(userId, transactionType, amount, paymentId, auctionId, null);
-    }
 }

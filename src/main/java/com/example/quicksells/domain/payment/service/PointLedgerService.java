@@ -38,7 +38,7 @@ public class PointLedgerService {
     public PointWallet credit(Long userId, long amount, PointTransactionType type, TransactionReference ref) {
         PointWallet wallet = getOrCreate(userId);
         wallet.increaseBalance(amount);
-        saveTx(userId, type, amount, ref);
+        saveTransaction(userId, type, amount, ref);
         return wallet;
     }
 
@@ -46,7 +46,7 @@ public class PointLedgerService {
     public PointWallet debit(Long userId, long amount, PointTransactionType type, TransactionReference ref) {
         PointWallet wallet = getOrCreate(userId);
         wallet.decreaseBalance(amount);
-        saveTx(userId, type, amount, ref);
+        saveTransaction(userId, type, amount, ref);
         return wallet;
     }
 
@@ -64,11 +64,11 @@ public class PointLedgerService {
         fromWallet.decreaseBalance(amount);
         toWallet.increaseBalance(amount);
 
-        saveTx(fromUserId, debitType, amount, ref);
-        saveTx(toUserId, creditType, amount, ref);
+        saveTransaction(fromUserId, debitType, amount, ref);
+        saveTransaction(toUserId, creditType, amount, ref);
     }
 
-    private void saveTx(Long userId, PointTransactionType type, long amount, TransactionReference ref) {
+    private void saveTransaction(Long userId, PointTransactionType type, long amount, TransactionReference ref) {
         pointTransactionRepository.save(new PointTransaction(
                 userId,
                 type,
