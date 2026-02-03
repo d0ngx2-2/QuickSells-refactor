@@ -86,11 +86,6 @@ public class AppraiseService {
         if (item.isDeleted()) {
             throw new CustomException(ExceptionCode.NOT_APPRAISE_ITEM_DELETE);
         }
-
-        // 상품이 이미 판매 완료된 경우
-        if (item.isSelling()) {
-            throw new CustomException(ExceptionCode.EXISTS_ITEM_SELL);
-        }
     }
 
     /**
