@@ -27,11 +27,4 @@ public class ItemUpdateRequest {
 
     @Schema(description = "이미지 변경")
     private Boolean image;
-
-    public ItemUpdateRequest(String name, Long hopePrice, String description, Boolean image) {
-        this.name = name;
-        this.hopePrice = hopePrice;
-        this.description = description;
-        this.image = image;
-    }
 }

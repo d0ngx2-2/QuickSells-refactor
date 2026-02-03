@@ -3,8 +3,6 @@ package com.example.quicksells.domain.appraise.entity;
 import com.example.quicksells.common.enums.AppraiseStatus;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.SQLRestriction;
 import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.user.entity.User;
@@ -34,19 +32,19 @@ public class Appraise {
     private Item item; // 상품 ID
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "appraise_status", nullable = false, length = 20)
     private AppraiseStatus appraiseStatus;
 
-    @Column(nullable = false)
+    @Column(name = "bid_price", nullable = false)
     private Integer bidPrice; // 감정 가격
 
-    @Column(nullable = false, length = 10)
+    @Column(name = "is_selected", nullable = false)
     private boolean isSelected; // 구매자 선택여부 (false > 경매 돌임, true > 즉시 매임)
 
-    @Column(nullable = false, length = 10)
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted; // 삭제 여부
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt; // 생성 시간
 
     @PrePersist
