@@ -112,7 +112,7 @@ class UserServiceTest {
         // when & then
         assertThatThrownBy(() -> userService.updateProfile(authUser, request))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("수정할 정보가 없습니다");
+                .hasMessage("수정할 정보가 없습니다.");
     }
 
     @Test
