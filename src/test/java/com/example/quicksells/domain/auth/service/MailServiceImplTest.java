@@ -14,11 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -119,7 +121,8 @@ class MailServiceImplTest {
     void createTemporaryPassword_success() {
 
         // given
-        User user = mock(User.class);
+        User user = new User("test@test.com", "encodedPassword", "홍길동", "010-0000-1111", "서울시 관악구", "20010101");
+        ReflectionTestUtils.setField(user, "id", 1L);
 
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.encode(anyString())).thenReturn("encodedTemporaryPassword");
@@ -129,7 +132,8 @@ class MailServiceImplTest {
 
         // then
         assertNotNull(tempPassword);
-        verify(user).updateTemporaryPassword("encodedTemporaryPassword", true);
+        assertThat(user.getPassword()).isEqualTo("encodedTemporaryPassword");
+        assertTrue(user.isPasswordResetRequired());
     }
 
     @Test
