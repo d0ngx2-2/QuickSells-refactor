@@ -243,7 +243,7 @@ class AnswerServiceTest {
     }
 
     @Test
-    @DisplayName("답변 삭제 성공(soft delete)")
+    @DisplayName("답변 삭제 성공")
     void deleteAnswer_success() {
         // given
         Long answerId = 100L;
@@ -267,5 +267,54 @@ class AnswerServiceTest {
 
         // then
         assertThat(answer.isDeleted()).isTrue();
+    }
+
+    @Test
+    @DisplayName("답변 생성 실패 - 문의(Ask) 없음")
+    void createAnswer_fail_askNotFound() {
+        Long askId = 999L;
+        AuthUser adminAuth = new AuthUser(1L, "admin@test.com", ADMIN, "관리자");
+        AnswerCreateRequest request = new AnswerCreateRequest("t", "c");
+
+        when(askRepository.findById(askId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> answerService.createAnswer(askId, request, adminAuth))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("문의 내역을 찾을 수 없습니다."); // ExceptionCode 메시지에 맞춰서 조정
+    }
+
+    @Test
+    @DisplayName("답변 생성 실패 - 이미 답변이 존재")
+    void createAnswer_fail_alreadyAnswered() {
+        Long askId = 10L;
+        AuthUser adminAuth = new AuthUser(1L, "admin@test.com", ADMIN, "관리자");
+        AnswerCreateRequest request = new AnswerCreateRequest("t", "c");
+
+        Ask ask = mock(Ask.class);
+
+        when(askRepository.findById(askId)).thenReturn(Optional.of(ask));
+        when(answerRepository.existsByAsk(ask)).thenReturn(true);
+
+        assertThatThrownBy(() -> answerService.createAnswer(askId, request, adminAuth))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("이미 답변이 존재합니다.");
+    }
+
+    @Test
+    @DisplayName("답변 생성 실패 - 관리자 유저 없음")
+    void createAnswer_fail_adminUserNotFound() {
+        Long askId = 10L;
+        AuthUser adminAuth = new AuthUser(1L, "admin@test.com", ADMIN, "관리자");
+        AnswerCreateRequest request = new AnswerCreateRequest("t", "c");
+
+        Ask ask = mock(Ask.class);
+
+        when(askRepository.findById(askId)).thenReturn(Optional.of(ask));
+        when(answerRepository.existsByAsk(ask)).thenReturn(false);
+        when(userRepository.findById(adminAuth.getId())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> answerService.createAnswer(askId, request, adminAuth))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("사용자를 찾을 수 없습니다.");
     }
 }
