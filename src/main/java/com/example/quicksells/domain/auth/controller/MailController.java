@@ -64,7 +64,6 @@ public class MailController {
         mailService.sendTemporaryPasswordMail(mailRequest.getEmail(), tempPassword);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("임시 비밀번호가 이메일로 발송되었습니다."));
-
     }
 
     /**
@@ -82,5 +81,4 @@ public class MailController {
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("임시 비밀번호 인증 성공하였습니다."));
     }
-
 }
