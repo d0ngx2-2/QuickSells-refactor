@@ -88,7 +88,7 @@ public class MailServiceImpl implements MailService {
     public String createTemporaryPassword(String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_EMAIL));
 
         String temporaryPassword = createRandomPassword();
 
