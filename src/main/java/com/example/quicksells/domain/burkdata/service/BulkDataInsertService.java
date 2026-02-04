@@ -112,8 +112,8 @@ public class BulkDataInsertService {
 
         String sql = """
             INSERT INTO items (seller_id, name, hope_price, description, image, 
-                             selling, is_deleted, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                             is_deleted, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
         List<Long> userIds = getUserIds();
@@ -143,9 +143,8 @@ public class BulkDataInsertService {
                     ps.setString(4, generateItemDescription(actualIndex));
                     ps.setString(5, "item_image_" + actualIndex + ".jpg");
                     ps.setBoolean(6, Math.random() > 0.3); // 70% ON_SALE
-                    ps.setBoolean(7, false);
+                    ps.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now().minusDays(actualIndex % 90)));
                     ps.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now().minusDays(actualIndex % 90)));
-                    ps.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now().minusDays(actualIndex % 90)));
                 }
 
                 @Override
