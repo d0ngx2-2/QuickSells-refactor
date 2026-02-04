@@ -5,12 +5,15 @@ import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.information.entity.Information;
 import com.example.quicksells.domain.information.model.request.InformationCreateRequest;
+import com.example.quicksells.domain.information.model.request.InformationUpdateRequest;
 import com.example.quicksells.domain.information.model.response.InformationCreateResponse;
 import com.example.quicksells.domain.information.model.response.InformationGetAllResponse;
 import com.example.quicksells.domain.information.model.response.InformationGetResponse;
+import com.example.quicksells.domain.information.model.response.InformationUpdateResponse;
 import com.example.quicksells.domain.information.repository.InformationRepository;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,18 +49,23 @@ class InformationServiceTest {
     @InjectMocks
     private InformationService informationService;
 
+    private AuthUser authUser;
+    private User admin;
+
+    @BeforeEach
+    void setUp() {
+        authUser = new AuthUser(1L, "test@test.com", ADMIN, "홍길동");
+        admin = mock(User.class);
+    }
+
     @Test
     @DisplayName("공지사항 생성 성공")
     void createInformation_success() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", ADMIN, "홍길동");
-
         InformationCreateRequest request = new InformationCreateRequest("제목입니다","내용입니다");
 
         MultipartFile image = mock(MultipartFile.class);
-
-        User admin = mock(User.class);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(admin));
         when(informationRepository.existsByTitle(request.getTitle())).thenReturn(false);
@@ -81,11 +89,7 @@ class InformationServiceTest {
     void createInformation_success_withoutImage() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", ADMIN, "홍길동");
-
         InformationCreateRequest request = new InformationCreateRequest("제목입니다", "내용입니다");
-
-        User admin = mock(User.class);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(admin));
         when(informationRepository.existsByTitle(request.getTitle())).thenReturn(false);
@@ -103,13 +107,9 @@ class InformationServiceTest {
     void createInformation_fail_existTitle() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", ADMIN, "홍길동");
-
         InformationCreateRequest request = new InformationCreateRequest("존재하는 제목입니다","내용입니다");
 
         MultipartFile image = mock(MultipartFile.class);
-
-        User admin = mock(User.class);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(admin));
         when(informationRepository.existsByTitle(request.getTitle())).thenReturn(true);
@@ -125,13 +125,9 @@ class InformationServiceTest {
     void createInformation_fail_exception_deleteImage() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", ADMIN, "홍길동");
-
         InformationCreateRequest request = new InformationCreateRequest("제목입니다","내용입니다");
 
         MultipartFile image = mock(MultipartFile.class);
-
-        User admin = mock(User.class);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(admin));
         when(informationRepository.existsByTitle(request.getTitle())).thenReturn(false);
@@ -157,13 +153,9 @@ class InformationServiceTest {
     void createInformation_fail_exception_withoutImage_noDelete() {
 
         // given
-        AuthUser authUser = new AuthUser(1L, "test@test.com", ADMIN, "홍길동");
-
         InformationCreateRequest request = new InformationCreateRequest("제목입니다", "내용입니다");
 
         MultipartFile image = mock(MultipartFile.class);
-
-        User admin = mock(User.class);
 
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(admin));
 
@@ -186,12 +178,30 @@ class InformationServiceTest {
     }
 
     @Test
+    @DisplayName("공지사항 수정 실패 - 이미지가 존재하지만 비어있는 경우")
+    void updateInformation_fail_imageEmpty() {
+
+        // given
+        Long informationId = 1L;
+
+        InformationUpdateRequest request = new InformationUpdateRequest(null, null, null);
+
+        MultipartFile emptyImage = mock(MultipartFile.class);
+
+        when(emptyImage.isEmpty()).thenReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> informationService.update(informationId, request, emptyImage))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("수정할 정보가 없습니다.");
+    }
+
+    @Test
     @DisplayName("공지사항 단건 조회 성공")
     void getOne_information_success() {
 
         // given
         Long informationId = 1L;
-        User admin = mock(User.class);
 
         Information information = new Information(admin, "제목입니다", "내용입니다", "imageUrl");
 
@@ -230,8 +240,6 @@ class InformationServiceTest {
         // given
         Pageable pageable = PageRequest.of(0,10);
 
-        User admin = mock(User.class);
-
         Information information1 = new Information(admin, "제목입니다1", "내용입니다1", "imageUrl1");
         Information information2 = new Information(admin, "제목입니다2", "내용입니다2", "imageUrl2");
 
@@ -254,6 +262,182 @@ class InformationServiceTest {
         assertThat(response.getContent().get(1).getImageUrl()).isEqualTo("imageUrl2");
 
         verify(informationRepository).findInformationPageSummary(pageable);
+    }
 
+    @Test
+    @DisplayName("공지사항 수정 성공 - 내용만 변경")
+    void updateInformation_success_onlyDescription() {
+
+        // given
+        Long informationId = 1L;
+
+        InformationUpdateRequest request = new InformationUpdateRequest(null, "내용입니다ㅋ", false);
+
+        Information information = new Information(admin, "제목입니다", "내용입니다", "imageUrl");
+
+        MultipartFile image = mock(MultipartFile.class);
+
+        when(informationRepository.findById(informationId)).thenReturn(Optional.of(information));
+
+        // when
+        InformationUpdateResponse response = informationService.update(informationId, request, image);
+
+        // then
+        assertThat(response.getTitle()).isEqualTo("제목입니다");
+        assertThat(response.getDescription()).isEqualTo("내용입니다ㅋ");
+    }
+
+    @Test
+    @DisplayName("공지사항 수정 성공 - 제목만 변경")
+    void updateInformation_success_onlyTitle() {
+
+        // given
+        Long informationId = 1L;
+
+        InformationUpdateRequest request = new InformationUpdateRequest("새 제목입니다", null, false);
+
+        Information information = new Information(admin, "제목입니다", "내용입니다", "imageUrl");
+
+        MultipartFile image = mock(MultipartFile.class);
+
+        when(informationRepository.findById(informationId)).thenReturn(Optional.of(information));
+        when(informationRepository.existsByTitle(request.getTitle())).thenReturn(false);
+
+        // when
+        InformationUpdateResponse response = informationService.update(informationId, request, image);
+
+        // then
+        assertThat(response.getTitle()).isEqualTo("새 제목입니다");
+        assertThat(response.getDescription()).isEqualTo("내용입니다");
+    }
+
+    @Test
+    @DisplayName("공지사항 수정 성공 - 이미지 변경")
+    void updateInformation_success_changeImage() {
+
+        // given
+        Long informationId = 1L;
+
+        MultipartFile newImage = mock(MultipartFile.class);
+
+        InformationUpdateRequest request = new InformationUpdateRequest(null, null, false);
+
+        Information information = new Information(admin, "제목입니다", "내용입니다", "imageUrl");
+
+        when(informationRepository.findById(informationId)).thenReturn(Optional.of(information));
+
+        when(newImage.isEmpty()).thenReturn(false);
+        when(s3Service.uploadImage(newImage)).thenReturn("newImageUrl");
+
+        // when
+        InformationUpdateResponse response = informationService.update(informationId, request, newImage);
+
+        // then
+        verify(s3Service).deleteImage("imageUrl");
+        verify(s3Service).uploadImage(newImage);
+
+        assertThat(response.getImageUrl()).isEqualTo("newImageUrl");
+    }
+
+
+    @Test
+    @DisplayName("공지사항 수정 성공 - 이미지 추가")
+    void updateInformation_success_addImage() {
+
+        // given
+        Long informationId = 1L;
+
+        MultipartFile image = mock(MultipartFile.class);
+
+        InformationUpdateRequest request = new InformationUpdateRequest(null, null, false);
+
+        Information information = new Information(admin, "제목입니다", "내용입니다", null);
+
+        when(informationRepository.findById(informationId)).thenReturn(Optional.of(information));
+
+        when(image.isEmpty()).thenReturn(false);
+        when(s3Service.uploadImage(image)).thenReturn("imageUrl");
+
+        // when
+        InformationUpdateResponse response = informationService.update(informationId, request, image);
+
+        // then
+        verify(s3Service).uploadImage(image);
+        verify(s3Service, never()).deleteImage(any());
+
+        assertThat(response.getImageUrl()).isEqualTo("imageUrl");
+    }
+
+    @Test
+    @DisplayName("공지사항 수정 성공 - 이미지 삭제")
+    void updateInformation_success_deleteImage() {
+
+        // given
+        Long informationId = 1L;
+
+        InformationUpdateRequest request = new InformationUpdateRequest(null, null, true);
+
+        Information information = new Information(admin, "제목입니다", "내용입니다", "imageUrl");
+
+        when(informationRepository.findById(informationId)).thenReturn(Optional.of(information));
+
+        // when
+        InformationUpdateResponse response = informationService.update(informationId, request, null);
+
+        // then
+        verify(s3Service).deleteImage("imageUrl");
+        assertThat(response.getImageUrl()).isNull();
+    }
+
+    @Test
+    @DisplayName("Information entity update - 조건 검사")
+    void entity_update_all_branches() {
+
+        // given
+        Information information = new Information(admin, "제목입니다", "내용입니다.", null);
+
+        // when & then
+        information.update("수정 제목", "수정 내용");
+        assertThat(information.getTitle()).isEqualTo("수정 제목");
+        assertThat(information.getDescription()).isEqualTo("수정 내용");
+
+        information.update(null, null);
+        assertThat(information.getTitle()).isEqualTo("수정 제목");
+        assertThat(information.getDescription()).isEqualTo("수정 내용");
+
+        information.update(" ", "");
+        assertThat(information.getTitle()).isEqualTo("수정 제목");
+        assertThat(information.getDescription()).isEqualTo("수정 내용");
+    }
+
+    @Test
+    @DisplayName("공지사항 수정 실패 - 변경할 값 없음")
+    void updateInformation_fail_noUpdateField() {
+
+        // given
+        InformationUpdateRequest request = new InformationUpdateRequest(null, null, null);
+
+        // when & then
+        assertThatThrownBy(() -> informationService.update(1L, request, null))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("수정할 정보가 없습니다.");
+    }
+
+    @Test
+    @DisplayName("공지사항 삭제 성공")
+    void deleteInformation() {
+
+        // given
+        Long informationId = 1L;
+
+        Information information = new Information(admin, "제목입니다", "내용입니다", "imageUrl");
+
+        when(informationRepository.findById(informationId)).thenReturn(Optional.of(information));
+
+        // when
+        informationService.delete(informationId);
+
+        // then
+        assertThat(information.isDeleted()).isTrue();
     }
 }
