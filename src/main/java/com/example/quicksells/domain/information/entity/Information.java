@@ -35,8 +35,8 @@ public class Information extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
 
-    public Information(User user, String title, String description, String imageUrl) {
-        this.user = user;
+    public Information(User admin, String title, String description, String imageUrl) {
+        this.user = admin;
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
