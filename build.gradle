@@ -119,10 +119,13 @@ jacocoTestReport {
                         '**/scheduler/**',
                         '**/security/**',
                         '**/enums/**',
+                        '**/exception/**',
                         '**/util/**',
 
                         '**/*RepositoryImpl*',
-                        '**/Q*'
+                        '**/Q*',
+                        '**/burkdata/**',
+                        '**/toss/**'
                 ])
             })
     )
