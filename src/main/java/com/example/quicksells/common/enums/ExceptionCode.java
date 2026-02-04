@@ -81,6 +81,7 @@ public enum ExceptionCode {
     //ANSWER
     NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "답변 내역을 찾을 수 없습니다."),
     ACCESS_DENIED_ANSWER(HttpStatus.FORBIDDEN, "조회할 권한이 없습니다."),
+    ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 답변이 존재합니다."),
 
     //ASK
     NOT_FOUND_ASK(HttpStatus.NOT_FOUND, "문의 내역을 찾을 수 없습니다."),
