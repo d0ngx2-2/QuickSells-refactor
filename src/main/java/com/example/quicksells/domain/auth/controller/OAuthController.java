@@ -34,7 +34,7 @@ public class OAuthController {
 
         AuthSocialSignupResponse response = oAuthService.completeSocialSignup(authUser, request);
 
-        return ResponseEntity.ok(CommonResponse.success("소셜 회원가입을 성공하셨습니다.", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("소셜 회원가입을 성공하셨습니다.", response));
     }
 }
 
