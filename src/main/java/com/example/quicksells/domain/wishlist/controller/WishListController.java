@@ -33,7 +33,7 @@ public class WishListController {
     @PostMapping("/wishList")
     public ResponseEntity<CommonResponse> createWishList(@RequestBody WishListCreateRequest request) {
 
-        WishListCreateResponse response= wishListService.saveWishList(request);
+        WishListCreateResponse response = wishListService.saveWishList(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.success("관심 목록 등록에 성공했습니다.", response));
     }
@@ -51,9 +51,11 @@ public class WishListController {
 
     @Operation(summary = "내 관심 목록 삭제")
     @DeleteMapping("/wishList")
-    public ResponseEntity<CommonResponse> deleteMyWishList(@AuthenticationPrincipal AuthUser authUser, @Valid OneWishListDeleteRequest request) {
+    public ResponseEntity<CommonResponse> deleteMyWishList(@AuthenticationPrincipal AuthUser authUser, @Valid OneWishListDeleteRequest request, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
-        wishListService.deleteMyWishList(authUser, request);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        wishListService.deleteMyWishList(authUser, request, pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success(request.getIndex() + "번째 관심 목록 삭제에 성공했습니다"));
     }
