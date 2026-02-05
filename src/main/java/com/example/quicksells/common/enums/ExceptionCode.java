@@ -115,6 +115,7 @@ public enum ExceptionCode {
     //WISH_LIST
     ACCESS_DENIED_EXCEPTION_WISHLIST(HttpStatus.FORBIDDEN, "관심 목록 대한 권한이 없습니다."),
     NOT_EXIST_ONE_WISHLIST(HttpStatus.NOT_FOUND, "해당 관심 목록은 존재하지 않습니다."),
+    SELF_WISH_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인 상품은 관심 목록으로 등록 할 수 없습니다."),
 
     //WebSocket & 채팅 & 토큰 및 principal 인증 관련
     MISSING_TOKEN(HttpStatus.UNAUTHORIZED, "유효한 토큰이 없습니다."),

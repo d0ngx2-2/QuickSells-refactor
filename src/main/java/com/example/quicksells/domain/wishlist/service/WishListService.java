@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +37,9 @@ public class WishListService {
         // 상품 조회
         Item foundItem = itemRepository.findById(request.getItemId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
+
+        // 판매자 검증
+        validateSeller(foundBuyer, foundItem);
 
         // 중복 검증
         deduplicationWishList(foundBuyer, foundItem);
@@ -64,22 +66,22 @@ public class WishListService {
     }
 
     @Transactional
-    public void deleteMyWishList(AuthUser authUser, OneWishListDeleteRequest request) {
+    public void deleteMyWishList(AuthUser authUser, OneWishListDeleteRequest request, Pageable pageable) {
 
         // 구매자 검증
         validateUser(authUser, request.getBuyerId());
 
         // 구매자의 관심 목록 조회
-        List<WishList> myWishList = wishListRepository.findAllByBuyerIdOrderByCreatedAtDesc(request.getBuyerId());
+        Slice<WishList> myWishListSlice = wishListRepository.myWishListSearch(request.getBuyerId(), pageable);
 
         // 내 관심 목록 인덱스 번호
         int myWishListIndex = request.getIndex() - 1;
 
         // 내 관심 목록의 인덱스 번호 검증
-        validateWishListIndex(myWishList, myWishListIndex);
+        validateWishListIndex(myWishListSlice, myWishListIndex);
 
         // 삭제할 관심 목록 인덱스로 가져오기
-        WishList oneWishList = myWishList.get(myWishListIndex);
+        WishList oneWishList = myWishListSlice.getContent().get(myWishListIndex);
 
         // 가져온 관심목록 물리 삭제
         wishListRepository.delete(oneWishList);
@@ -99,6 +101,18 @@ public class WishListService {
         }
     }
 
+    private void validateSeller(User foundUser, Item foundItem) {
+
+        Long userId = foundUser.getId();
+        Long sellerId = foundItem.getSeller().getId();
+
+        // 유저가 상품 판매자일때 예외
+        if (userId.equals(sellerId)) {
+            throw new CustomException(ExceptionCode.SELF_WISH_NOT_ALLOWED);
+        }
+    }
+
+
     private void validateUser(AuthUser authUser, Long buyerId) {
 
         Long authUserId = authUser.getId(); // 인증유저 아이디
@@ -109,10 +123,10 @@ public class WishListService {
         }
     }
 
-    private void validateWishListIndex(List<WishList> myWishList, int index) {
+    private void validateWishListIndex(Slice<WishList> myWishList, int index) {
 
         // 내 관심목록 개수 <= 요청한 관심목록 인덱스 - 1
-        if (myWishList.size() <= index) {
+        if (myWishList.getContent().size() <= index) {
             throw new CustomException(ExceptionCode.NOT_EXIST_ONE_WISHLIST);
         }
     }
