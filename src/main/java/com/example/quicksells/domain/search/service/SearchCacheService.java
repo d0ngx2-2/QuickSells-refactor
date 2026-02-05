@@ -135,7 +135,7 @@ public class SearchCacheService {
                 .setIfAbsent(dupKey, "1", Duration.ofSeconds(3));
 
         // 키가 없을 때 저장 후 3초 클릭 방지
-        if (Boolean.TRUE.equals(first)) { //setIfAbsent()는 처음 저장 시 true = 성공임
+        if (!Boolean.TRUE.equals(first)) { //setIfAbsent()는 처음 저장 시 true = 성공임
             return;
         }
 
