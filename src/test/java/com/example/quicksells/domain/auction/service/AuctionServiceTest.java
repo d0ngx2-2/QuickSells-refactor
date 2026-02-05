@@ -5,6 +5,7 @@ import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.appraise.repository.AppraiseRepository;
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.entity.AuctionHistory;
+import com.example.quicksells.domain.auction.model.dto.BidInfo;
 import com.example.quicksells.domain.auction.model.request.AuctionCreateRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionSearchFilterRequest;
 import com.example.quicksells.domain.auction.model.request.AuctionUpdateRequest;
@@ -23,11 +24,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.redisson.api.RPatternTopic;
+import org.redisson.api.RTopic;
+import org.redisson.api.RedissonClient;
+import org.redisson.api.listener.PatternMessageListener;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Clock;
@@ -49,7 +56,19 @@ import static org.mockito.Mockito.*;
 class AuctionServiceTest {
 
     @InjectMocks
-    private AuctionService auctionService;
+    AuctionService auctionService;
+
+    @InjectMocks
+    AuctionBIdEventListenerService auctionBIdEventListenerService;
+
+    @InjectMocks
+    AuctionBidSubscriberService auctionBidSubscriberService;
+
+    @Mock
+    RedissonClient redisson;
+
+    @Mock
+    AuctionRepository auctionRepository;
 
     @Mock
     DealService dealService;
@@ -58,19 +77,25 @@ class AuctionServiceTest {
     AuctionHistoryRepository auctionHistoryRepository;
 
     @Mock
-    AuctionRepository auctionRepository;
-
-    @Mock
     AppraiseRepository appraiseRepository;
 
     @Mock
     UserRepository userRepository;
 
     @Mock
-    private PointWalletService pointWalletService;
+    PointWalletService pointWalletService;
 
     @Mock
-    private ApplicationEventPublisher eventPublisher;
+    ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    RTopic rTopic;
+
+    @Mock
+    RPatternTopic rPatternTopic;
+
+    @Mock
+    SimpMessagingTemplate messagingTemplate;
 
 
     /**
@@ -102,6 +127,7 @@ class AuctionServiceTest {
 
     private Auction closeAuction;
 
+    private BidInfo bidInfo;
 
     /**
      * 초기 데이터
@@ -148,11 +174,15 @@ class AuctionServiceTest {
         // 진행중인 경매 ID 1, 감정 ID 1, 입찰가 10000원, 판매자 ID 1
         newAuction = new Auction(newAppraise, newAppraise.getBidPrice());
         ReflectionTestUtils.setField(newAuction, "id", 1L);
+        ReflectionTestUtils.setField(newAuction, "buyer", buyerA);
         ReflectionTestUtils.setField(newAuction, "status", AUCTIONING);
         ReflectionTestUtils.setField(newAuction, "createdAt", now);
         ReflectionTestUtils.setField(newAuction, "updatedAt", now.plusMinutes(1));
         ReflectionTestUtils.setField(newAuction, "endTime", now.plusDays(1));
         ReflectionTestUtils.setField(newAuction, "isDeleted", false);
+
+        // 입찰 정보
+        bidInfo = new BidInfo(newAuction.getId(), newAuction.getBuyer().getName(), newAuction.getBidPrice());
 
         // 경매 입찰 내역 ID 1
         auctionHistory = new AuctionHistory(newAuction, buyerA, newAuction.getBidPrice(), newAuction.getUpdatedAt());
@@ -168,7 +198,6 @@ class AuctionServiceTest {
         ReflectionTestUtils.setField(closeAuction, "status", SUCCESSFUL_BID);
         ReflectionTestUtils.setField(closeAuction, "createdAt", now);
         ReflectionTestUtils.setField(closeAuction, "endTime", now);
-
     }
 
 
@@ -570,4 +599,60 @@ class AuctionServiceTest {
     }
 
     /// 실패 테스트 ///
+
+
+    /// PUB SUB 테스트///
+
+    @Test
+    @DisplayName("경매 입찰 정보 실시간 이벤트 발행 성공 테스트")
+    void auction_bid_info_live_event_publisher () {
+
+        // given
+        when(redisson.getTopic(any(), any())).thenReturn(rTopic);
+
+        when(rTopic.publish(any())).thenReturn(0L);
+
+        // when
+        auctionBIdEventListenerService.handleOrderCreatedEvent(bidInfo);
+
+        // then
+        verify(redisson, times(1)).getTopic(any(), any());
+        verify(rTopic, times(1)).publish(any());
+    }
+
+    @Test
+    @DisplayName("등록된 리스너에게 실시간 입찰 메시지를 웹소켓으로 전송 성공 테스트")
+    void listener_live_bid_info_message_send_to_websocket() {
+
+        // given
+        when(redisson.getPatternTopic(any(), any())).thenReturn(rPatternTopic);
+
+        ArgumentCaptor<PatternMessageListener<BidInfo>> captor = ArgumentCaptor.forClass(PatternMessageListener.class); // 리스너 캡쳐
+
+        // when
+        auctionBidSubscriberService.setUp();
+
+        // then
+        verify(rPatternTopic).addListener(eq(BidInfo.class), captor.capture());
+
+        /**
+         * given&then
+         * 웹소켓 테스트
+         */
+        var listener = captor.getValue(); // 캡처한 리스너 꺼내기
+
+        // Redis 메시지 수신 시뮬레이션
+        listener.onMessage(
+                "topic:auction:bid:*",
+                "topic:auction:bid:" + bidInfo.getAuctionId(),
+                bidInfo
+        );
+
+        verify(messagingTemplate, times(1)).convertAndSend("/topic/auction/" + bidInfo.getAuctionId(), bidInfo);
+    }
+
+    /// pub sub 테스트///
+
+
 }
+
