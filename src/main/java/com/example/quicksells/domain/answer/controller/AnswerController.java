@@ -56,7 +56,7 @@ public class AnswerController {
      */
     @Operation(summary = "문의 답변 전체 조회")
     @GetMapping("/answers")
-    public ResponseEntity<CommonResponse> getAnswers(AuthUser authUser) {
+    public ResponseEntity<CommonResponse> getAnswers(@AuthenticationPrincipal AuthUser authUser) {
 
         List<AnswerGetAllResponse> response = answerService.getAnswers(authUser);
 
