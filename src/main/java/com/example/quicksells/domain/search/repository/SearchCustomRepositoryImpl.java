@@ -41,7 +41,7 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
 
         //상품 이름으로 검색
         if (keyword != null && !keyword.isBlank()) {
-            where.and(item.name.like(keyword.trim()));
+            where.and(item.name.like("%" + keyword.trim() + "%"));
         }
 
         // 감정 상태 값: 즉시 판매, 경매 진행중
