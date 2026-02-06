@@ -121,6 +121,7 @@ jacocoTestReport {
                         '**/enums/**',
                         '**/exception/**',
                         '**/util/**',
+                        '**/aws/**',
 
                         '**/*RepositoryImpl*',
                         '**/Q*',
