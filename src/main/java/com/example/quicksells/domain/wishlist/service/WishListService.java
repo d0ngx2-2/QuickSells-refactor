@@ -1,10 +1,11 @@
 package com.example.quicksells.domain.wishlist.service;
 
+import com.example.quicksells.common.enums.AuctionStatusType;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
+import com.example.quicksells.domain.auction.entity.Auction;
+import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
-import com.example.quicksells.domain.item.entity.Item;
-import com.example.quicksells.domain.item.repository.ItemRepository;
 import com.example.quicksells.domain.user.entity.User;
 import com.example.quicksells.domain.user.repository.UserRepository;
 import com.example.quicksells.domain.wishlist.entity.WishList;
@@ -18,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.Clock;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +28,7 @@ public class WishListService {
 
     private final WishListRepository wishListRepository;
     private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
+    private final AuctionRepository auctionRepository;
 
     @Transactional
     public WishListCreateResponse saveWishList(WishListCreateRequest request) {
@@ -34,18 +37,18 @@ public class WishListService {
         User foundBuyer = userRepository.findById(request.getBuyerId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_USER));
 
-        // 상품 조회
-        Item foundItem = itemRepository.findById(request.getItemId())
-                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_ITEM));
+        // 경매 조회
+        Auction foundAuction = auctionRepository.findByIdAndStatusAndEndTimeAfter(request.getAuctionId(), AuctionStatusType.AUCTIONING, LocalDateTime.now(Clock.systemDefaultZone()))
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_AUCTION));
 
         // 판매자 검증
-        validateSeller(foundBuyer, foundItem);
+        validateSeller(foundBuyer, foundAuction);
 
         // 중복 검증
-        deduplicationWishList(foundBuyer, foundItem);
+        deduplicationWishList(foundBuyer, foundAuction);
 
         // 관심 목록 생성
-        WishList newWishList = new WishList(foundBuyer, foundItem);
+        WishList newWishList = new WishList(foundBuyer, foundAuction);
 
         // 관심 목록 저장
         WishList saveWishList = wishListRepository.save(newWishList);
@@ -92,19 +95,19 @@ public class WishListService {
      * 검증 메서드
      */
 
-    private void deduplicationWishList(User foundUser, Item foundItem) {
+    private void deduplicationWishList(User foundUser, Auction foundAuction) {
 
-        boolean duplicatedUserAndItem = wishListRepository.existsByBuyerAndItem(foundUser, foundItem);
+        boolean duplicatedUserAndAuction = wishListRepository.existsByBuyerAndAuction(foundUser, foundAuction);
 
-        if (duplicatedUserAndItem) {
+        if (duplicatedUserAndAuction) {
             throw new CustomException(ExceptionCode.CONFLICT_WISHLIST); // 중복된 관심 목록 에외
         }
     }
 
-    private void validateSeller(User foundUser, Item foundItem) {
+    private void validateSeller(User foundUser, Auction foundAuction) {
 
         Long userId = foundUser.getId();
-        Long sellerId = foundItem.getSeller().getId();
+        Long sellerId = foundAuction.getAppraise().getItem().getSeller().getId();
 
         // 유저가 상품 판매자일때 예외
         if (userId.equals(sellerId)) {
