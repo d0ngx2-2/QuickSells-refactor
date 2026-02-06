@@ -1,15 +1,19 @@
 package com.example.quicksells.domain.search.service;
 
+import com.example.quicksells.common.enums.AppraiseStatus;
+import com.example.quicksells.common.enums.AuctionStatusType;
 import com.example.quicksells.common.enums.ExceptionCode;
 import com.example.quicksells.common.exception.CustomException;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
-import com.example.quicksells.domain.item.entity.Item;
 import com.example.quicksells.domain.search.model.response.SearchGetResponse;
+import com.example.quicksells.domain.search.repository.SearchCustomRepositoryImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -17,6 +21,7 @@ public class SearchService {
 
     private final SearchRankingSnapshotService searchRankingSnapshotService;
     private final SearchCacheService searchCacheService;
+    private final SearchCustomRepositoryImpl searchCustomRepositoryImpl;
 
     /**
      * 상품 검색을 처리하는 메인 서비스
@@ -26,7 +31,7 @@ public class SearchService {
      * @return 상품 목록 검색 결과
      */
     @Transactional(readOnly = true)
-    public Page<SearchGetResponse> search(AuthUser authUser, String keyword, Pageable pageable) {
+    public Page<SearchGetResponse> search(AuthUser authUser, String keyword, List<AppraiseStatus> appraiseStatus, List<AuctionStatusType>auctionStatus, Pageable pageable) {
 
         //로그인 예외처리
         if (authUser == null) {
@@ -39,11 +44,13 @@ public class SearchService {
         // 검색어 중복 방지
         searchCacheService.notDoubleClick(String.valueOf(authUser.getId()),searchKeyword);
 
-        // 캐시 적용된 상품 조회
-        Page<Item> items = searchCacheService.cachedSearch(searchKeyword, pageable);
+        //관리자 체크
+        boolean isAdmin = authUser.getRole().name().equals("ADMIN");
 
-        //Entity -> DTO 변환
-        return items.map(SearchGetResponse::from);
+        //판매자 or 구매자(유저)
+        Long viewerId = authUser.getId();
+
+        return searchCustomRepositoryImpl.searchItems(searchKeyword,appraiseStatus, auctionStatus, viewerId, isAdmin, pageable);
     }
 
     /**
@@ -67,3 +74,4 @@ public class SearchService {
         return searchKeyword;
     }
 }
+
