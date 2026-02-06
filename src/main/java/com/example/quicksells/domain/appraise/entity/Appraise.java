@@ -63,13 +63,7 @@ public class Appraise {
         this.isDeleted = false;
     }
 
-    // 여러 감정중 판매자가 선택할때,
-    public void updateSelected(boolean isSelected) {
-        if (this.isSelected) {
-            throw new CustomException(ExceptionCode.ALREADY_SELECT_APPRAISE);
-        }
-        this.isSelected = isSelected;
-    }
+    public void updateSelected(boolean isSelected) { this.isSelected = isSelected; }
 
     // 감정 진행 상태 업데이트
     public void updateStatus(AppraiseStatus status) {
