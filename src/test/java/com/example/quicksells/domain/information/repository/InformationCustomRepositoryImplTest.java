@@ -26,8 +26,8 @@ class InformationCustomRepositoryImplTest {
     @Autowired
     private InformationRepository informationRepository;
 
-    @DisplayName("공지사항 페이징 조회 성공")
     @Test
+    @DisplayName("공지사항 페이징 조회 성공")
     void findInformationPageSummary_success() {
 
         // given
