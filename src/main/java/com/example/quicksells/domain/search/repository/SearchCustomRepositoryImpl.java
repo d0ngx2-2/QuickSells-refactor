@@ -104,25 +104,6 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
 
         }
 
-        // 응답 DTO 필드 설정
-        //appraiseStatus 필드 설정
-//        Expression<String> appraiseStatusOut = new CaseBuilder()
-//                .when(appraise.appraiseStatus.eq(AppraiseStatus.AUCTION))
-//                .then(Expressions.nullExpression(String.class))
-//                .when(appraise.appraiseStatus.isNotNull())
-//                .then(appraise.appraiseStatus.stringValue())  // ← null 체크 추가
-//                .otherwise(Expressions.nullExpression(String.class));
-//
-//        //auctionStatus 필드 설정
-//        Expression<String> auctionStatusOut = new CaseBuilder()
-//                .when(appraise.appraiseStatus.eq(AppraiseStatus.AUCTION)
-//                        .and(auction.id.isNotNull()))
-//                .then(auction.status.stringValue())
-//                .when(appraise.appraiseStatus.eq(AppraiseStatus.AUCTION)
-//                        .and(auction.id.isNull()))
-//                        .then(Expressions.constant("AUCTIONING"))
-//                        .otherwise(Expressions.nullExpression(String.class));
-
         // 감정 상태
         Expression<String> appraiseStatusOut = new CaseBuilder()
                 .when(auction.id.isNotNull())
@@ -168,9 +149,3 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
         return PageableExecutionUtils.getPage(itemList, pageable, countQuery::fetchOne);
     }
 }
-//ERD 감정 경매 이미지 캡처
-// 연관관계 더미 데이터 팬딩 즉시판매 = 경매 n
-// 경매 상태인경우 팬딩, 낙찰, 유찰 경매 상태가 나와야한다.
-//상품 검색 시 감정이나 경매된 상품 검색 하려는데 상태 반영해서 더미 데이터 만들어줘 -> insert문 DB 쿼리 문으로 넣어줘
-// 유저 상품
-// 파라미터 넣을 경우 커스텀
