@@ -90,6 +90,7 @@ public enum ExceptionCode {
     //SEARCH
     INVALID_SEARCH_KEYWORD(HttpStatus.NOT_FOUND, "검색어를 입력해주세요."),
     UNAUTHORIZED_SEARCH(HttpStatus.UNAUTHORIZED, "로그인 후 입력해주세요"),
+    RATE_LIMIT_EXCEEDED(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED,"검색 횟수를 초과했습니다."),
 
     //PAYMENT
     INVALID_CHARGE_AMOUNT(HttpStatus.BAD_REQUEST, "충전 금액은 최소 10,000원 이상이어야 합니다."),
