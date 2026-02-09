@@ -63,4 +63,13 @@ public class SearchController {
         //응답 값
         return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("인기 검색어 목록입니다.", popularKeywords));
     }
+
+    @Operation(summary = "실시간 인기 검색어 조회")
+    @GetMapping("/popular/realtime")
+    public ResponseEntity<CommonResponse>getRealtimeTop10(){
+
+        List<String> keywords = searchCacheService.getRealtimeTop10();
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("인기 검색어 목록입니다.",keywords));
+    }
 }
