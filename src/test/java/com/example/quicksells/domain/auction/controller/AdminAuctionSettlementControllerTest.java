@@ -130,7 +130,7 @@ class AdminAuctionSettlementControllerTest {
         when(adminAuctionSettlementService.retrySettlement(any())).thenReturn(response);
 
         // when&then
-        mockMvc.perform(post("/api/admin/api/auctions/{auctionId}/settlements/retry", auctionId)
+        mockMvc.perform(post("/api/admin/auctions/{auctionId}/settlements/retry", auctionId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
