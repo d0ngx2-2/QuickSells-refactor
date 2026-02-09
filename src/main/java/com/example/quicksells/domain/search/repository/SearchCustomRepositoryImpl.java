@@ -67,11 +67,20 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
                     )
                             : appraiseStatuses;
 
+            //상품 조회 시 경매 상품만 조회할 수 있는 로직
+            BooleanExpression onlyAuctioning =
+                    appraise.appraiseStatus.eq(AppraiseStatus.AUCTION)
+                            .and(auction.id.isNotNull())
+                            .and(auction.status.eq(AuctionStatusType.AUCTIONING))
+                            .and(auction.status.eq(AuctionStatusType.SUCCESSFUL_BID))
+                            .and(auction.status.eq(AuctionStatusType.UNSUCCESSFUL_BID));
+
             // 일반 사용자용 필터
             List<AuctionStatusType> safeAuction1 =
                     (auctionStatus == null || auctionStatus.isEmpty())
                             ? List.of(
                             AuctionStatusType.AUCTIONING,
+                            AuctionStatusType.SUCCESSFUL_BID,
                             AuctionStatusType.SUCCESSFUL_BID,
                             AuctionStatusType.UNSUCCESSFUL_BID,
                             AuctionStatusType.CANCELED
