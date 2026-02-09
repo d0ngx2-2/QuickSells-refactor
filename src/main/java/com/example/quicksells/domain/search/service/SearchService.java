@@ -19,7 +19,6 @@ import java.util.List;
 @AllArgsConstructor
 public class SearchService {
 
-    private final SearchRankingSnapshotService searchRankingSnapshotService;
     private final SearchCacheService searchCacheService;
     private final SearchCustomRepositoryImpl searchCustomRepositoryImpl;
     private final SlidingWindowRateLimiter slidingWindowRateLimiter;
