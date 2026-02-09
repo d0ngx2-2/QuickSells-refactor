@@ -89,7 +89,7 @@ public class AuctionService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<AuctionHistoryGetAllResponse> GetAllAuctionHistory(Pageable pageable, AuthUser authUser, Long buyerId) {
+    public Slice<AuctionHistoryGetAllResponse> getAllAuctionHistory(Pageable pageable, AuthUser authUser, Long buyerId) {
 
         validateUser(authUser, buyerId);
 
