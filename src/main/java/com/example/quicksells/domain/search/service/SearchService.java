@@ -22,6 +22,7 @@ public class SearchService {
     private final SearchRankingSnapshotService searchRankingSnapshotService;
     private final SearchCacheService searchCacheService;
     private final SearchCustomRepositoryImpl searchCustomRepositoryImpl;
+    private final SlidingWindowRateLimiter slidingWindowRateLimiter;
 
     /**
      * 상품 검색을 처리하는 메인 서비스
@@ -31,26 +32,45 @@ public class SearchService {
      * @return 상품 목록 검색 결과
      */
     @Transactional(readOnly = true)
-    public Page<SearchGetResponse> search(AuthUser authUser, String keyword, List<AppraiseStatus> appraiseStatus, List<AuctionStatusType>auctionStatus, Pageable pageable) {
+    public Page<SearchGetResponse> search(AuthUser authUser, String keyword, List<AppraiseStatus> appraiseStatus, List<AuctionStatusType> auctionStatus, Pageable pageable) {
 
         //로그인 예외처리
         if (authUser == null) {
             throw new CustomException(ExceptionCode.UNAUTHORIZED_SEARCH);
         }
 
+        //Rate Limit 체크(슬라이딩 윈도우)
+        checkRateLimit(authUser.getId());
+
         //검색어 공백, null 방지
         String searchKeyword = safeKeyword(keyword);
 
-        // 검색어 중복 방지
-        searchCacheService.notDoubleClick(String.valueOf(authUser.getId()),searchKeyword);
+        // 검색어 중복 방지(3초), 검색어 카운트 기능
+        searchCacheService.notDoubleClick(String.valueOf(authUser.getId()), searchKeyword);
 
-        //관리자 체크
-        boolean isAdmin = authUser.getRole().name().equals("ADMIN");
+        //검색 실행 -> 관리자 체크
+        boolean isAdmin = "ADMIN".equals(authUser.getRole().name());
 
         //판매자 or 구매자(유저)
         Long viewerId = authUser.getId();
 
-        return searchCustomRepositoryImpl.searchItems(searchKeyword,appraiseStatus, auctionStatus, viewerId, isAdmin, pageable);
+        return searchCustomRepositoryImpl.searchItems(searchKeyword, appraiseStatus, auctionStatus, viewerId, isAdmin, pageable);
+    }
+
+    /**
+     *
+     * @param userId
+     */
+    public void checkRateLimit(Long userId) {
+        boolean allowed = slidingWindowRateLimiter.isAllowed(userId, 10, 5);
+
+        if (!allowed) {
+            int reaming = slidingWindowRateLimiter.getRemainingRequests(userId, 10, 5);
+
+            long retryAfter = slidingWindowRateLimiter.getAfter(userId, 10);
+
+            throw new CustomException(ExceptionCode.RATE_LIMIT_EXCEEDED);
+        }
     }
 
     /**
