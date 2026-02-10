@@ -133,7 +133,7 @@ public enum ExceptionCode {
     NOT_FOUND_PRINCIPAL(HttpStatus.NOT_FOUND, "인증 정보가 없습니다."),
     WRONG_PRINCIPAL_TYPE(HttpStatus.BAD_REQUEST, "잘못된 인증 타입입니다."),
     NOT_SAME_PRINCIPAL_AUTH_USER(HttpStatus.BAD_REQUEST, "Principal이 AuthUser 타입이 아닙니다"),
-
+    CANNOT_CHATROOM_ID_IS_NULL(HttpStatus.NOT_FOUND, "채팅방 ID는 반드시 존재해야 합니다."),
 
     //미사용
     AUCTION_EXPIRED_SOLD_OUT(HttpStatus.BAD_REQUEST, "경매 시간이 종료되어 낙찰이 완료 되었습니다."),
