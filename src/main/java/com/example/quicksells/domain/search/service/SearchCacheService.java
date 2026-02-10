@@ -235,21 +235,6 @@ public class SearchCacheService {
      * @param keyword
      * @return
      */
-    private Long getRealtimeCount(String keyword) {
-
-        long now = System.currentTimeMillis();
-
-        //윈도우 시작 시점
-        long tenMinAgo = now - WINDOW_MINUTES * 60 * 1000L;
-
-        String key = REALTIME_PREFIX + keyword;
-
-        //범위내에 존재하는 검색 기록 개수
-        Long count = redisTemplate.opsForZSet().count(key, tenMinAgo, now);
-
-        //null 방어
-        return count != null ? count : 0L;
-    }
 
     /**
      * 실시간 인기 검색어 TOP10(슬라이딩 윈도우 기반 10분)
@@ -309,7 +294,6 @@ public class SearchCacheService {
                 .map(keywordCount -> keywordCount.getKeyword())
                 .toList();
 
-        if (realtimeTop10.isEmpty()) return getFallbackKeywords();
         return realtimeTop10;
     }
 
@@ -331,4 +315,3 @@ public class SearchCacheService {
         return dbTop10;
     }
 }
-
