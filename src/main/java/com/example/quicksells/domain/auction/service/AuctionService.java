@@ -28,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Clock;
 import java.time.LocalDateTime;
 
@@ -88,7 +89,7 @@ public class AuctionService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<AuctionHistoryGetAllResponse> GetAllAuctionHistory(Pageable pageable, AuthUser authUser, Long buyerId) {
+    public Slice<AuctionHistoryGetAllResponse> getAllAuctionHistory(Pageable pageable, AuthUser authUser, Long buyerId) {
 
         validateUser(authUser, buyerId);
 
@@ -116,6 +117,9 @@ public class AuctionService {
         // 입찰 가격 검증
         validateBidPrice(request.getBidPrice(), foundAuction.getBidPrice());
 
+        // 잔액 검증(포인트 차감은 안됨)
+        validateBalance(foundBuyer.getId(), request.getBidPrice());
+
         // 경매 입찰
         foundAuction.update(foundBuyer, request.getBidPrice());
 
@@ -136,12 +140,6 @@ public class AuctionService {
                 foundBuyer.getName(),
                 foundAuction.getBidPrice()
         );
-
-        // 잔액 검증(포인트 차감은 안됨)
-        PointWallet buyerWallet = pointWalletService.getOrCreate(foundBuyer.getId());
-        if (buyerWallet.getAvailableBalance() < request.getBidPrice()) {
-            throw new CustomException(ExceptionCode.INSUFFICIENT_BALANCE);
-        }
 
         // 이벤트 퍼블리싱
         eventPublisher.publishEvent(bidInfo);
@@ -214,4 +212,12 @@ public class AuctionService {
         }
     }
 
+    private void validateBalance(Long buyerId, Integer bidPrice) {
+
+        PointWallet buyerWallet = pointWalletService.getOrCreate(buyerId);
+
+        if (buyerWallet.getAvailableBalance() < bidPrice) {
+            throw new CustomException(ExceptionCode.INSUFFICIENT_BALANCE);
+        }
+    }
 }

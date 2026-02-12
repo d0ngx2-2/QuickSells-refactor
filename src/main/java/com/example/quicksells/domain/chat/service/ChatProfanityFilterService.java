@@ -1,11 +1,16 @@
 package com.example.quicksells.domain.chat.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 비속어 필터링 서비스
@@ -14,71 +19,53 @@ import java.util.regex.Pattern;
 @Service
 public class ChatProfanityFilterService {
 
-    // 비속어 목록 (HashSet으로 빠른 검색)
     private final Set<String> profanityWords;
-
-    // 정규표현식 패턴들
     private final Pattern[] profanityPatterns;
 
     public ChatProfanityFilterService() {
         this.profanityWords = new HashSet<>();
-        initializeProfanityWords();
+
+        // 파일에서 비속어 목록 로드
+        loadProfanityWordsFromFile();
+
+        // 정규표현식 패턴 컴파일
         this.profanityPatterns = compileProfanityPatterns();
     }
 
-    /**
-     * 비속어 목록 초기화
-     */
-    private void initializeProfanityWords() {
-        // 한국어 비속어 (예시, 실제로는 더 많이 추가)
-        profanityWords.add("시발");
-        profanityWords.add("씨발");
-        profanityWords.add("ㅅㅂ");
-        profanityWords.add("시팔");
-        profanityWords.add("개새");
-        profanityWords.add("개새끼");
-        profanityWords.add("새끼");
-        profanityWords.add("ㅅㄲ");
-        profanityWords.add("병신");
-        profanityWords.add("ㅂㅅ");
-        profanityWords.add("지랄");
-        profanityWords.add("ㅈㄹ");
-        profanityWords.add("닥쳐");
-        profanityWords.add("꺼져");
-        profanityWords.add("죽어");
-        profanityWords.add("좆");
-        profanityWords.add("ㅈ");
-        profanityWords.add("애미");
-        profanityWords.add("에미");
-        profanityWords.add("엄마없");
-        profanityWords.add("느금마");
-        profanityWords.add("느금");
-        profanityWords.add("갈보");
-        profanityWords.add("창녀");
+    private void loadProfanityWordsFromFile() {
+        try {
 
-        // 영어 비속어
-        profanityWords.add("fuck");
-        profanityWords.add("shit");
-        profanityWords.add("bitch");
-        profanityWords.add("damn");
-        profanityWords.add("ass");
+            // 욕설 파일 리소스
+            ClassPathResource resource = new ClassPathResource("profanity-words.txt");
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
 
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String word = line.trim();
+                    if (!word.isEmpty() && !word.startsWith("#")) {  // # 주석 처리
+                        profanityWords.add(word);
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            log.error("비속어 파일 로드 실패: {}", e.getMessage());
+        }
     }
 
     /**
-     * 비속어 정규표현식 패턴 생성
+     * 정규표현식 패턴 컴파일
      */
     private Pattern[] compileProfanityPatterns() {
-        return new Pattern[] {
-                // 자음/모음 분리 우회 방지: ㅅ ㅣ ㅂ ㅏ ㄹ → 시발
-                Pattern.compile("[ㅅ시][ㅣ이]*[ㅂ비][ㅏ아]*[ㄹ르ㄹ]*", Pattern.CASE_INSENSITIVE),
-
-                // 공백/특수문자 우회 방지: 시.발, 시 발, 시-발
-                Pattern.compile("시[\\s\\W]*발", Pattern.CASE_INSENSITIVE),
-
-                // 반복 문자 우회 방지: 시이이발
-                Pattern.compile("시+.*발+", Pattern.CASE_INSENSITIVE),
-        };
+        return profanityWords.stream()
+                .map(word -> {
+                    String regex = word.chars()
+                            .mapToObj(c -> String.valueOf((char) c) + "[\\s]*")
+                            .collect(Collectors.joining());
+                    return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+                })
+                .toArray(Pattern[]::new);
     }
 
     /**
@@ -121,26 +108,4 @@ public class ChatProfanityFilterService {
         return "*".repeat(Math.max(1, length));
     }
 
-    /**
-     * 비속어 추가 (관리자 기능)
-     */
-    public void addProfanityWord(String word) {
-        if (word != null && !word.trim().isEmpty()) {
-            profanityWords.add(word.trim());
-        }
-    }
-
-    /**
-     * 비속어 제거 (관리자 기능)
-     */
-    public void removeProfanityWord(String word) {
-        profanityWords.remove(word);
-    }
-
-    /**
-     * 현재 등록된 비속어 개수
-     */
-    public int getProfanityWordCount() {
-        return profanityWords.size();
-    }
 }

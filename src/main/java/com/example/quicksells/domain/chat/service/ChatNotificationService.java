@@ -1,6 +1,8 @@
 package com.example.quicksells.domain.chat.service;
 
-import com.example.quicksells.domain.chat.entity.ChatRoom;
+import com.example.quicksells.common.enums.ExceptionCode;
+import com.example.quicksells.common.exception.CustomException;
+import com.example.quicksells.domain.chat.model.response.ChatRoomResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -72,6 +74,11 @@ public class ChatNotificationService {
      */
     public void broadcastMessage(Long chatRoomId, Object message) {
 
+        // 채팅방 ID NULL 방어 코드
+        if (chatRoomId == null) {
+            throw new CustomException(ExceptionCode.CANNOT_CHATROOM_ID_IS_NULL);
+        }
+
         String destination = "/topic/chat/room/" + chatRoomId;
         messagingTemplate.convertAndSend(destination, message);
 
@@ -80,11 +87,11 @@ public class ChatNotificationService {
     /**
      * 새 채팅방 생성 알림 전송
      */
-    public void sendNewChatRoomNotification(Long otherUserId, ChatRoom chatRoom) {
+    public void sendNewChatRoomNotification(Long otherUserId, ChatRoomResponse chatRoom) {
 
         Map<String, Object> message = Map.of(
                 "type", "NEW_ROOM",
-                "chatRoomId", chatRoom.getId(),
+                "chatRoomId", chatRoom.getChatRoomId(),
                 "chatRoom", chatRoom  //  전체 정보 포함
         );
 
