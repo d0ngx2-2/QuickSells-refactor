@@ -80,9 +80,9 @@
 ## [3] 서비스 흐름
 > 사용자의 서비스 진입부터 경매 낙찰 및 거래 완료까지의 전체 프로세스입니다.
 ### 구매자 flow 차트
-![userFlow_2.png](docs/images/userFlow_2.png)
+![userFlow_1.png](docs/images/userFlow_1.png)
 ### 판매자 flow 차트
-![userFlow_3.png](docs/images/userFlow_3.png)
+![userFlow_2.png](docs/images/userFlow_2.png)
 
 ### 🔄 주요 프로세스 요약
 * **회원가입 및 인증:** 일반/소셜 로그인을 통한 서비스 진입 및 권한 관리
