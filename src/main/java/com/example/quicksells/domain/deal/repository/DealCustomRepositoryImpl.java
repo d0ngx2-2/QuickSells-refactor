@@ -27,7 +27,7 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
 
     @Override
     public Page<DealGetAllQueryResponse> findPurchaseDeals(Long buyerId, Pageable pageable) {
-        // 구매내역은 buyerId 조건만 걸면 되므로 기존대로 OK
+        // 구매내역은 buyerId 조건만 걸면 되므로 기존대로
         BooleanExpression cond =
                 deal.auction.isNotNull()
                         .and(deal.auction.buyer.isNotNull())
@@ -38,7 +38,7 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
 
     @Override
     public Page<DealGetAllQueryResponse> findSaleDeals(Long sellerId, Pageable pageable) {
-        // ✅ 여기서 절대 deal.appraise.item.seller 같은 깊은 경로 쓰지 말 것!
+        // 여기서 절대 deal.appraise.item.seller 같은 깊은 경로 쓰지 말 것!
         return fetchDealsForSale(sellerId, pageable);
     }
 
@@ -48,7 +48,7 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
     }
 
     /**
-     * ✅ 공통 fetch (조건은 외부에서 받음)
+     * 공통 fetch (조건은 외부에서 받음)
      */
     private Page<DealGetAllQueryResponse> fetchDeals(BooleanExpression condition, Pageable pageable) {
 
@@ -60,12 +60,12 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
         QItem item = new QItem("item");
         QItem auctionItem = new QItem("auctionItem");
 
-        // ✅ seller alias 2개 (충돌 방지 + 판매내역 조건도 여기 alias로 걸거임)
+        // seller alias 2개 (충돌 방지 + 판매내역 조건도 여기 alias로 걸거임)
         QUser sellerA = new QUser("sellerA");
         QUser sellerB = new QUser("sellerB");
         QUser buyer = new QUser("buyer");
 
-        // ✅ 즉시판매/경매 중 있는 값 통합
+        // 즉시판매/경매 중 있는 값 통합
         var itemIdExpr = item.id.coalesce(auctionItem.id);
         var itemNameExpr = item.name.coalesce(auctionItem.name);
         var appraiseStatusExpr = appraise.appraiseStatus.coalesce(auctionAppraise.appraiseStatus);
@@ -123,7 +123,7 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
     }
 
     /**
-     * ✅ 판매내역 전용 fetch
+     * 판매내역 전용 fetch
      * - 조건을 sellerA/sellerB alias로만 작성 (NPE 방지)
      */
     private Page<DealGetAllQueryResponse> fetchDealsForSale(Long sellerId, Pageable pageable) {
@@ -147,7 +147,7 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
         var sellerIdExpr = sellerA.id.coalesce(sellerB.id);
         var sellerNameExpr = sellerA.name.coalesce(sellerB.name);
 
-        // ✅ 판매 조건: sellerA 또는 sellerB 중 하나가 sellerId면 된다
+        // 판매 조건: sellerA 또는 sellerB 중 하나가 sellerId면 됨
         BooleanExpression saleCond =
                 sellerA.id.eq(sellerId).or(sellerB.id.eq(sellerId));
 
@@ -183,7 +183,7 @@ public class DealCustomRepositoryImpl implements DealCustomRepository {
                 .leftJoin(auctionAppraise.item, auctionItem)
                 .leftJoin(auctionItem.seller, sellerB)
 
-                // ✅ where는 alias로만!
+                // where는 alias로만!
                 .where(saleCond)
                 .orderBy(deal.createdAt.desc())
                 .offset(pageable.getOffset())
