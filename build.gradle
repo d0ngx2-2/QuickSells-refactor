@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.9'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.example'
@@ -14,6 +15,10 @@ java {
     }
 }
 
+jacoco {
+    toolVersion = "0.8.11"
+}
+
 repositories {
     mavenCentral()
 }
@@ -21,7 +26,10 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
     // devtool 추가
     implementation 'org.springframework.boot:spring-boot-devtools'
     compileOnly 'org.projectlombok:lombok'
@@ -35,9 +43,9 @@ dependencies {
     implementation 'at.favre.lib:bcrypt:0.10.2'
 
     // jwt
-    compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+    implementation "io.jsonwebtoken:jjwt-api:0.12.5"
+    runtimeOnly  "io.jsonwebtoken:jjwt-jackson:0.12.5"
+    runtimeOnly  "io.jsonwebtoken:jjwt-impl:0.12.5"
 
     // querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
@@ -56,8 +64,94 @@ dependencies {
 
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // swagger api
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
+
+    // redisson
+    implementation 'org.redisson:redisson:4.1.0'
+
+    // WebSocket & STOMP
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // JSON 처리
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    //actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    //prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy 'jacocoTestReport', 'jacocoTestCoverageVerification'
 }
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        html.required = true
+        xml.required = true
+    }
+
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: [
+
+                        '**/*Application*',
+
+                        '**/controller/**',
+
+                        '**/dto/**',
+                        '**/model/**',
+                        '**/entity/**',
+
+                        '**/config/**',
+                        '**/filter/**',
+                        '**/interceptor/**',
+                        '**/aop/**',
+                        '**/scheduler/**',
+                        '**/security/**',
+                        '**/enums/**',
+                        '**/exception/**',
+                        '**/util/**',
+                        '**/redis/**',
+                        '**/aws/**',
+
+                        '**/*RepositoryImpl*',
+                        '**/Q*',
+                        '**/burkdata/**',
+                        '**/toss/**'
+                ])
+            })
+    )
+}
+
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            includes = ['**/service/**']
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.70
+            }
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.70
+            }
+        }
+    }
+
+    classDirectories.setFrom(jacocoTestReport.classDirectories)
+}
+
+

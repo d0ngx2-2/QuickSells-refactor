@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
+
 @Entity
 @Table(name = "items")
 @Getter
@@ -17,38 +18,44 @@ public class Item extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-    @Column (name = "id", nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "seller_id")
-    private User user;
+    @JoinColumn(name = "seller_id", nullable = false)
+    private User seller;
 
-    @Column (name = "name", nullable = false, length = 255)
+    @Column(nullable = false)
     private String name;
 
-    @Column (name = "hope_price", nullable = false)
-    private String hopePrice;
+    @Column(name = "hope_price", nullable = false)
+    private Long hopePrice;
 
-    @Column (name = "description", nullable = false)
+    @Column(length = 500, nullable = false)
     private String description;
 
-    @Column (name = "image", nullable = false, length = 255)
+    @Column(nullable = false)
     private String image;
 
-    @Column (name = "status", nullable = false, length = 10)
-    private String status;
-
-    @Column (name = "is_deleted", nullable = false, length = 10)
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    public Item(User user, String name, String hopePrice, String description, String image, String status){
-        this.user = user;
+    public Item(User seller, String name, Long hopePrice, String description, String image) {
+        this.seller = seller;
         this.name = name;
         this.hopePrice = hopePrice;
         this.description = description;
         this.image = image;
-        this.status = status;
+    }
+
+    public void update(String name, Long hopePrice, String description, String imageUrl) {
+        this.name = name;
+        this.hopePrice = hopePrice;
+        this.description = description;
+        this.image = imageUrl;
+
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
     }
 }
