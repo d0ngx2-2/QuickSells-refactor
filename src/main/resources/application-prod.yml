@@ -46,6 +46,7 @@ spring:
 frontend:
   redirect-url: ${FRONTEND_REDIRECT_URL}
 
+
 backend:
   server-name: ${BACKEND_SERVER_NAME}
 
