@@ -8,6 +8,7 @@ spring:
   config:
     import: optional:file:.env[.env]
 
+
 management:
   endpoints:
     web:
