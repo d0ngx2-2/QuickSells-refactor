@@ -1,75 +1,127 @@
-deploy:
-  name: Deploy to Single EC2
-  runs-on: ubuntu-latest
-  needs: build-and-push
+name: CI/CD Pipeline - Single EC2 Deploy
 
-  steps:
-    - name: Deploy via SSH
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          set -e
+on:
+  push:
+    branches:
+      - main
 
-          echo "ECR 로그인"
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  IMAGE_TAG: ${{ github.sha }}
 
-          echo "최신 이미지 pull"
-          docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
 
-          echo "기존 컨테이너 삭제"
-          docker rm -f quicksells 2>/dev/null || true
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-          echo "Redis 실행"
-          docker rm -f quicksells-redis 2>/dev/null || true
-          docker run -d --name quicksells-redis --restart always -p 6379:6379 redis:7
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
 
-          echo "로그 디렉토리 생성"
-          sudo mkdir -p /home/ubuntu/logs
-          sudo chown -R ubuntu:ubuntu /home/ubuntu/logs
+      - name: Grant execute permission
+        run: chmod +x gradlew
 
-          echo "신규 컨테이너 실행"
-          docker run -d \
-            --name quicksells \
-            --add-host=host.docker.internal:host-gateway \
-            -p 8080:8080 \
-            --restart always \
-            -v /home/ubuntu/logs:/home/ubuntu/logs \
-            -e SPRING_PROFILES_ACTIVE=prod \
-            -e SPRING_DATA_REDIS_HOST=host.docker.internal \
-            -e SPRING_DATA_REDIS_PORT="${{ secrets.SPRING_DATA_REDIS_PORT }}" \
-            -e DB_URL="${{ secrets.DB_URL }}" \
-            -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
-            -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-            -e GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
-            -e GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
-            -e GOOGLE_REDIRECT_URI="${{ secrets.GOOGLE_REDIRECT_URI }}" \
-            -e FRONTEND_REDIRECT_URL="${{ secrets.FRONTEND_REDIRECT_URL }}" \
-            -e BACKEND_SERVER_NAME="${{ secrets.BACKEND_SERVER_NAME }}" \
-            -e GOOGLE_EMAIL="${{ secrets.GOOGLE_EMAIL }}" \
-            -e GOOGLE_APP_PASSWORD="${{ secrets.GOOGLE_APP_PASSWORD }}" \
-            -e JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" \
-            -e AWS_REGION="${{ secrets.AWS_REGION }}" \
-            -e AWS_ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY }}" \
-            -e AWS_SECRET_KEY="${{ secrets.AWS_SECRET_KEY }}" \
-            -e AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" \
-            -e TOSS_CLIENT_KEY="${{ secrets.TOSS_CLIENT_KEY }}" \
-            -e TOSS_SECRET_KEY="${{ secrets.TOSS_SECRET_KEY }}" \
-            -e LOGGING_FILE_PATH="/home/ubuntu/logs/quicksells.log" \
-            -e PROMETHEUS_PATH="/actuator/prometheus" \
-            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
 
-          echo "헬스 체크"
-          for i in {1..20}; do
-            sleep 5
-            if curl -s http://localhost:8080/actuator/health | grep "UP"; then
-              echo "헬스 체크 성공"
-              exit 0
-            fi
-          done
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-          echo "헬스 체크 실패"
-          docker logs quicksells --tail 200
-          exit 1
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push Docker Image
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+  deploy:
+    name: Deploy to Single EC2
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+
+            echo "ECR 로그인"
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+
+            echo "최신 이미지 pull"
+            docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+            echo "기존 컨테이너 삭제"
+            docker rm -f quicksells 2>/dev/null || true
+
+            echo "Redis 컨테이너 실행"
+            docker rm -f quicksells-redis 2>/dev/null || true
+            docker run -d --name quicksells-redis --restart always -p 6379:6379 redis:7
+
+            echo "로그 디렉토리 생성"
+            sudo mkdir -p /home/ubuntu/logs
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/logs
+
+            echo "신규 컨테이너 실행"
+            docker run -d \
+              --name quicksells \
+              --add-host=host.docker.internal:host-gateway \
+              -p 8080:8080 \
+              --restart always \
+              -v /home/ubuntu/logs:/home/ubuntu/logs \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e SPRING_DATA_REDIS_HOST=host.docker.internal \
+              -e SPRING_DATA_REDIS_PORT="${{ secrets.SPRING_DATA_REDIS_PORT }}" \
+              -e DB_URL="${{ secrets.DB_URL }}" \
+              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -e GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
+              -e GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+              -e GOOGLE_REDIRECT_URI="${{ secrets.GOOGLE_REDIRECT_URI }}" \
+              -e FRONTEND_REDIRECT_URL="${{ secrets.FRONTEND_REDIRECT_URL }}" \
+              -e BACKEND_SERVER_NAME="${{ secrets.BACKEND_SERVER_NAME }}" \
+              -e GOOGLE_EMAIL="${{ secrets.GOOGLE_EMAIL }}" \
+              -e GOOGLE_APP_PASSWORD="${{ secrets.GOOGLE_APP_PASSWORD }}" \
+              -e JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" \
+              -e AWS_REGION="${{ secrets.AWS_REGION }}" \
+              -e AWS_ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY }}" \
+              -e AWS_SECRET_KEY="${{ secrets.AWS_SECRET_KEY }}" \
+              -e AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" \
+              -e TOSS_CLIENT_KEY="${{ secrets.TOSS_CLIENT_KEY }}" \
+              -e TOSS_SECRET_KEY="${{ secrets.TOSS_SECRET_KEY }}" \
+              -e LOGGING_FILE_PATH="/home/ubuntu/logs/quicksells.log" \
+              -e PROMETHEUS_PATH="/actuator/prometheus" \
+              ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+            echo "헬스 체크"
+            for i in {1..20}; do
+              sleep 5
+              if curl -s http://localhost:8080/actuator/health | grep "UP"; then
+                echo "헬스 체크 성공"
+                exit 0
+              fi
+            done
+
+            echo "헬스 체크 실패"
+            docker logs quicksells --tail 200
+            exit 1
