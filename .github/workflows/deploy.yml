@@ -71,12 +71,29 @@ jobs:
             echo "최신 이미지 pull"
             docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
-            echo "기존 컨테이너 삭제"
+            echo "기존 앱 컨테이너 삭제"
             docker rm -f quicksells 2>/dev/null || true
 
             echo "Redis 컨테이너 실행"
             docker rm -f quicksells-redis 2>/dev/null || true
-            docker run -d --name quicksells-redis --restart always -p 6379:6379 redis:7
+            docker run -d \
+              --name quicksells-redis \
+              --restart always \
+              -p 6379:6379 \
+              redis:7
+
+            echo "MySQL 컨테이너 실행"
+            docker rm -f quicksells-mysql 2>/dev/null || true
+            docker run -d \
+              --name quicksells-mysql \
+              --restart always \
+              -e MYSQL_ROOT_PASSWORD=1234 \
+              -e MYSQL_DATABASE=quicksells \
+              -p 3306:3306 \
+              mysql:8.0
+
+            echo "MySQL 기동 대기"
+            sleep 20
 
             echo "로그 디렉토리 생성"
             sudo mkdir -p /home/ubuntu/logs
@@ -91,22 +108,22 @@ jobs:
               -v /home/ubuntu/logs:/home/ubuntu/logs \
               -e SPRING_PROFILES_ACTIVE=prod \
               -e SPRING_DATA_REDIS_HOST=host.docker.internal \
-              -e SPRING_DATA_REDIS_PORT="${{ secrets.SPRING_DATA_REDIS_PORT }}" \
-              -e DB_URL="${{ secrets.DB_URL }}" \
-              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
-              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-              -e GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
-              -e GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
-              -e GOOGLE_REDIRECT_URI="${{ secrets.GOOGLE_REDIRECT_URI }}" \
-              -e FRONTEND_REDIRECT_URL="${{ secrets.FRONTEND_REDIRECT_URL }}" \
-              -e BACKEND_SERVER_NAME="${{ secrets.BACKEND_SERVER_NAME }}" \
-              -e GOOGLE_EMAIL="${{ secrets.GOOGLE_EMAIL }}" \
-              -e GOOGLE_APP_PASSWORD="${{ secrets.GOOGLE_APP_PASSWORD }}" \
+              -e SPRING_DATA_REDIS_PORT=6379 \
+              -e DB_URL="jdbc:mysql://host.docker.internal:3306/quicksells?serverTimezone=Asia/Seoul&characterEncoding=UTF-8" \
+              -e DB_USERNAME="root" \
+              -e DB_PASSWORD="1234" \
+              -e GOOGLE_CLIENT_ID="dummy-google-client-id" \
+              -e GOOGLE_CLIENT_SECRET="dummy-google-client-secret" \
+              -e GOOGLE_REDIRECT_URI="http://${{ secrets.EC2_HOST }}:8080/login/oauth2/code/google" \
+              -e FRONTEND_REDIRECT_URL="http://${{ secrets.EC2_HOST }}:8080" \
+              -e BACKEND_SERVER_NAME="${{ secrets.EC2_HOST }}" \
+              -e GOOGLE_EMAIL="dummy@gmail.com" \
+              -e GOOGLE_APP_PASSWORD="dummy-app-password" \
               -e JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" \
               -e AWS_REGION="${{ secrets.AWS_REGION }}" \
               -e AWS_ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY }}" \
               -e AWS_SECRET_KEY="${{ secrets.AWS_SECRET_KEY }}" \
-              -e AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" \
+              -e AWS_S3_BUCKET="dummy-bucket" \
               -e TOSS_CLIENT_KEY="${{ secrets.TOSS_CLIENT_KEY }}" \
               -e TOSS_SECRET_KEY="${{ secrets.TOSS_SECRET_KEY }}" \
               -e LOGGING_FILE_PATH="/home/ubuntu/logs/quicksells.log" \
@@ -114,7 +131,7 @@ jobs:
               ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
             echo "헬스 체크"
-            for i in {1..20}; do
+            for i in {1..30}; do
               sleep 5
               if curl -s http://localhost:8080/actuator/health | grep "UP"; then
                 echo "헬스 체크 성공"
