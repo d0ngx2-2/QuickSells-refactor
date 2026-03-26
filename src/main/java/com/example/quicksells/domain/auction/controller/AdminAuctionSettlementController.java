@@ -2,7 +2,7 @@ package com.example.quicksells.domain.auction.controller;
 
 import com.example.quicksells.common.model.CommonResponse;
 import com.example.quicksells.domain.auction.model.response.AdminAuctionSettlementRetryResponse;
-import com.example.quicksells.domain.auction.service.AdminAuctionSettlementService;
+import com.example.quicksells.domain.payment.service.AdminAuctionSettlementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

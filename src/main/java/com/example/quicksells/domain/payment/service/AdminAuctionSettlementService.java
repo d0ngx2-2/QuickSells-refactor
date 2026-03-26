@@ -1,4 +1,4 @@
-package com.example.quicksells.domain.auction.service;
+package com.example.quicksells.domain.payment.service;
 
 import com.example.quicksells.common.enums.AuctionStatusType;
 import com.example.quicksells.common.enums.ExceptionCode;
@@ -9,7 +9,6 @@ import com.example.quicksells.domain.auction.model.response.AdminAuctionSettleme
 import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.deal.repository.DealRepository;
-import com.example.quicksells.domain.payment.service.AuctionSettlementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

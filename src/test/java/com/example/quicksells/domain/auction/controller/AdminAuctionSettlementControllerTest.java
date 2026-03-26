@@ -4,7 +4,7 @@ import com.example.quicksells.common.enums.AuctionStatusType;
 import com.example.quicksells.domain.appraise.entity.Appraise;
 import com.example.quicksells.domain.auction.entity.Auction;
 import com.example.quicksells.domain.auction.model.response.AdminAuctionSettlementRetryResponse;
-import com.example.quicksells.domain.auction.service.AdminAuctionSettlementService;
+import com.example.quicksells.domain.payment.service.AdminAuctionSettlementService;
 import com.example.quicksells.domain.auth.model.dto.AuthUser;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.item.entity.Item;

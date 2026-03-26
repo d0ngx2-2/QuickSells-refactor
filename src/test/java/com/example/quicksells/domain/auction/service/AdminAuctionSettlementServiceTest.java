@@ -8,6 +8,7 @@ import com.example.quicksells.domain.auction.repository.AuctionRepository;
 import com.example.quicksells.domain.deal.entity.Deal;
 import com.example.quicksells.domain.deal.repository.DealRepository;
 import com.example.quicksells.domain.item.entity.Item;
+import com.example.quicksells.domain.payment.service.AdminAuctionSettlementService;
 import com.example.quicksells.domain.payment.service.AuctionSettlementService;
 import com.example.quicksells.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
