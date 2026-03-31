@@ -26,37 +26,28 @@ public class AdminWalletController {
 
     @Operation(summary = "관리자 : 포인트 지급")
     @PostMapping("/{userId}/grant")
-    public ResponseEntity<?> grantPoint(
-            @PathVariable Long userId,
-            @Valid @RequestBody AdminPointGrantRequest request
-    ) {
-        AdminPointGrantResponse response =
-                pointWalletService.grantPointResponse(userId, request.getAmount());
+    public ResponseEntity<CommonResponse> grantPoint(@PathVariable Long userId, @Valid @RequestBody AdminPointGrantRequest request) {
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success("관리자 포인트 지급에 성공하였습니다.", response));
+        AdminPointGrantResponse response = pointWalletService.grantPointResponse(userId, request.getAmount());
+
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("관리자 포인트 지급에 성공하였습니다.", response));
     }
 
     @Operation(summary = "관리자 : 특정 유저 지갑 조회")
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserWallet(@PathVariable Long userId) {
+    public ResponseEntity<CommonResponse> getUserWallet(@PathVariable Long userId) {
+
         WalletGetResponse response = pointWalletService.getUserWalletResponse(userId);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success("유저 지갑 조회를 성공하였습니다.", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("유저 지갑 조회를 성공하였습니다.", response));
     }
 
     @Operation(summary = "관리자 : 특정 유저 거래내역 조회")
     @GetMapping("/{userId}/transactions")
-    public ResponseEntity<?> getUserTransactions(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
-    ) {
-        Page<PointTransactionGetResponse> result =
-                pointWalletService.getUserTransactionsResponse(userId, page, size);
+    public ResponseEntity<PageResponse> getUserTransactions(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(PageResponse.success("유저 거래내역 조회를 성공하였습니다.", result));
+        Page<PointTransactionGetResponse> result = pointWalletService.getUserTransactionsResponse(userId, page, size);
+
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("유저 거래내역 조회를 성공하였습니다.", result));
     }
 }

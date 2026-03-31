@@ -28,38 +28,30 @@ public class WalletController {
     private final WithdrawalService withdrawalService;
     private final PointWalletService pointWalletService;
 
-    @Operation(summary = "포인트 출금 : 내부 포인트 차감 + 거래내역(PointTransaction) 기록")
+    @Operation(summary = "포인트 출금")
     @PostMapping("/withdrawals")
-    public ResponseEntity<?> withdraw(
-            @Valid @RequestBody WithdrawRequest request,
-            @AuthenticationPrincipal AuthUser authUser
-    ) {
+    public ResponseEntity<CommonResponse> withdraw(@Valid @RequestBody WithdrawRequest request, @AuthenticationPrincipal AuthUser authUser) {
+
         WithdrawResponse response = withdrawalService.withdraw(authUser, request.getAmount());
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success("출금이 완료되었습니다.", response));
+        return ResponseEntity.status(HttpStatus.OK).body(CommonResponse.success("출금이 완료되었습니다.", response));
     }
 
     @Operation(summary = "내 지갑 조회")
     @GetMapping("/me")
-    public ResponseEntity<?> getMyWallet(@AuthenticationPrincipal AuthUser authUser) {
+    public ResponseEntity<CommonResponse> getMyWallet(@AuthenticationPrincipal AuthUser authUser) {
+
         WalletGetResponse response = pointWalletService.getMyWalletResponse(authUser.getId());
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(CommonResponse.success("내 지갑 조회를 성공하였습니다.", response));
+        return ResponseEntity.status(HttpStatus.OK).body((CommonResponse.success("내 지갑 조회를 성공하였습니다.", response)));
     }
 
     @Operation(summary = "내 포인트 거래내역 조회")
     @GetMapping("/transactions")
-    public ResponseEntity<?> getMyTransactions(
-            @AuthenticationPrincipal AuthUser authUser,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
-    ) {
-        Page<PointTransactionGetResponse> result =
-                pointWalletService.getMyTransactionsResponse(authUser.getId(), page, size);
+    public ResponseEntity<PageResponse> getMyTransactions(@AuthenticationPrincipal AuthUser authUser, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(PageResponse.success("내 포인트 거래내역 조회를 성공하였습니다.", result));
+        Page<PointTransactionGetResponse> result = pointWalletService.getMyTransactionsResponse(authUser.getId(), page, size);
+
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.success("내 포인트 거래내역 조회를 성공하였습니다.", result));
     }
 }
