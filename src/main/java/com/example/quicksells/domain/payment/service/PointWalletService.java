@@ -17,13 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * 지갑 조회/생성 공통 서비스
- *
- * 정책
- * - 지갑이 없으면 예외로 끊지 않고 생성한다.
- * - 생성 사실은 로그로 남겨 운영/추적 가능하게.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,64 +26,43 @@ public class PointWalletService {
     private final PointLedgerService pointLedgerService;
     private final PointTransactionRepository pointTransactionRepository;
 
-    /**
-     * 지갑이 없으면 생성한다.
-     */
     @Transactional
     public PointWallet getOrCreate(Long userId) {
+
         return pointWalletRepository.findById(userId)
-                .orElseGet(() -> {
-                    log.info("[Wallet] 포인트 지갑이 없어 생성하겠습니다. userId={}", userId);
+                .orElseGet(() -> {log.info("[Wallet] 포인트 지갑이 없어 생성합니다. userId={}", userId);
                     return pointWalletRepository.save(new PointWallet(userId));
                 });
     }
 
-    /**
-     * 내 지갑 조회 응답용
-     */
-    @Transactional
+    @Transactional(readOnly = true)
     public WalletGetResponse getMyWalletResponse(Long userId) {
 
         PointWallet wallet = getOrCreate(userId);
-
         return WalletGetResponse.from(wallet);
     }
 
-    /**
-     * 내 거래내역 조회 응답용
-     */
     @Transactional(readOnly = true)
     public Page<PointTransactionGetResponse> getMyTransactionsResponse(Long userId, int page, int size) {
 
-        return pointTransactionRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page, size))
-                .map(PointTransactionGetResponse::from);
+        return pointTransactionRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page, size)).
+                map(PointTransactionGetResponse::from);
     }
 
-    /**
-     * 관리자 포인트 지급 응답용
-     */
     @Transactional
     public AdminPointGrantResponse grantPointResponse(Long targetUserId, Long amount) {
 
         PointWallet wallet = grantPoint(targetUserId, amount);
-
         return AdminPointGrantResponse.from(targetUserId, amount, wallet);
     }
 
-    /**
-     * 관리자: 특정 유저 지갑 조회 응답용
-     */
-    @Transactional
+    @Transactional(readOnly = true)
     public WalletGetResponse getUserWalletResponse(Long userId) {
 
         PointWallet wallet = getOrCreate(userId);
-
         return WalletGetResponse.from(wallet);
     }
 
-    /**
-     * 관리자: 특정 유저 거래내역 조회 응답용
-     */
     @Transactional(readOnly = true)
     public Page<PointTransactionGetResponse> getUserTransactionsResponse(Long userId, int page, int size) {
 
@@ -98,10 +70,6 @@ public class PointWalletService {
                 .map(PointTransactionGetResponse::from);
     }
 
-
-    /**
-     * 관리자 포인트 지급(내부 로직)
-     */
     @Transactional
     public PointWallet grantPoint(Long targetUserId, Long amount) {
 
@@ -109,11 +77,6 @@ public class PointWalletService {
             throw new CustomException(ExceptionCode.INVALID_CHARGE_AMOUNT);
         }
 
-        return pointLedgerService.credit(
-                targetUserId,
-                amount,
-                PointTransactionType.ADMIN_GRANT,
-                TransactionReference.none()
-        );
+        return pointLedgerService.credit(targetUserId, amount, PointTransactionType.ADMIN_GRANT, TransactionReference.none());
     }
 }

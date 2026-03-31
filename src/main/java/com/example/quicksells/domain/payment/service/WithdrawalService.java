@@ -11,10 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * 출금 서비스
- * - 내부 포인트 차감 + 거래내역 기록만 수행
- */
 @Service
 @RequiredArgsConstructor
 public class WithdrawalService {
@@ -28,12 +24,7 @@ public class WithdrawalService {
             throw new CustomException(ExceptionCode.INVALID_CHARGE_AMOUNT);
         }
 
-        PointWallet wallet = pointLedgerService.debit(
-                authUser.getId(),
-                amount,
-                PointTransactionType.WITHDRAW,
-                TransactionReference.none()
-        );
+        PointWallet wallet = pointLedgerService.debit(authUser.getId(), amount, PointTransactionType.WITHDRAW, TransactionReference.none());
 
         return WithdrawResponse.from(amount, wallet);
     }
