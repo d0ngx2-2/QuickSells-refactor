@@ -3,18 +3,9 @@ package com.example.quicksells.domain.payment.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * PointTransaction이 어떤 이벤트에 의해 발생했는지 추적하는 참조 값.
- *
- * 정책:
- * - 충전: paymentId 사용
- * - 경매 정산: auctionId 사용
- * - 즉시판매: dealId 사용
- * - 출금: 참조 없음
- */
 @Getter
 @RequiredArgsConstructor
-public class TransactionReference {
+public class    TransactionReference {
 
     private final Long paymentId;
     private final Long auctionId;
