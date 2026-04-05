@@ -27,4 +27,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
      * confirm 단계에서 orderId로 READY 결제건을 가져오기 위한 조회
      */
     Optional<Payment> findByOrderId(String orderId);
+
+    Optional<Payment> findByOrderIdAndUserId(String orderId, Long userId);
 }
